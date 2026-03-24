@@ -11,7 +11,7 @@ baseurl: ""
 author:
   name: "Howard Van Der Wal"
   avatar: "/assets/images/metalinux-1.png"
-  bio: "Sr. Customer Support Engineer @ CIQ | Rocky Linux Docs Contributor | CKA-certified | <3 Linux, Open Source & AI"
+  bio: "Sr. Customer Support Engineer @ CIQ. Rocky Linux Docs Contributor. CKA-certified."
   location: "Japan"
   links:
     - label: "GitHub"
