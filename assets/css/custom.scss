@@ -1,0 +1,79 @@
+---
+---
+
+@import "minimal-mistakes/skins/dark";
+@import "minimal-mistakes";
+
+/* Banner/header image improvements */
+.page__hero--overlay {
+  padding: 6em 0;
+  background-size: cover;
+  background-position: center;
+}
+
+.page__hero--overlay .page__title {
+  font-size: 2.5em;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+}
+
+/* Author profile sidebar - cleaner layout */
+.author__avatar img {
+  border-radius: 50%;
+  border: 3px solid #52adc8;
+}
+
+.author__bio {
+  font-size: 0.8em;
+  line-height: 1.4;
+  margin-top: 0.5em;
+}
+
+.author__name {
+  font-size: 1.1em;
+}
+
+/* Better content spacing */
+.page__content {
+  font-size: 1em;
+  line-height: 1.7;
+}
+
+.page__content h2 {
+  margin-top: 2em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid #393e46;
+}
+
+.page__content h3 {
+  margin-top: 1.5em;
+}
+
+/* Table improvements */
+.page__content table {
+  font-size: 0.85em;
+}
+
+/* Navigation bar improvements for many items */
+.greedy-nav .visible-links a {
+  font-size: 0.85em;
+  padding: 0 0.6em;
+}
+
+/* Splash page hero buttons */
+.page__hero--overlay .btn {
+  font-size: 1em;
+  padding: 0.6em 1.2em;
+  margin: 0.3em;
+}
+
+/* Code blocks */
+.page__content pre {
+  font-size: 0.8em;
+  line-height: 1.5;
+  padding: 1em;
+}
+
+/* Footer link spacing */
+.page__footer-follow li {
+  margin-right: 0.5em;
+}
