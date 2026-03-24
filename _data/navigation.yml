@@ -7,6 +7,12 @@ main:
     url: /ai-journey/
   - title: "Contributions"
     url: /contributions/
+  - title: "Skateboarding"
+    url: /skateboarding/
+  - title: "Video Games"
+    url: /video-games/
+  - title: "Woodwork"
+    url: /woodwork/
   - title: "GitHub"
     url: https://github.com/metalllinux
 
