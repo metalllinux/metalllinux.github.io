@@ -1,5 +1,5 @@
 ---
-title: "rsync documents from dethklok to mustakrakish"
+title: "rsync documents from pool-alpha to pool-bravo"
 category: "storage-and-filesystems"
 tags: ["storage-and-filesystems", "rsync", "crontab"]
 ---
@@ -7,15 +7,15 @@ tags: ["storage-and-filesystems", "rsync", "crontab"]
 crontab -e
 
 ```
-# rsync documents from dethklok to mustakrakish
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/dethklok/documents/ /mnt/mustakrakish/documents/
+# rsync documents from pool-alpha to pool-bravo
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory2/ /mnt/pool-bravo/directory2/
 
-# rsync movies from dethklok to mustakrakish
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/dethklok/movies/ /mnt/mustakrakish/movies/
+# rsync movies from pool-alpha to pool-bravo
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory3/ /mnt/pool-bravo/directory3/
 
-# rsync pictures from dethklok to mustakrakish
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/dethklok/pictures/ /mnt/mustakrakish/pictures/
+# rsync pictures from pool-alpha to pool-bravo
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory1/ /mnt/pool-bravo/directory1/
 ```
 crontab -l
 
-rsync --ignore-existing -azvr --progress /mnt/dethklok/pictures/* /mnt/sonic/photos/; rsync --ignore-existing -azvr --progress /mnt/dethklok/anime/* /mnt/sonic/anime/; rsync --ignore-existing -azvr --progress /mnt/dethklok/cartoons/* /mnt/sonic/cartoons/; rsync --ignore-existing -azvr --progress /mnt/dethklok/ebooks/* /mnt/sonic/ebooks/; rsync --ignore-existing -azvr --progress /mnt/dethklok/games/* /mnt/sonic/games/; rsync --ignore-existing -azvr --progress /mnt/dethklok/live_shows/* /mnt/sonic/live_shows/; rsync --ignore-existing -azvr --progress /mnt/dethklok/movies/* /mnt/sonic/movies/; rsync --ignore-existing -azvr --progress /mnt/dethklok/music/* /mnt/sonic/music/; rsync --ignore-existing -azvr --progress /mnt/dethklok/tv_shows/* /mnt/sonic/shows/
+rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory1/* /mnt/pool-echo/directory1/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory6/* /mnt/pool-echo/directory6/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory7/* /mnt/pool-echo/directory7/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory8/* /mnt/pool-echo/directory8/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory9/* /mnt/pool-echo/directory9/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory10/* /mnt/pool-echo/directory10/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory3/* /mnt/pool-echo/directory3/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory4/* /mnt/pool-echo/directory4/; rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory5/* /mnt/pool-echo/directory5/

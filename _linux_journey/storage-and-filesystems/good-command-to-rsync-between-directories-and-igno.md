@@ -4,4 +4,4 @@ category: "storage-and-filesystems"
 tags: ["storage-and-filesystems", "good", "command", "rsync", "between"]
 ---
 
-rsync --ignore-existing -azvr --progress /mnt/dethklok/pictures/ /mnt/mustakrakish/pictures/
+rsync --ignore-existing -azvr --progress /mnt/pool-alpha/directory1/ /mnt/pool-bravo/directory1/

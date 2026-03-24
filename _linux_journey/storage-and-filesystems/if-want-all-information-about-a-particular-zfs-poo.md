@@ -4,4 +4,4 @@ category: "storage-and-filesystems"
 tags: ["storage-and-filesystems", "want", "all", "information", "about"]
 ---
 
-`zfs get all dethklok`
+`zfs get all pool-alpha`

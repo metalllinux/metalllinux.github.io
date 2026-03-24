@@ -6,15 +6,15 @@ tags: ["storage-and-filesystems", "rsync", "crontab"]
 
 ```
 # rsync to tails
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/anime/ howard@192.168.1.102:/mnt/tails/anime/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/cartoons/ howard@192.168.1.102:/mnt/tails/cartoons/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/documents/ howard@192.168.1.102:/mnt/tails/documents/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/ebooks/ howard@192.168.1.102:/mnt/tails/ebooks/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/games/ howard@192.168.1.102:/mnt/tails/games/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/linux/ howard@192.168.1.102:/mnt/tails/linux/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/live_shows/ howard@192.168.1.102:/mnt/tails/live_shows/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/movies/ howard@192.168.1.102:/mnt/tails/movies/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/music/ howard@192.168.1.102:/mnt/tails/music/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/photos/ howard@192.168.1.102:/mnt/tails/photos/
-0 0 * * * rsync --ignore-existing -azvr --progress /mnt/sonic/shows/ howard@192.168.1.102:/mnt/tails/shows/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory6/ user@192.168.1.x:/mnt/pool-foxtrot/directory6/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory7/ user@192.168.1.x:/mnt/pool-foxtrot/directory7/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory2/ user@192.168.1.x:/mnt/pool-foxtrot/directory2/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory8/ user@192.168.1.x:/mnt/pool-foxtrot/directory8/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory9/ user@192.168.1.x:/mnt/pool-foxtrot/directory9/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory11/ user@192.168.1.x:/mnt/pool-foxtrot/directory11/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory10/ user@192.168.1.x:/mnt/pool-foxtrot/directory10/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory3/ user@192.168.1.x:/mnt/pool-foxtrot/directory3/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory4/ user@192.168.1.x:/mnt/pool-foxtrot/directory4/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory1/ user@192.168.1.x:/mnt/pool-foxtrot/directory1/
+0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory5/ user@192.168.1.x:/mnt/pool-foxtrot/directory5/
 ```

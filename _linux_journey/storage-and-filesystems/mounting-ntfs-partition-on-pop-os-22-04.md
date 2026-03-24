@@ -26,13 +26,13 @@ Number  Start   End     Size    Type     File system  Flags
 ``` 
 * Observe the name of the drive you are trying to mount. It should be `/dev/sd<letter>`. In the above example, we want to mount `/dev/sda1`. Since yours is a secondary hard drive, it will likely be labelled `/dev/sdb`.
 * Make a mount point with `sudo mkdir -p /mnt/<mount_name>`
-	* For example, I create a mount called `/mnt/chocolate`.
+	* For example, I create a mount called `/mnt/pool-lima`.
 ```
-sudo mkdir -p /mnt/chocolate
+sudo mkdir -p /mnt/pool-lima
 ```
 * We now mount the drive with `sudo mount -t ntfs /dev/sd<letter><number> /mnt/<mount_name>`. In my example, this would be:
 ```
-sudo mount -t ntfs /dev/sda1 /mnt/chocolate
+sudo mount -t ntfs /dev/sda1 /mnt/pool-lima
 ```
 * If you receive no errors or warning messages (just an empty output), that is good. The drive is now mounted to the mount point.
 * To make the mount permanent if you reboot or shutdown your machine, we have to edit a file. This is the `/etc/fstab` file. We edit this with a text editor.
@@ -45,7 +45,7 @@ sudo nano /etc/fstab
 ```
 * In my example, this would be:
 ```
-/dev/sda1        /mnt/chocolate       ntfs    defaults        0       0
+/dev/sda1        /mnt/pool-lima       ntfs    defaults        0       0
 ```
 * To save the changes, we press ctrl + o and then press enter.
 * To exit the editor, we press ctrl + x and then press enter.
@@ -54,7 +54,7 @@ sudo nano /etc/fstab
 * Then double click `Computer`
 * Once inside there, open the `mnt` directory:
 ![Screenshot from 2024-05-15 23-03-18.png](../_resources/Screenshot%20from%202024-05-15%2023-03-18.png)
-* You will then see your mounted drive. In my case it was `chocolate`.
+* You will then see your mounted drive. In my case it was `pool-lima`.
 ![Screenshot from 2024-05-15 23-03-57.png](../_resources/Screenshot%20from%202024-05-15%2023-03-57.png)
 * From there, you can drag the directory into the side menu for ease of access:
 ![Screenshot from 2024-05-15 23-04-54.png](../_resources/Screenshot%20from%202024-05-15%2023-04-54.png)

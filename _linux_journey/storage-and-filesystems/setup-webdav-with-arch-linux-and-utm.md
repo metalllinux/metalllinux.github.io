@@ -11,8 +11,8 @@ sudo pacman -S phodav
 sudo vim /etc/conf.d/spice-webdavd
 yay -S davfs2
 # Add the following to /etc/fstab
-http://127.0.0.1:9843 /mnt/webdav davfs rw,user,uid=howard,noauto 0 0 
-usermod -aG network howard
+http://127.0.0.1:9843 /mnt/webdav davfs rw,user,uid=user,noauto 0 0 
+usermod -aG network user
 sudo mkdir /mnt/webdav 
 # Edit ~/.davfs2/davfs2.conf
 # Add the following:

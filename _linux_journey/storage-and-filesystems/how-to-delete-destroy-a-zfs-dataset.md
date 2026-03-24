@@ -4,4 +4,4 @@ category: "storage-and-filesystems"
 tags: ["storage-and-filesystems", "delete", "destroy", "zfs", "dataset"]
 ---
 
-zfs destroy -f tails/cartoons
+zfs destroy -f pool-foxtrot/directory7
