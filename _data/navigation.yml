@@ -1,12 +1,12 @@
 main:
   - title: "About"
     url: /about/
-  - title: "Linux Journey"
-    url: /linux-journey/
   - title: "AI Journey"
     url: /ai-journey/
   - title: "Contributions"
     url: /contributions/
+  - title: "Linux Journey"
+    url: /linux-journey/
   - title: "Skateboarding"
     url: /skateboarding/
   - title: "Video Games"
