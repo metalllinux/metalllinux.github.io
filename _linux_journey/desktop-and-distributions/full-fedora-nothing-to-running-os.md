@@ -1,0 +1,11 @@
+---
+title: "Full Fedora Nothing To Running Os"
+category: "desktop-and-distributions"
+tags: ["desktop-and-distributions", "full", "fedora", "nothing", "running"]
+---
+
+```
+flatpak install -y flathub com.bitwarden.desktop; flatpak install -y flathub org.gimp.GIMP; flatpak install -y flathub org.videolan.VLC; flatpak install -y flathub com.valvesoftware.Steam; flatpak install -y flathub fr.handbrake.ghb; flatpak install -y flathub net.cozic.joplin_desktop; flatpak install -y flathub com.vivaldi.Vivaldi; flatpak install -y flathub com.transmissionbt.Transmission; flatpak install -y flathub net.ankiweb.Anki; flatpak install -y flathub org.gimp.GIMP; flatpak install -y flathub io.freetubeapp.FreeTube; flatpak install -y flathub org.nickvision.tubeconverter; flatpak install -y flathub org.gnome.Brasero; flatpak install -y flathub org.gnome.Extensions; flatpak install -y flathub com.makemkv.MakeMKV; flatpak install -y flathub io.vikunja.Vikunja; flatpak install -y flathub com.brave.Browser; sudo dnf copr enable agriffis/neovim-nightly; sudo dnf install -y neovim python3-neovim; wget https://www.rastersoft.com/descargas/devedeng/devedeng.fedora35-4.17.0-1.noarch.rpm; sudo dnf install -y devedeng.fedora35-4.17.0-1.noarch.rpm; sudo dnf install gnome-tweaks; sudo dnf group install --with-optional virtualization; sudo systemctl start libvirtd; sudo systemctl enable libvirtd; sudo dnf install gparted; sudo dnf install nmap; sudo dnf install openssl; sudo dnf install -y https://download1.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %fedora).noarch.rpm; flatpak install -y flathub im.riot.Riot; sudo dnf install vim -y; sudo dnf install -y https://download1.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %fedora).noarch.rpm; sudo dnf install HandBrake-1.6.1-6.fc40.x86_64 -y; sudo dnf install NetworkManager-tui -y; curl -fsSL https://tailscale.com/install.sh | sh; sudo tailscale up
+```
+* Gnome Shortcuts:
+[deconf_gnome_shortcuts_2024-05-19](../_resources/deconf_gnome_shortcuts_2024-05-19)

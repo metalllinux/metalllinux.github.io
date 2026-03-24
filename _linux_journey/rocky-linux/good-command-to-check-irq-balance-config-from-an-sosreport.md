@@ -1,0 +1,40 @@
+---
+title: "Good Command to Check IRQ Balance Config From an sosreport"
+category: "rocky-linux"
+tags: ["rocky-linux", "good", "command", "check", "irq"]
+---
+
+# Good Command to Check IRQ Balance Config From an sosreport
+
+sosreport-c003psrwk10705-2025-09-02-ttfiozx]$ cat etc/sysconfig/irqbalance 
+# irqbalance is a daemon process that distributes interrupts across
+# CPUS on SMP systems. The default is to rebalance once every 10
+# seconds. This is the environment file that is specified to systemd via the
+# EnvironmentFile key in the service unit file (or via whatever method the init
+# system you're using has.
+#
+# ONESHOT=yes
+# after starting, wait for a minute, then look at the interrupt
+# load and balance it once; after balancing exit and do not change
+# it again.
+#IRQBALANCE_ONESHOT=
+
+#
+# IRQBALANCE_BANNED_CPUS
+# 64 bit bitmask which allows you to indicate which cpu's should
+# be skipped when reblancing irqs. Cpu numbers which have their
+# corresponding bits set to one in this mask will not have any
+# irq's assigned to them on rebalance
+#
+#IRQBALANCE_BANNED_CPUS=
+
+#
+# IRQBALANCE_ARGS
+# append any args here to the irqbalance daemon as documented in the man page
+#
+#IRQBALANCE_ARGS=
+
+
+IRQBALANCE_BANNED_CPUS=ffffffff,ffffff00,ffffffff,ffffff00
+See IRQBALANCE_BANNED_CPUS=ffffffff,ffffff00,ffffffff,ffffff00 ... this restricts irqbalance to putting IRQs onto only CPUs 0-7 and 64-71
+

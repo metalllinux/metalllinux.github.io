@@ -1,0 +1,1851 @@
+---
+title: "Rhcsa Ex200 Cert Prep 1 Deploy, Configure And Man"
+category: "rhcsa-cert-prep-1"
+tags: ["rhcsa-cert-prep-1", "rhcsa", "ex200", "cert", "prep"]
+---
+
+- RHCSA is useful for someone with 1 year + of Linux 
+- Uses Enterprise Linux Version 8.
+	- Can use CentOs Enterprise Linux 8.
+	- Rock Linux
+	- AlmaLinux OS
+- Course uses VMs.
+	- Guest Vms on top of Hypervisor and then Linux Host
+- RHCSA Objectives
+	- Deploying systems
+		- Configure networking
+		- Schedule recurring tasks
+		- Install Linux as virtual guest 
+		- Configure system time services
+		- Install and update software.
+		- Update kernel packages
+		- Modify system bootloader.
+	- Miscellaneous
+		- How use redirection.
+		- Use grep and regular erxpressions to analyse text.
+		- Archive and compress files.
+		- Create and edit etxt.
+		- File Management.
+	- Operate running systems
+		- Interrupt boot process to gain access.
+		- Manage processes
+		- Read log files and journals
+		- Access a virtual machine's console.
+		- Start and stop virtual machines.
+	- Red Hat Split its services into
+		- Red Hat Advanced Server
+		- Fedora
+	- Fedora Linux
+		- Managed by Fedora project.
+		- Independent community-governed projec .
+		- Sponsored by Red Hat.
+		- 35 percent all contributions are from Red Hat employees.
+		- Red Hat has legal liability.
+		- Not identical structure to Enterprise Linux
+	- Fedora is upstream and all bug fixes are placed into Red Hat Enterprise Linux 8.
+		- Cent Os is a clone, founded in 2004.
+			- Nearly identical to RHEL.
+			- Not supported by Red Hat.
+				- CentOs fixes are also backported to RHEL.
+	- Nowadays, CentOs Stream is upstream of RHEL and receives fixes from Fedora.
+		- December 8th 2020, CentOS support terminated, then became upstream of RHEL (called CentOS Stream).
+			- CentOS Stream has similar software packages.
+			- Similar to Enterprise Linux.
+- Red Hat Developer Subscription for individual is available.
+	- Rocky Linux
+		- Created by one of the original founderse of CentOS.
+	- AlmaLinux
+		- Created by Cloud Linux Team.
+- Enterprise Linux Virtualisation
+	- Kernel-based Virtual Machine (KVM)
+		- Overallocation of physical resouces.
+			- Can provide more resources to VMs, than exist on the physical machine.
+			- Non-overcommitting virtual storage.
+				- For example, 100GB Physical Disk with 10, 10GB VMs.
+			- Usually computers do not use all of their disk space:
+			- Overcommitting virtual storage.
+				- For example, 100GB Physical Disk, with 2 out of the 10 VMs using 10GB and the rest using only 2GB.
+				- Supports up to 240 virtual cpus
+				- Passes CPU instructions to host CPU.
+				- CPU instructions run full speed in guest VM.
+			- A total of 36GB of Disk Space Required.
+						- We would allocate 50GB of Disk Space.
+					- If run out of room, we can always add more space.
+				- More efficient when overcommitting.
+					- Can overcommit with CPUs, RAM and Disk Space
+			- Agent on guest to communicate with hypervisor
+			- Disk I/O throttling.
+			- Storage is comprised of Resource Pools.
+				- Pools comprised of local and non-shared and remote shared disks.
+					- Network-shared drives are required, if want to migrate VMs from one host to another quickly.
+			- CentOS has Management Tools
+				- Virtual Machine Manager - GUI
+				- virsh - CLI
+					- Manages and monitors KVM and Guest VMs
+			- Virtual CPU hot add
+				- Add virtual CPUs while the KVM is running.
+			- Nested Virtualisation.
+				- Run a hypervisor inside of a guest VM, to run more VMs on it.
+			- Virtualisation Management Stack
+				- The level stack is shown below:
+				- Virt-Manager + virsh
+				- libvirt API
+				- KVM Hypervisor
+				- Linux Host OS
+			- Virt-Manager is a GUI Tool
+			- virsh - CLI Tool
+			- libvirt API Manages
+				- Virtual CPUs.
+				- VM memory.
+				- Virtual storage.
+				- Virtual networking
+				- Management Tools do not need to be on the same physical host that the VMs are running on.
+					- Virtualised
+					- Para-virtualisaed
+						- Paravirtualised Device
+							- Talk directly to the hypervisor.
+							- No translation required.
+							- Paralised device drivers need to be installed in the guest OS.
+							- Paravirtualised network device - virtio-net
+							- Paravirtualised block device - virtio-blk
+							- Paravirtualised controller device - virtio-scsi (hard disk controllers)
+							- Paravirtualised serial device - virtio-serial
+							- Paravirtualised graphics card - QXL
+					- Emulated
+						- Devices present themselves as real devices.
+							- Makes the guest believe it is actually a real piece of hardware.
+								- Loads the driver appropriately.
+								- Emulation layer translates instructions to the real physical device (in this case, an emulated network device to a physical device).
+								- Emulated are slower than paravirtualised, due to the additional translation step.
+									- Example devices are:
+										- Intel i440FX host/PCI bridge
+										- PS/2 Mouse and Keyboard
+										- Intel HDA sound device
+										- Intel e1000 network adapter.
+										- And more.
+					- Physically Shared Devices
+						- Physical device attached to the virtual machine.
+							- Passed through by the hypervisor.
+								- For example, a PCI card can be passed directly to a VM.
+									- Ohter hosts/VMs will not have access to it.
+										- Makes them run at full speed.
+											- Not as flexible as other devices such as paravirtualised.
+							- Physical shared devices are:
+								- USB device
+								- PCI cards
+								- SCSI cards
+								- PCI Express Function passthrough
+									- A PCI card that has multiple functions, can have each of those separate functions passed through into a VM.
+								- 
+					- Shared
+				- CPU is virtualised with hardware
+	- Quick Emulator (QEMU)
+- Setting up Virtualisation on CentOS 8
+	- qemu-kvm
+		- Provides user-level KVM emulator and facilitates communication between hosts and virtual guest machines.
+	- libvirt
+		- Server-side and host-side libraries - interacting with hypervisors and host systems.
+	- virt-manager
+		- Graphical tool for administrating virtual machines.
+	- libvirt-client
+		- Provides client-side APIs and libraries for accessing libvirt servers.
+		- Contains virtsh commandline tool to access the tools from the command line.
+	- Can install a `yum` package group for the virtualisation.
+		- `sudo yum group install "Virtualization Client"` 
+	- `sudo yum group list hidden`
+		- Can see the list of hidden groups, including the `Virtualization Client` group.
+	- The `Virtualization Client` group pulls in the following packages:
+		- `gnome-boxes`
+		- `virt-install`
+		- `virt-manager`
+		- `virt-viewer`
+		- `qemu-img
+		- `libvirt`
+		- `libvirt-python`
+		- `libvirt-client`
+	- Then start the `libvirtd` daemon:
+		- `sudo systemctl start libvirtd
+		- `sudo systemctl enable libvirtd`
+-  For Virtual Machines
+	-  A minimum of 1.5GB of RAM and 1 CPU core.
+	-  Disk space should be 10+ GB in size.
+	-  macvtap
+		-  Acts as a phyiscal network bridge.
+		-  Allows remote access from another guest.
+			-  enp is Ethernet wired connection.
+			-  wlp is Wireless.
+			- Bridge works fine.
+		- Can't access guest VM via Host, as currently configured.
+			- Workaround is to create a new network later on, that both the host and guest reside on.
+				- Some wirelss network adapters don't support this.
+	- For installation setup, can set the hostname as
+		- OS(host1).localnet.com
+- Kickstart File
+	- File used to automate installs.
+		- Instruction file on how to install the OS.
+	- Created by Red Hat.
+	- Used by non-RHEL environments.
+		- Supported by Debian and Ubuntu.
+	- It does the following:
+		- Creating partitions.
+		- Creating users.
+		- Preparing network settings.
+		- Installing software.
+		- Other configs.
+			- Saved as;
+				- /root/anaconda-ks.cfg
+				- In case we want to repeat the installation.
+		-  A typical kickstart file has the following:
+			-  `xconfig  --startxonboot`
+				-  Starts the X Window Server
+			-  `eula --agreed`
+				-  Automatically agrees to the end user licence agreement.
+			-  `text`
+				-  Just performs a text install.
+			-  `network  --bootproto=dhcp --device=enp0s3 --onboot=off --ipv6=auto --no-activate
+			-  `network  --bootproto=dhcp --hostname=centos8ks.localnet.com`
+				-  Network configuration and hostname.
+			-  `repo --name="AppStream" --baseurl=file:///run/install/repo/AppStream`
+				-  Sets up appstream repository.
+			-  `ignoredisk --only-use=vda`
+				-  Only installs to `/dev/vda`
+			-  `cdrom`
+				-  Installs from an optical disk.
+			-  `firstboot --enable`
+				-  Runs first boot wizard.
+			-  `services --disabled="chronyd"`
+				-  Disables services, in this case `chronyd`
+			-  `keyboard --vckeymap=us --xlayouts='us'`
+				-  Set up keyboard map,
+			-  `lang en_US.UTF-8`
+				-  Sets up installed language.
+			-  `rootpw --iscrypted $6$/UKAvAmubwCKS4XN$ae4/1.5/VLxKeLYqS1XHj7n65cW301xea.tCkk.zzQxUVz13r/0/Q.sTze/I4rvaMjaYjUAsm49hVNkxoVYG//`
+				-  Sets the root password as `password`
+				-  The password has to be encoded with a SHA512 hash, before being added to the kickstart file.
+			-  `timezone America/Los_Angeles --isUtc --nontp`
+				-  Sets the timezone.
+			-  `user --groups=wheel --name=user1 --password=$6$nAkGQnSxiY7uR4f/$xMgMOM13oTEosIck0NLYuB6qW.mc2JhE9YkbcghP1imkgQDcrHB7YfRRV.RwpxWGx2h4t78knUR7Ni51z4ldP0 --iscrypted --gecos="user1"`
+				-  Creates a user called `user1` and makes it admin by adding it to the `wheel` group.
+			-  `bootloader --location=mbr`
+			- `autopart --type=lvm`
+			- `clearpart --none --initlabel`
+				- Sets the bootloader and partition scheme as `lvm`
+				- Any existing partitions are also cleared.
+			- `%packages`
+			- `@^workstation-product-environment`
+			- `kexec-tools`
+			- `%end`
+				- Names of packages and package groups to install.
+			- `%anaconda`
+			- `pwpolicy root --minlen=6 --minquality=1 --notstrict --nochanges --notempty`
+			- `pwpolicy user --minlen=6 --minquality=1 --notstrict --nochanges --emptyok`
+			- `pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty`
+			- `%end`
+				- These change the default password policies.
+		- Kickstart Prerequisites
+			- ISO image or Network share with OS install files.
+				- Local NFS share
+				- FTP Server
+				- HTTP Server
+			- VM Disk Image
+			- Kickstart File
+			- Kickstart Delivery Method
+				- Getting the Kickstart file to the installer.
+			- If a Kickstart file is hosted on a webserver:
+				- `--extra-args="ks=http://192.168.122.1/ks.cfg"`
+			- If FTP Server:
+				-  `--extra-args="ks=ftp://192.168.122.1/ks.cfg"`
+			-  Inject kickstart file into guest VM's ramdisk:
+				-  `--initrd-inject=ks.cfg --extra-args="ks=file:/ks.cfg"`
+				-  Holds RAM and other essential drivers that the system boots from.
+				-  Stores it in the root filesystem.
+				-  Can pass the kickstart file to the installer, without setting up an FTP or web server.
+				-  Can even install without a network at all.
+- `virt-install` command.
+	- Configures the installation enviornment.
+	- DVD Disk Image.
+	- Hard drive Image.
+	- Kickstart File.
+	- An example command list:
+		- `sudo virt-install`
+		- `--name centOS-ks`
+			- Good way to remind yourself installed via kickstart file.
+		- `--memory 2048`
+			- In older files, this can also be seen as `--ram`, which is the same thing.
+		- `--disk path=PATH_HERE/centOS-ks.qcow2,format=qcow2,size=10
+			- 10GB in size.
+			- qcow2 is CoW format, where we can create snapshots.
+				- Also allows thin-provision disk images, so hardware can be over-subscribed.
+				- I.E create disk images larger than physical storage.
+				- Only some VMs use all of the space.
+			- Can create disk image ahead of time with:
+				- `sudo qemu-img create -f qcow2 -o size=10G centos8-ks.img
+					- This method is more manual, but provides more flexibility with disk options.
+	- A good way to practice is to modify the virt-install file and practice creating virtual machines to perfect it.
+		- If run the same command line more than once, `virt-install` will complain.
+			- `--location=PATH_TO_MEDIA/*.iso`
+				- Can make the path shorter, using the `$HOME` variable.
+			- `--no-graphics`
+				- Specifies a non-graphical install.
+			- `--initrd-inject=$HOME/PATH_TO_KICKSTART_FILE.cfg`
+				- If quotes are around the path name, such as `"PATH_TO_KICKSTART_FILE"`this helps with spaces in the directory names.
+				- Inject kickstart file into guest VM's RAMDISK.
+			- `--extra-args="ks=file:/centos8-ks.cfg ip=dhcp console=ttyS0, 115200n8"
+				- Extra arguments that get passed to the Linux kernel during install.
+				- `ks=file`
+					- Tells the installer to use the file at the above location.
+					- `console` sets up a way to see the output.
+						- Configures a `serial` console, using a `/dev/ttyS0` device.
+						- The `115200` is how many bits per second it transfers, the `n` is No Parity and `8` is data bits.
+				- `--os-variant=rhel8.1`
+					- Allows installation time optimisations by KVM.
+			- `osinfo-query os` command gets a list of KVM OS variants. 
+				- Can see these variants in:
+				- `/usr/share/osinfo/os` as `XML` files.
+- To add graphics,
+	- Click `Add Hardware`
+		- Then `Video` --> `QXL` --> `Finish`
+		- Then click `Graphics` --> `Spice Server` --> `Finish`
+			- In later versions of distros, this is done foe you and no need here.
+- If KB/Mouse don't work:
+	- `Add Hardware`Virt-manager, this is already done for you.
+		- `Input` --> `Generic Keyboard & Mouse`
+- `sudo virsh list`
+	- Lists the running VMs.
+- `sudo virsh help | less
+	- Shows the commands.
+	- To only see sub-commands that are part of a domain for example.
+		- `sudo virsh help domain`
+	- Important Sections
+	- `Domain Monitoring`
+	- `Host and Hypervisor
+		- Gets information on the host and KVM hypervisor as well.
+	- `Networking`
+		- Can also implment network filters as well.
+	- `Node Device`
+		- Passthrough physical devices to VMs with these commands.
+	- `Snapshot`
+	- `Storage Pool`
+		- Can create storage pools and the volumes that go inside them.
+	- `sudo virsh`
+		- Access `virsh` without having to type in `sudo` every time.
+		- Commands can be used in interactive or non-interactive modes.
+		- `list --all`
+			- Shows all VMs whether they are running or not.
+		- To get info on a specific VM, you can use something like:
+			- `dominfo centos-ks
+-  Onec run `sudo virsh`
+	-  Enables interactive mode.
+	-  `list --all`
+		-  Shows all VMs.
+	-  `shutdown centos8-ks
+		-  Shuts down a VM
+	-  `start centos8-ks
+		-  Starts a VM.
+	- `console centos8-ks`
+		-  Attach to the console.
+		-  If you open a VM that already has an active Virtual Manager console session, you will be given an error.
+		-  To close the sesion use, `ctrl + ]` 
+	- To automatically start a VM.
+		-  `autostart centos8-ks`
+	-  To clone a VM.
+		-  `sudo virt-clone --auto-clone --original rhhost1 --name rhhost2` 
+			-  `--auto-clone`
+				-  Takes care of a lot of the other arguments we can add.
+-   VM Checklist
+	-   Virtual Graphics Card
+	-   tty0 and ttyS0 Console Added.
+	-   acpid enabled
+		-   Allows to be able to shutdown and startup the VMs.
+	-   For the VMs to communicate with each other, they need to use the same Macvtap Device.
+	-   Change passwords on kickstart file created VMs.
+	-   Virtual Box should use Bridged Network Adapter devic.
+-   Linux Boot Process
+	-   Firmware Stage.
+		-   Executes code in BIOS for legacy systems.
+		-   Executes code in UEFI firmware for UEFI-neabled systems.
+	-   Starts bootloader - Bootloader Stage
+		-   For enterprise Linux:
+		-   Firmware executes boot loader (usually grub 2).
+			-   Grand Unified Bootloader
+			-   Bootloader reads its config file.
+				-   BIOS -->
+					-   /boot/grub2/grub.cfg
+				-   UEFI -->
+					-   /boot/efi/EFI/redhat/grub.efi
+			-   Executes the Kernel.
+			-   Grub has older kernel entries listed, if you need to boot into one for example.
+		-   Kernel Stage
+			-   Kernel loads ramdisk into ram.
+				-   ramdisk is a temporary root file system.
+					-   Includes device drivers, modules, config file and even kickstart files.
+			-   Kernel unmounts ramdisk and mounts root filesystem.
+			-   Starts the Initialisation Stage.
+		-   Initialisation Stage.
+			-   Grandfather process runs.
+				-   Older versions used to be the Init Process.
+					-   Init was replaced by Upstart.
+				-   Now replaced by systemd
+			-   systemd then starts all system services.
+				-  Starts login shell and GUI interface.
+			-   systemd Targets.
+				-   Similar to Init Run Levels.
+				-   A target is a specific system configuration.
+				-   For Enterprise Linux, the default target is `graphical.target`.
+				-   Systems can be booted into different targets.
+					-   For instance, rescuing a system after a crash.
+					-   The Emergency Target does not mount the root filesystem.
+						-   It still requires a password to access.
+					-   
+	-   Boot Loader Stage.
+	-   Kernel Stage.
+	-   Initialisation Stage.
+		-   In GRUB, if you edit one of the entries, the line with `linux` is the line to do with the kernel and its parameters.
+			-   Press the `end` key to go to the end of the line.
+				-   Then a space between the other parameters that are there.
+				-   Then add `systemd.unit=emergency.target`
+				-   Then `ctrl+x` to finish booting.
+				-   If boot process freezes at `Probing EDD`
+					-   Using graphical process.
+				-   In that case, go to `View` ---> `Text Consoles` --> `Serial 1`
+				-   After maintenance is complete, press `ctrl+d` to continue booting.
+				-   After editing the Kernel boot parameter again, can add to the end of the `linux` line --> `rd.break`
+					-   Boots the system into `read-only` mode on `/sysroot`
+					-   Can log in without a password.
+					-   Should mount this `read-write`
+					-   Can do so with:
+						-   `mount -o remount,rw /sysroot`
+					-   `chroot /sysroot`
+						-   Can temporarily use another directory as slash using the above method.
+					-   Reset the root users password while in `chroot` with:
+						-   `passwd`
+					-   Then need `SELinux` to re-write security context on all files during next reboot.
+						-   To do so, in `/` we create a hidden file.
+							-   `touch /.autorelabel`
+						-   Exit out of the `chroot` shell with `exit`.
+						-   Can exit out of password recovery mode by typing `exit` again.
+							-   `SELiunx` then relabels the security context on all files.
+-   To make any Kernel changes persistent in `grub`.
+	-   `sudo grub2-set-default 1`
+		-   Kernel numbering starts with `0`.
+		-   Therefore the second Kernel would be `1` and so forth.
+		-   If we reboot now, it will boot into the second Kernel by default.
+	-   Can revert the above change by running `sudo grub2-set-default 0` again.
+-   To persistently boot into another `systemd` target, we can use another `systemctl` command.
+	-   `systemctl get-default`
+		-   Usually says this is the `graphical.target`
+	-   `systemctl set-default multi-user`
+		-   The above configuration then sets the default target as `multi-user`.
+	-   To set it back again, type `systemctl set-default graphical`
+-   systemd Services
+	-   Sit in the background waiting for requests.
+		-   Web servers
+		-   File servers
+		-   Mail servers
+		-   Network servers
+		-   Authentication servers
+	-   System service is called a `daemon`.
+		-   Name is from programmers at MIT.
+		-   Took from Maxwell's Daemon.
+			-   A being from a thought experiment, that constantly works in the background.
+		-   From Greek Mythology.
+			-   Genius or deity, regarded as a good spirit.
+	-   Linux services therefore have naming conventions, such as:
+		-   `httpd`
+		-   `smbd`
+		-   `sshd`
+		-   `dhcpd`
+	- Most older Linux systems used `Sys V init` for the job of background services.
+		- From the 1980s.
+		- Starts one service, that then runs all other processes.
+		- Had multiple Runlevels.
+		- Each run level would determine when services are started.
+		- For example:
+			- `Runlevel 3`
+			- `cups`
+			- `httpd`
+			- `ip6tables`
+			- `iptables`
+		- Could switch between run levels whilst the system was running.
+	- Issues with `Sys V init`
+		- Only started services one after another, which was not fast.
+		- All services ran independently of each other.
+		- If services were restarted, it would temporarily lose network access - causing downtime.
+	- Other replacement attempts for `Sys V init` are:
+		- `Launchd`
+		- `Upstart`
+- systemd manages system services, as well as:
+	- devices
+	- system timers
+	- targets
+		- systemd equivalent to runlevels.
+	- systemd objects are called "units".
+		- For each unit, there is a unit file for configuration.
+		- This course only focuses on `service units` and `service unit files`.
+	- Command used to look at these units is `systemctl`.
+	- To view the unit files:
+		- `systemctl list-unit-files -at service`
+			- Shows all enabled service unit files.
+			- `enabled` being starting automatically.
+			- Adding the `-a` flag, shows `enabled` and `disabled` service unit files.
+	- Does not show you the running status of services.
+	- If a service is in `static` state, it means it is not `enabled` and has no provisions to be enabled.
+	- Some services are not meant to start automatically.
+	- Next command is `systemctl list-units -at service`
+		- `-a` shows enabled running and enabled non-running services.
+	- `sub`
+		- Means `sub column`
+	- `systemctl list-units -t service --state running`
+		- All services files end with `.service`
+		- Shows all `running` service files.
+	- `systemctl cat SERVICE_NAME`
+		- Shows the `[unit]` file which shows the service dependencies, such as for `rsyslog` --> `;Requires=syslog.socket`
+		- `[service]` includes what the command executes, using `rsyslog`, this would be:
+			- `ExecStart=/usr/sbin/rsyslogd -n $SYSLOGD_OPTIONS`
+			- and what happens when the command fails:
+			- `Restart=on-failure`
+		- Can also get the status `systemctl status SERVICE_NAME`
+- `sudo systemctl enable, disable stop, status, start, restart SERVICE_NAME` commands that you already know.
+- `sudo systemctl is-active SERVICE_NAME`
+	- Checks whether a service is active or not.
+- Check if service is enabled with:
+	- `sudo systemctl is-enabled SERVICE_NAME`
+- If want to restrict a service from running.
+	- Either automatically or manually.
+	- `sudo systemctl mask SERVICE_NAME`
+		- If you then try to start the service, it will error out, saying that the `SERVICE_NAME is masked`.
+	- Can reverse this with `sudo systemctl unmask SERVICE_NAME`
+- Network Settings in Linux
+	- Important things to setup are:
+		- Hostname
+		- Name resolution
+		- IP Address 
+		- Network Mask
+		- Default Gateway
+	- Configuring the Hostname
+		- Edit `/etc/hostname`
+		- Or using `hostnamectl` command.
+			- Preferable using the command, sorts out all instances where a hostname is required and saves it to the `/etc/hostname` file afterwards.
+	- Name Resolution
+		- Require the hostname to resolve to an IP address.
+		- Two ways to handle Name Resolution:
+			- Static Name Resolution:
+				- Edit `/etc/hosts`
+					- The file contains IP addresses and then the alias associated with those IP addresses.
+			- Dynamic Name Resolution using DNS
+				- Add DNS Server to `/etc/resolv.conf` file.
+					- The file contains the text `nameserver` and then the associated IP address afterwards.
+				- Can also use `Network Manager` , either from the CLI or GUI.
+		- Legacy Network Interface Naming
+			- Ethernet was named `eth0`
+			- Wireless was `wlan0`
+				- The number assigned, was the order the computer scanned them.
+				- This meant the device could change, depending on how the machine saw the hardware.
+			- Nowadays with the naming of Network Devices:
+				- Named based on firmware or BIOS info.
+					- Onboard devices.
+					- PCI-E Hotplug Devices
+				- Devices named by physical location.
+					- PCI-E Slot.
+					- PCI Card Slot.
+				- Allow traditional - unpredictable naming.
+				- When using predictable naming, this can be something like `Interface Type: Firmware` --> therefore its name would be `Interface Name: eno1`
+				- An `Interface Type: PCI-E Slot` --> `ens1`
+				- For `Interface Type: PCI Slots` --> `enp1s0`
+					- `p1` in this case is `PCI Bus 1` and `s0` is `Slot 0`.
+				- Invalid Firmware Information would have an `Interface Name` of `eth0` for example.
+					- This is a generic name.
+	- Network Configuration Commands on CentOS:
+		- `ip`
+			- Live config only.
+		- `nm-cli`
+		- `nm-tui`
+			- `tui` means `Text Interface Tool`
+		- `nm-connection-editor`
+			- This is a graphical tool.
+		- GNOME/Other DE Network Config GUI.
+		- To see IP settings hit `ip addr`.
+			- Any changes here will only be in the live config, a reboot will lose the changes.
+			- Reverts back to whatever is in the config files.
+			- `nmtui`
+				- Allows you to edit IPs, network mask, gateway and default name servers.
+				- The GNOME or Other DEs gives a graphical editor, that is not as powerful as `nm-connection-editor` or other CLI tools.
+		- Legacy Red Hat Static Configuration
+			- Would have edited a `/etc/sysconfig/network-scripts/ifcfg-eth0` file
+				- Can still use this configuration today and it supersedes anything that is in `network manager`.
+					- Should let `network manager` make the required configs and only overwrite it if necessary.
+
+- `ifcfg-eth0` Configuration looks like this:
+![Screenshot from 2023-05-25 22-51-37.png](../../_resources/Screenshot%20from%202023-05-25%2022-51-37.png)
+
+- Sys V init Process Tree:
+![Screenshot from 2023-05-21 22-57-18.png](:/39bb7c4c99044c2c8d80780264021a63An `Interface Type: PCI-E Slot` --> `ens1`
+- For `Interface Type: PCI Slots` --> `enp1s0`
+	- `p1` in this case is `PCI Bus 1` and `s0` is `Slot 0`.
+- Invalid Firmware Information would have an `Interface Name` of `eth0` for example.
+	- This is a generic name.
+	- Network Configuration Commands on CentOS:
+		- `ip`
+			- Live config only.
+		- `nm-cli`
+		- `nm-tui`
+			- `tui`
+- Configuring NTP.
+	- Every computer has an RTC - that keeps time when the computer is off \.
+		- `RTC` --> Real TIme Clock
+	- When computer switched on, OS reads RTC, then has the time from then.
+	- NTP instead contacts a server on the Internet and therefore has more accurate time utilisation.
+	- `timedatectl` manages time and date on the CLI.
+		- UTC is the time in Greenwich, UK.
+		- `RTC in local TZ` option, checks whether we are in daylight savings.
+		- To list all relevant timezones, we use:
+			- `timedatectl list-timezones`
+			- Can pipe and grep for timezones as well.
+		- To change timezones, we use:
+			- `timedatectl set-timezone COUNTRY/CITY`
+		- Can set the specific time with:
+			- `timedatectl set-time HOUR:MINUTE:SECOND`
+		- Can set the date with:
+			- `timedatectl set-time YEAR-MONTH-DAY`
+		- Can set both at the same time with qutoes.
+			- `timedatectl set-time "YEAR-MONTH-DAY HOUR:MINUTE:SECOND"`
+		- To do this from an NTP server:
+			- `timedatectl set-ntp true`
+				- Will then set the time to update automatically.
+- Manage one-time jobs with AT.
+- Two kinds of jobs are available.
+	- One-time jobs.
+		- The service is called `at`
+			- Runs jobs `at` a certain time.
+		- Or for a batch job, when the CPU drops below 0.8% usage.
+	- Syntax for `at` is:
+		- `at <time format>`
+		- Supports 12 and 24 hour clock times.
+		- Example, `4:45am` and `16:45`
+		- Supports general terms:
+			- `midnight`
+			- `noon`
+			- `12:05 tomorrow`
+			- `4pm + 2 days`
+			- `Now + 3 hours`
+			- `teatime`
+				- 4pm lol
+			- `10am Jul 31`
+				- Time always has to come before the date.
+		- To install it, we use:
+			- `sudo yum install -y at`
+		- Make sure the service is running after a reboot:
+			- `sudo systemctl start atd`
+ 			- `sudo systemctl enable atd`
+		- To create an `at` job that runs in 5 mins for example:
+			- `at now +5min`
+				- Provides prompt, where we can type Linux commands.
+				- In this example:
+					- `mkdir ~/Documents.bak`
+					- `rsync -a ~/Documents/ ~/Documents.bak`
+						- Need the slash on the second line, so that rsync copies files inside of documents to the backup directory here.
+					- When finished, press `ctrl+d`
+		- Can verify `at` jobs with the command `atq`
+			- Very left-hand column is `at` job number, 
+				- There is a queue letter called `a` in this case.
+			- Can find out more info about an `at` job with
+				- `at -c AT_JOB_NUMBER`
+					- Shows contents of `at` job and the shell environment.
+				- To cancel an `at` job, use `atrm AT_JOB_NUMBER`
+- Difference between `at` job and a batch job.
+	- `at` job runs at a specified time.
+	- Batch jobs run when the system load average drop below `0.8`
+		- Only ran when system is not busy.
+	- To create a `batch` job.
+		- `batch`
+			- `touch ~/batchfile.txt`
+		- If `atq` afterwards does not show anything, then the job successfully runs.
+	- Recurring jobs.
+- Virtualisaed Diagram:
+- Cron Jobs
+	- Stored in a `cron` table or `cron tab` as it is more known as.
+		- Two types of `cron tabs`
+			- `users`
+			- `system`
+		- User Cron Tabs
+			- Specific to each user, every user has one.
+			- Managed by users - no need to elevate privileges.
+			- Stored in `/var/spool/cron/<user>`
+		- System Cron Tabs
+			- System-wide, run via the OS and not the users.
+			- Managed by `root`
+			- Stored in `/etc/cron.d`
+		- The format of whether setting `system` or `user` Cron jobs is the same.
+	- Cron Tab example:
+		- `45 23 * * 6 /home/howard/bin/backup.sh`
+			- The above example runs `45` minutes after the hour.
+				- Valid values are `0 ~ 59`
+					- `0` is on the hour.
+				- If there was an `*` replacing the `45`, it would run every minute of the hour.
+			- Can have multiple values in each field:
+				- `15,30,45 23 * * 6 /home/howard/bin/backup.sh`
+					- The Cron Job then runs on the `15`th, `30`th and `45`th minute of the hour.
+			- Range is also possible:
+				- `15-45 23 * * 6 /home/howard/bin/backup.sh`
+			- Step value also possible:
+				- `*/10 23 * * 6 /home/howard/bin/backup.sh`
+					- Runs on the `10th` minute, skipping the 9 inbetween.
+				- Can do every odd minute with:
+					- `1-59/2 23 * * 6 /home/howard/bin/backup.sh`
+			- The second column is the hour of the day `23`.
+				- In this case, the cron job only uns on the 23rd hour (11pm).
+				- Midnight is `0`
+				- If there is an `*`
+					- The cron job runs every hour.
+			- The third column is the day of the month.
+				- Valid values are `1` to `31`.
+				- `*` means it runs every day of the month.
+			- The fourth column is the month of the year.
+				- Valid values are `1` to `12` or `JAN` to `DEC`
+				- An `*` means it runs every month.
+			- The fifth column is the day of the week.
+				- Valid values are `0` to `6`.
+					- `0` is Sunday and `6` is Saturday.
+				- Can specify three letter abbreviations such as `SUN` 
+			- The sixth column is the command to run.
+		- Useful website to generate Cron Tabs is `@crontab-generator.org`
+		- Cron should usually be installed by default.
+		- If it is not installed run:
+			- `sudo yum install -y cronie crontabs`
+		- Need to make sure it survives reboots.
+		- Start the service:
+			- `sudo systemctl start crond`
+		- Enable it:
+			- `sudo systemctl enable crond`
+		- To edit a user's crontab, go to
+			- `crontab -e`
+			- Opens in the default text editor.
+			- Can add the following configuration (no need for other text):
+				- `0 1 * * * rsync -a ~/Documents/ ~/Documents.bak`
+					- Runs the program once per day at 1:00AM.
+			- To verify, we can use
+				- `cront -l`
+			- To remove the `crontab` entirely.
+				- `crontab -r`
+	- To login as a particular user:
+		- `su - USERNAME`
+	- Good way to add Cron Jobs as a specific user:
+		- `su - USERNAME`
+		- Run the command you want to run.
+		- Then add it to the cron tab.
+	- If you have a script that you want to run hourly and not fiddle with configuration:
+		- Copy the script to `/etc/cron.hourly`
+			- Directories for Hourly, Daily, Weekly and Monthly
+			- To see all of these directories, type `ls -d /etc/cron.*`
+			- `ls -d` lists the directories, instead of the everything in the directory.
+		- Cron reparses the CronTab files every minute and loads them into memory.
+			- No need to restart it.
+- To go to a specific part of a `man` page, use for example `man NUMBER PROGRAM`
+	- For Crontab:
+		- `man cron`
+		- `man crontab`
+		- `man 5 crontab`
+			- Can check the file format with the above  `man 5 crontab` command.
+- As a System Admin, have to limit whom can run Cron Jobs.
+	- `The Allow Files`
+		- `/etc/at.allow`
+		- `/etc/cron.allow`
+		- Allows access to the above services.
+	-  `The Deny Files`
+		-  `/etc/at.deny`
+		-  `/etc/cron.deny`
+		-  Denies access to the above services.
+	-  Deny files' job is to deny users by name from using a particular service.
+	- The `Allow` File Overrides the `Deny` file.
+	- Pluggable Authentication Module --> PAM.
+		- Provides a modular authentication system for all Linux services.
+		- `/etc/security/access.conf`
+		- For instance, the file looks like:
+			- `#-   : ALL : ALL`
+			- `-:ALL EXCEPT root:cron`
+				- The file has  columns: `access control`, `usernames` and `service`
+				- The `-` used above, means we are taking permissions away from all users, except for `root`.
+				- For the service, we have specified `cron`.
+				- It disallows all users except `root` to create `cron` jobs.
+			- `access.conf` file provides more power.
+				- Can find out more via `man access.conf`
+- User Access Files:
+![Screenshot from 2023-06-02 17-44-14.png](../../_resources/Screenshot%20from%202023-06-02%2017-44-14.png)
+- AT User Access Files:
+![Screenshot from 2023-06-02 17-45-08.png](../../_resources/Screenshot%20from%202023-06-02%2017-45-08.png)
+![Screenshot from 2023-06-02 17-47-19.png](../../_resources/Screenshot%20from%202023-06-02%2017-47-19.png)
+![Screenshot from 2023-06-02 17-48-37.png](../../_resources/Screenshot%20from%202023-06-02%2017-48-37.png)
+- input-output redirection
+	- Unnamed Pipe
+		- Command --> STDOUT --> (PIPE) --> STDIN
+	- Redirect is the same.
+		- Source destination is the file system.
+			- Command --> STDOUT --> Disk
+	- Output to the screen:
+		- ls -lR / --> STDOUT, STDERR --> Display
+			- STDOUT
+				- Successful output of command.
+			- STDERROR
+				- Used for error messaging.
+	- Redirection allows the splitting of STDOUT and STDERR.
+		- Can redirect either or both outputs to the disk.
+	- Files also have `STDIN`
+		- If want to redirect file to a command.
+			- Once command has processed the output, re-output it to the disk.
+		- Redirect STDOUT to a file and overwrite
+			- ls > /home/out.txt
+			- One `>` overwrites a file or creates it if it does not exist.
+			- To append to a file, use two `>>`.
+		- If `STDOUT` is the first output, then `STDERROR` is the second output.
+			- `ls 2> /home/lsout.err`
+				- The `2>` redirects `STDERROR`.
+					- Overwrites the file if it exists or creates if it doesn't.
+				- To append to an existing file, we use `2>>`
+		- To redirect ALL outputs from a command:
+			- `ls &> /home/lsout.txt`
+			- If all outputs from a command are redirected.
+				- Nothing shows up on the display.
+			- To append, similarly add `&>>` instead.
+	-  Can append both into the `STDIN` of a command and then back out to a file again. An example is:
+		-  `sort < /home/lsout.txt > /home/sorted.txt`
+			-  Redirects the sorted output back to a different file.
+			-  Cannot redirect over the original file, as it will cause a conflict.
+	-  Send output to a file and a screen.
+		-  Can use `tee`
+			-  It splits (or tees) the output and sends it to a file and the screen.
+			-  An example would be `ls | tee lsout.txt`
+		-  Another good example:
+			-  `find /etc | sort | tee etcsort.txt | wc -l`
+				-  Shows all files in `etc`
+			-  To shows the errors:
+				-  `find /etc 2> etcerr.txt | sort | tee etcsort.txt | wc -l`
+					-  Only shows the output in the screen as `line count`
+			-  `/dev/null` is bottomless pit.
+				-  Nothing shows on the screen, if commands are redirected.
+				-  An example:
+					-  `find /etc &> /dev/null`
+						-  If we want to hide the output of a command, we can redirect to `/dev/null`.
+-  Grep
+	-  `-v`
+		-  Shows inverted searches (the opposite of your search criteria)
+	-  `-c`
+		-  The number of lines that match.
+	-  `-o`
+		-  Only characters that matched (not the entire line)
+	-  `-r`
+		-  Recursively grep.
+	-  `-E`
+		-  Extended Regular Expressions (egrep)
+-  Pipe to grep
+	-  `find / -name *.txt | grep apache`
+		-  `find` starts from `/` and looks for any files that have `.txt` as an extension.
+-  To make search criteria more strict, can employ `Anchors`
+	- `^`
+		- Search from beginning of the line.
+		- Anchor to beginning.
+	-   `$`
+		-   Anchor to end.
+	-   For example,
+		-   `grep -v '^$' /path/to/file.txt`
+			-   The above command anchors to the beginning and end.
+			-   Does not amtch anything in the middle.
+				-   Loosk for blank lines.
+				-   Combined with `-v`, it only shows non-blank lines.
+- Matching Characters
+	- `.`
+		- Matches one character of any type.
+	- `*`
+		- Matches 0 or more of the previous character.
+	- `.*`
+		- 0 or more rof any one character.
+- Character Sets
+	- `user[abc]`
+		- Matches either `usera`, `userb` or `userc`
+	- `user [a-z]`
+		- Matches `usera`, `userb` etc.
+	- Match everything that is not in the character set:
+		- `User[!0-9]`
+			- This would match `usera`, `userb` etc.
+- Character Class
+	- Matches certain type of characters.
+		- `[:digit:]`
+			- Matches Numbers.
+		- `[:upper:]`
+			- Upper case characters
+		- `[:lower:]`
+			- Lower case characters
+		- `[:alpha:]`
+			- Upper and lower case
+		- `[:alnum:]`
+			- Upper and lower case, plus numbers.
+		- `[:space:]`
+			- Spaces, Tabs and Newlines.
+		- `[:graph:]`
+			- Printable characters, not including spaces.
+		- `[:print:]`
+			- Printable characters (including spaces)
+		- `[:punct:]`
+			- Punctuation
+		- `[:cntrl:]`
+			- Non-printable control characters.
+		- `[:xdigit:`
+			- Hexadecimal characters.
+- Character Class Placement
+	- `grep 'user[0-9]' file.txt`
+	- `grep 'user[[:digit:]]' file.txt`
+	- `grep 'user[[:digit:][:spaces]]' file.txt`
+		- Matches users 0-9 or a user that has a trailing space with no number.
+- Negating Character Classes
+	- `grep 'user [![:digit:]]' file.txt`
+		- Placing a `!` before a character class negates it.
+- Extended Regular Expressions
+	- `sed -r`, `egrep`, `awk`, `bash [[=~]]`
+		- Bash has a built-in regular expressions operator.
+	- Similar to REGEX from before.
+		- `.` --> One character.
+		- `*` --> 0 or more of the previous character.
+		- `?` --> 0 or 1 of the previous character.
+		- `+` --> 1 or more of the previous character.
+			- Mathes 1 or more of the previous character.
+	- `{2}`
+		- Two of the previous character.
+	- `{2,4}`
+		- Two to four of the previous character.
+	- `(ab)`
+		- Match group of characters.
+	- `(ab){2}`
+		- Two of the previous group.
+	- `(cat|dog)`
+		- Match `cat` or `dog`
+	- Another good example of REGEX:
+		- `grep '^http.*tcp.*service$' /etc/services`
+			- Has the result of:
+				- `**http-wmap 8990/tcp # webmail HTTP service**`
+				- `**https-wmap 8991/tcp # webmail HTTPS service**`
+			- Anchors to the beginning of the line.
+				- Only shows lines starting with `http`
+		- Using `egrep`
+			- `egrep '^http.*(tcp|udp).*service$' /etc/services`
+				- Finds the following:
+					- `http-wmap 8990/tcp # webmail HTTP service`
+					- `http-wmap 8990/udp # webmail HTTP service`
+					- `https-wmap 8991/tcp # webmail HTTPS service`
+					- `https-wmap 8991/udp # webmail HTTPS service`
+- Archive Files using `tar`
+	- `tar`
+		- Tape Archiver
+		- Does not compress files.
+	- Good `tar` command:
+		- `sudo tar --xattrs -cvpf etc.tar /etc`
+			- The `--xattrs` preserves extended attributes, access control lists and SELinux security context.
+			- `-c`
+				- Creates an arrchive
+			- `v`
+				- For verbose
+			- `p`
+				- Save ownership and permissions.
+			- `f`
+				- File Name of the archive.
+			- The last argument is the items you want in the archive.
+	- Main compression tools on Linux are:
+		- `gzip`
+		- `bzip2`
+		- `xz`
+	- To add the option:
+		- `sudo tar --gzip --xattrs -cvpf etc.tar.gz /etc`
+			- Archives the diretory and then calls the `gzip` compressor.
+		- For `bzip2`
+			- `sudo tar --bzip2 --xattrs -cvpf etc.tar.bz2 /etc`
+	- Last compressor is `xz` (newest compressor)
+			- `sudo tar --xz --xattrs -cvpf etc.tar.xz /etc`
+	- In order of least to most compressed:
+		- gzip
+		- bzip2
+		- xz
+	- To view files in a tar archive:
+		- `tar -tf etc.tar`
+		- Lists all of the files in the archive.
+	- Can also do that with compressed files with:
+		- `tar --gzip -tf etc.tar.gz`
+	- To extract archives, use `-x`
+		- `sudo tar --xattrs -xvpf etc.tar`
+			- `x`
+				- Extract
+			- `p`
+				- Permissions
+			- `f`
+				- File Name
+	- If you want to extrac this somewhere else:
+		- `sudo tar --xattrs -xvpf etc.tar -C /home/howard/`
+ - Compress files and archives
+	 - Compressor can be used separately with `tar`.]
+		 - If not concerned about metadata like file ownership, permissions or timestamps.
+		 - Some compressors do not work well with recursive directories.
+			 - Best to use `tar` in that case.
+	 - `gzip FILE_NAME`
+		 - `gunzip FILE_NAME.gz`
+	 - `bzip2 FILE_NAME`
+		 - `bunzip2 FILE_NAME.bz2`
+	 - `xz FILE_NAME`
+		 - `unxz FILE_NAME.xz`
+	 - `zip FILE_NAME.zip FILE_NAME`
+		 - Leaves the original file and creates a separate archive.
+		 - Roughly the same size as gzip/
+		 - `unzip FILE_NAME.zip`
+- Create files and directories
+	- Good course on VIM from LinkedIn Learning is `Linux: System Information and Directory Structure Tools`
+	- `echo "A New line" >> TEXTFILENAME.txt`
+		- Adds a new line to the end of the text file.
+	- Creating parent directories:
+		- `mkdir -p ~/parent/child`
+			- `find ~/parent/child`
+				- Outputs the absolute path to the file directory.
+	- Can use brace expansion:
+		- `mkdir ~/{dir1,dir2,dir3}`
+			- Creates multiple directories.
+		- `ls -d ~/dir?`
+			- Shows the directory metadata with `-d`
+			- `?` globs for the last digit.
+				- Shows `/home/dir1, /home/dir2` etc.
+- Copy Files and Directories:
+	- An example
+	- `cp -pf --verbose SOURCE DESTINATION`
+		- If want to send multiple files, just separate them with spaces.
+		- SOURCE and DESTINATION paths can either be relative or absolute.
+		- Relative Paths
+			- Start from where you are/
+		- Absolute Paths
+			- From root or top level directory.
+		- There can only be one destination path.
+	- `touch` is primarily for changing timestamps.
+		- If the file does not exist however, it creates an empty file instead.
+	- `tree` may not be installed by default.
+		- `sudo yum install -y tree`
+		- `tree` gives a graphical visualisation of the file structure.
+	- If run same `cp` command again, it will overwrite the existing file without warning.
+		- Can provide a check using the `-i` flag.
+			- Example: `cp -i file1.txt dir1/file1-copy.txt`
+	- To copy directories.
+		- `cp -R dir1 dir2`
+	- Good flags for `cp`
+		- `-a`
+			- archive - preserves all file attributes, including ownership, permissions and extended attributes and is recursive.
+		- `-b`
+			- backup - makes a backup of the destination file before overwriting.
+		- `n`
+			- no clobber - prevents overwriting files if they exist.
+		- `u`
+			- update - only moves a file if it's newer than the destination.
+	- Data Blocks
+		- When files are copied, the data blocks are copied to a new location.
+		- Then the original data blocks are removed.
+			- If on the same HDD,
+				- Linux just updates the files location in the file system.
+					- No data is actually being moved, so it is fast.
+- `mv` Move command
+	- Example:
+		- `mv -bf --verbose SOURCE DESTINATION`
+			- Can use file globbing to match file names.
+		- With all commands, if using single flags, can link multiple of these together.
+			- Relative and absolute paths are fine.
+			- There is only 1 destination path.
+		- Do not have to specify recursive, to move whole directories with `mv`.
+			- `mv dir mvdir2`
+		- Useful options:
+			- `-b`
+				- Backuop of the destination file before overwriting.
+			- `-n`
+				- No clobber - prevents overwriting files if they exist.
+			- `-u`
+				- Update - only moves a file it itt's newer than the destination.
+- Remove files and directories.
+	- Linux has no recycle bin.
+	- `mkdir dir{1,2}`
+		- Brace Expansion to create two directories called `dir1` and `dir2`
+	- `touch file{a,b,c,d}.txt`
+		- Makes multiple files called `filea`, `fileb`, `filec` and `filed`
+	- `rm -i fileb.txt`
+		- Adds interactivity to check if you want to remove the file or not.
+	- To delete a directory with `rmdir`
+		- `rmdir dir2`
+			- `rmdir` only deletes empty directories.
+		- To delete a directory with files in it, you have to use the `recursive` option with `rm`.
+			- `rm -Ri dir1`
+		- Asterix wildcard can remove everything here.
+	- File Globbing - can use different patterns:
+		- `file[cd].txt`
+			- Matches both `filec.txt` and `filed.txt`
+		- `file{c,d}.txt`
+			- The above is brace expansion 
+			- Matches both `filec.txt` and `filed.txt`
+				- Does the same as above.
+		- `file?.txt`
+			- Matches file `filec.txt` and `filed.txt`, but also matches `filea.txt` and `fileb.txt`
+		- This one uses an Extended Glob:
+		- Extended Globbing needs to turned on.
+			- `file+(cld).txt`
+				- The meaning is one or more `(c|d).txt`
+				- This matches `ccc.txt` as well.
+		- `ls file[cd].txt`
+			- Then matches both files.
+		- `rm file[cd].txt`
+- Create Hard and Soft Links
+	- Good idea to make shortcuts to files and directories.
+	- An example,
+		- Link in home directory called `~/Netdrive` that points to `/media/network/server/bob/files`
+	- Hard Links
+		- For example, making a link between directory `dir1` and `file.txt`
+		- `ln file.txt filelink.txt`
+		- The file attributes are also exactly the same, including the timestamp.
+			- The reason is because they are exactly the same file.
+		- When Hard Links are create, it gives the system file blocks another name for them to point to.
+		- For example:
+			- `inode 3890775`
+				- is referenced by `/home/bob/file.txt` and `/home/bob/filelink.txt`
+				- They point to the same data blocks.
+			- Hard Links do not take up hardly any space on the disk.
+				- Completely transparent to the OS and applications.
+			- All Hard Links have to be removed, before the data blocks are freed.
+			- If do `ls -l`, this shows the amount of inodes being used.
+				- `rwxrwxrwx 2 USERNAME USERNAME` etc, the `2` includes the amout of inodes.
+				- If these are both the same for the hard link and the file, then it is a good way to check the hard links.
+			- Can check the indodes that a file is using with the `stat` command.
+				- `stat file.txt`
+					- Shows the links that the file has and the Inode number.
+				- Using the same `stat` command on `filelink.txt`
+					- The Inode and Links displayed are exactly the same.
+			- Hard Link Negatives:
+				- Cannot link to directories.
+				- Cannot link across filesystems.
+				- Hard to indentify.
+					- Due to looking similar to the target file.
+			- Hard Link Positives:
+				- Take up practically no space.
+				- Don't break when the target is deleted.
+		- Symbolic Links
+			- A file that points to another file.
+				- `ln -s file.txt filesymlink.txt`
+				- If do `ls -l`
+					- The leftmost character i.e. `lrwxrwxrwx` is an `l`, showing that it is a symbolic link.
+						- Permissions are also `rwxrwxrwx`
+							- When you access the link, it makes sure to pass you into the real file.
+								- Permissions on the real file arer enforced.
+							- If delete the original file and then run `ls -l` again.
+								- The symbolic link becomes red.
+									- The Hard Link is fine and the inode number goes to 1.
+				- Symbolic Link Negatives:
+					- Take up a small amount of space.
+						- Break if the target is deleted.
+				- Symbolic Link Positives.
+					- Can link across filesystems.
+					- Can link to directories.
+					- Easy to identify.
+- Introduction to vim.
+	- Insert Mode
+	- Command Mode --> send commands via shortcut keys.
+	- EX Mode --> Types commands on the bottom line.
+		- Can write to a new file in VIM with `:w newfile.txt`
+		- VIM processes EX Mode commands from left to right.
+- Editing Text in VIM.
+	- redo = `ctrl + r`
+	- To cut a line:
+		- `c` twice in `Command Mode`
+	- To cut a letter:
+		- `cl` in `Command Mode`
+	- To cut a word:
+		- `cw` in `Command Mode`
+	- `p` in `Command Mode` to then `put` or `paste` the line.
+	- To copy `yank`
+		- One letter is:
+			- `yl`
+		- One word is:
+			- `yw`
+		- One line is:
+			- `yy`
+	- To delete text:
+		- `dl`
+			- Delete a letter.
+		- `dw`
+			- Delete a word.
+		- It does not actually delete it, it just moves it into a buffer until you paste it.
+	- Delete leaves you in `Command mode`
+		- `cut` places you into `Insert mode`
+	- Can `yank` or do any other command multipe times with `5yy`
+- Locate, read and use systesm documentation
+	- `ls --help`
+		- `--help`
+			- Is built into most Linux commands.
+		- `shift + page up` to go through the output.
+	- `cd --help` does not work.
+		- The reason, is because `cd` is built into the Bash shell.
+		- It doesn't exist as a separate command on the disk.
+	- For commands built into the shell.
+		- Use the `help` command.
+			- `help cd` for example.
+	- The documentation for the `help` command is usually brief.
+	- `man` pages.
+		- All `man` page belong in certain categories.
+			- For example, if you do `man ls` and then check the top left-hand sorner, it wiill say `LS (1)`
+	- Can also see the `man man-pages` file.
+		- This then explains each of the categories, for example `1 Commands (Programs)`, `2 System calls`.
+			- `man 1 intro`
+				- Shows the intro page for man page - category one.
+			- `man -f`
+				- Used to find man pages.
+					- For example `man -f crontab`
+						- Shows all of the `man` pages related `crontab`
+						- Category 1 `commands`
+						- Category 1p (P is for POSIX compliant commands)
+						- Category 5 is for file formats.
+						- POSIX is a standard, that most Unix systems try to follow.
+						- Linux can have a non-POSIX compliant command, as well as a compliant one.
+			- Can spcify a `man` page category with:
+				- `man 5 crontab`
+			- For an exhaustive search, that would be `man -k crontab`
+				- Shows related words like `anacrontab`
+		- Another place we can get information is through `info` pages.
+			- Not all commands have `info` pages.
+				- `info crontab`
+			- Shows more lines than `man` does.
+			- Most GNU tools have very long `info` pages.
+				- `info` supports hypertext.
+				- A hyperlink in an `info` page is a name followed by a colon.
+					- Can move cursor over it and press `enter` to go to that page.
+					- To go back to the previous page, press the `l` key.
+					- If you scroll down to the bottom, taken to the next page.
+					- Scrolling to the top, takes us to the previous page.
+						- Can get additional help by pressing `?` inside any document.
+- Locate and interpret System Log Files
+	- Messages are related to kernel, applications or services.
+		- Logs specifically also for cron jobs and so on.
+	- Enterprise Linux has two logging systems:
+		- `rsyslog`
+			- Compatible with `sysklogd`
+			- Handles perisstent logs.
+			- Logs are text files.
+			- Can log across a network as well.
+				- Using TCP or UDP protocols.
+		- `journald`
+			- Not persistent by default.
+			- Part of systemd.
+			- Journal logs do not survive a reboot.
+			- Logs are binary.
+			- Logs are only stored in RAM.
+			- Very fast to write and search through.
+		- `sudo systemctl start rsyslog`
+			- Starts the service.
+			- Then run `sudo systemctl enable rsyslog`
+				- So it starts afte boot.
+		- To check the configuration file for Rsyslog:
+			- `less -N /etc/rsyslog.conf`
+				- `-N` turns line numbering on.
+			- The file has a `RULES` section.
+				- Where each type of data is logged.
+				- There are two columns in a rule:
+					- Selector on the left, for example `authpriv.crit` 
+					- Action on the right, for example `/var/log/secure`
+					-  rsyslog rule - selector facility.
+						-  Facility is on the Left and Priority is on the Right.
+					-  For example:
+						-  `authpriv.crit`
+							-  The `auth` part is the Facility.
+							-  The `priv` part is the Priority.
+						-  The action in this case is `/var/log/secure`
+						-  Line 46 is `*.info;mail.none;authpriv.none;cron.none     /var/log/messages` 
+							-  It means log anything except mail of level `info` or higher.
+								-  Don't log private messages.
+							-  `*` is the Facility and uses an Asterix that matches everything.
+							-  `info` is Priority.
+							-  Selectors are `mail.none;authpriv.none;cron.none     /var/log`
+								-  For `mail, authpriv and cron`, the priority of these is set to none.
+									-  All messages will be ignored.
+								-  The Action to write is `/var/log/messages`
+		-  `/var/log/messages`
+			-  Contains all system messages.
+			-  The go-to file for troubleshooting a system.
+				-  To invert the search.
+					-  `sudo grep -v 'systemd' /var/log/messages`
+						-  Will show all of the messages that do not have `systemd` in them.
+						-  If want to filter out more messages, can create a logical OR, as well as changing `grep` to `egrep` with more criteria.
+						-  `sudo egrep -v 'systemd|NetworkManager' /var/log/messages`
+							-  Shows all of the messages that do not have `systemd` or `NetworkManager` inside of them.
+							-  `tail -f` is also a good option.
+				-  Back in the configuration file for `rsyslog`, `authpriv.*` is where we see login information, including failure as well.
+				-  Line 65 specifies the boot messages. This is `local7.*` and the action is in `/var/log/boot.log`
+				-  Can see lines at the bottom (line 78) for examples on how to do the configuration remotely as well.
+				-  The logs are rotated and this is done via `/etc/cron.daily`
+				-  If you ever want to write a message to the system log file.
+					-  You can use a `logger` command for this.
+					-  `logger "Linux is so worth it!"`
+						-  You can then see this in `/var/log/messages`
+-  Reading the System Journal
+	-  Along with systemd, also comes journald
+	-  Stores a binary log file in `/var/run`
+		-  Virtual file system in RAM.
+	-  Everything disappears after a reboot, so it is not persistent.
+	-  The journal also has a fixed size, because it is located in RAM.
+	-  Journal is structured and indexed, therefore searches are quick.
+	-  Can use `rsyslog` for persistent logging.
+		-  Can forward journal data to rsyslog.
+	-  Typing in `journalctl` without arguments provides all of the journal entries.
+		-  To view journal entries only from the kernel, use `journalctl -k`
+	-  For `crond`, we can use `journalctl /sbin/crond`
+	-  To specify by systemd unit, we use `journalctl -u crond`
+	-  `journalctl -f`
+		-  Follows the journal.
+	-  To restart `journald` use `sudo systemctl restart systemd-journald`
+		-  To check the logs, can go to `/var/log/journal`
+	-  Once `journald` has been configured to be persistent.
+		-  Can show previous entries before a reboot occurred.	
+		-  `sudo journalctl -b -1`
+			-  If a reboot has not happened, nothing will appear.
+		-  Can also specify time ranges:
+			-  `journalctl --since "2015-01-10 17:15:00"`
+			-  `journalctl --since "2015-01-10" --until "2015-01-11 03:00"`
+			-  `journalctl --since 09:00 --until "1 hour ago"`
+-  Install from a software repository.
+	-  Index of packages.
+	-  Contains meta-data about packages.
+		-  The description of the package.
+		-  Who packaged them.
+		-  Contents of the package.
+	-  Public Key.
+		-  Imported by the client.
+		-  Verifies the integrity of the packages.
+	-  Server on Network or Internet.
+	-  Uses FTP or HTTP protocols.
+	-  Can be hosted on Windows, macOS and Linux.
+	-  Best is if host and clients are on similar OSs.
+		-  The tools for building the packages may not be available on alternative operating systems.
+		-  For example, RPM packages on a Debian machine.
+	-  Internet connection and DNS are required to connect.
+	-  Package Database Contents
+		-  Updates with various meta-data, such as:
+			-  Installed File Location
+			-  File sizes
+			-  Ownership
+			-  Checksums
+			-  Package Summary
+			-  Package Description
+		-  Advantages of using software repos
+			-  Easy to install software.
+			-  Resolves dependencies
+			-  Handle package signatures
+		-  Negatives
+			-  Slower to install
+			-  Requires working network
+			-  Requires working name resolution
+- Linux Repository Management Systems
+	- Query package database.
+	- Upgrade and List files and packages.
+	- Check Package Dependencies.
+	- Repository-based Package Managers
+		- APT
+		- Yum
+		- Zypper
+		- Urpmi
+			- From Mandriva
+		- Maintains list of available software.
+		- Calculates dependencies.
+		- Uses local package manager to install packages.
+			- The actual software is installed with `dpkg/rpm`.
+				- `apt/yum` 
+					- Download
+					- Search
+					- Manage dependencies
+		- Advantages of Repo Package Managers
+			- Upgrade entire OS.
+			- Full Support cryptographic signatures.
+				- Stops hackers embedding malware, due to the key sending of packages and repositories.
+			- Can add third party repositories as well.
+- Query with RPM
+	- Query database.
+	- Query package.
+	- Query a file.
+		- Looking through package database, looking for a reference to the file.
+		- Only works for files that belong in its database.
+	- To query the db with `rpm` we use the following commands:
+		- `rpm -qa`
+			- `-q` tells RPM to query.
+			- `a` means all packages.
+			- Shows all installed packages.
+			- If you pipe into `sort` with `rpm -qa | sort`
+				- Provides you with an alphabetical list.
+		- `rpm -qi`
+			- The `qi` is for Query Information about a package.
+			- For example, `rpm -qi bash`
+				- Shows you all of the information regarding bash.
+		- Can also narrow down the search based on single attributes.
+			- `rpm -qa Group="System Environment/Shells`
+				- Shows all of the packages, that have been tagged as `system environment shells`.
+		- `rpm -qa --last`
+			- Queries when packages were last installed and shows the date.
+		- `rpm -ql yum`
+			- Queries for the list of file paths.
+				- The `yum` command contains 180 different files in various locations.
+			- If we want to reduce this search to just documentation.
+				- Can specify the option with `-d`
+			- `rpm -qd yum`
+				- Finds all of the documentation for `yum`
+			- `-c` option
+				- Only show configuration files.
+			- If find a file on a disk.
+				- Can query the database as well.
+				- `-qf` option.
+				- `-qf` is Query File.
+				- `rpm -qf /bin/bash`
+					- Shows the `/bin/bash` file came from the `bash` package.
+					- Identifying where software comes from, really helps with learning Linux.
+				- Can also use `-qdf` and shows the documentation for the `/bin/bash` command.
+					- If find file and want to know where the documentation is, the above option is useful.
+			- Can also ask a database what a package provides with `--provides`
+				- `rpm -q --provides bash`
+					- Shows the features that the `bash` package provides.
+				- Can see what it requires with `rpm -q --requires bash`
+			- Another good option is `--changelog`
+				- Checks changes to any packages.
+				- `rpm -q --changelog bash`
+						- Can query an RPM file directly, before it is installed.
+				- If downloading individual packages from the Internet with `yum`
+					- Need a plugin for that.
+					- `sudo yum install -y yum-plugin-downloadonly`
+				- Then
+					- `sudo yum install --downloadonly --downloaddir=/tmp/packages httpd`
+						- Downloads the files to the `/tmp/packages` directory.
+					- To query a package that has not been installed yet, use `-p`
+						- `rpm -qip httpd-2.4.6-45.el7.centos.x86_64.rpm`
+							- To query a package, we use `qip`
+								- To get a list of all the files within a package and where they'll be install, we use `-l`
+									- `rpm -qlp httpd-2.4.6-45.el7.centos.x86_64.rpm`
+									- Make sure the `-p` option is provided, so it queries the package and not the database.
+- RPM Query Formatting
+	- All packages have a list of tags we can show or hide.
+	- `rpm --querytags`
+		- To show package name and version and nothing else:
+			- `rpm -qa --queryformat "%{NAME} %{VERSION}\n"`
+				- To use the tags, need to surround them with `%` and `{}`
+					- `\n` inserts a new line.
+				- Can also make the command shorter with:
+					- `rpm -qa --qf "%{NAME} %{VERSION}\n"`
+						- Does the same thing.
+			- `rpm -qa --queryformat "%-30{NAME} %-10{VERSION}\n"`
+				- Shows 30 characters.
+					- Version uses 10 characters.
+						- Both columns are left-aligned.
+			- When dealing with multiple lines in a package, information is stored in arrays.
+				- `rpm -ql bash | wc -l`
+					- Shows 130 files in the `bash` package.
+				- `rpm -q --qf "%{FILENAMES}\n" bash`
+					- Returns one item and shows the first item in the array.
+				- `rpm -q --qf "[%{FILENAMES}\n]" bash`
+					- Can show the contents of more than 1 array, but placing the tag inside the square brackets.
+				- Show file names and file sizes in the `bash` package.
+				- `rpm -q --qf "[%{FILENAMES} %{FILESIZES}\n]" bash`
+				- Can then show 50 characters:
+ 				- `rpm -q --qf "[%-50{FILENAMES} %{FILESIZES}\n]" bash`
+ 				- Some tags need additional formatting, for example the package name and the install date + time.
+ 				- `rpm -q --qf "%{NAME} %{INSTALLTIME}\n" bash`
+					- Shows the date in epoch time. The number of seconds since 1970.
+ 				- `rpm -q --qf "%{NAME} %{INSTALLTIME:date}\n" bash`
+					- Then shows the readable date.
+  				- `rpm -q --qf "[%{FILEMODES} %{FILENAMES}\n]" bash`
+					- Shows the permissions here.
+  				- `rpm -q --qf "[%{FILEMODES:perms} %{FILENAMES}\n]" bash`
+					- Shows the permissions in a readable format.
+				- `man rpm`
+					- Then `/QUERY OPTIONS`
+						- Use these in shell scripts, to return the information needed.
+					- More reliable then piping the output to `grep` or `awk` for data parsing.
+- DNF Overview
+	- RPM Abilities.
+		- Reads list of dependencies.
+		- Download from web or FTP servers.
+		- Does not maintain a list of available software.
+			- Does not manage them in remote repositories.
+	- Therefore, to get around these issues, Yellow Dog Linux created YUM
+		- Yellow Dog Updated Modified (YUM).
+		- This was rewritten and renamed as DNF.
+		- CentOS 6 & 7 uses YUM.
+		- CentOS 8, DNF is the default package manager, but can still input YUM, as the package just redirects to DNF.
+			- DNF resolves dependencies automatically.
+			- Uses Package Groups.
+				- A bunch of packages that are generally stored together.
+			- Repositories contain RPM packages.
+			- Client maintains local list of repositories.
+				- Users can add repositories, by changing the config.
+		- Packaging Process in DNF:
+	- Package Install Process:
+		- DNF Contacts Configured Repositories:
+![Screenshot_20230626_104258.png](../../_resources/Screenshot_20230626_104258.png)
+		- DNS gets list of available software packages:
+			- Lists are cached locally and updates them during install operations.
+![Screenshot_20230626_104354.png](../../_resources/Screenshot_20230626_104354.png)
+		- User selects a software package:
+![Screenshot_20230626_104506.png](../../_resources/Screenshot_20230626_104506.png)
+		- DNF calculates dependencies:
+			- Requested software package and any packages it requires.
+			- Biggest differences between YUM and DNF, are the algorithms used to calculate dependencies.
+![Screenshot_20230626_104602.png](../../_resources/Screenshot_20230626_104602.png)
+		- DNF downloads packages/installs using RPM libraries (similar to the RPM command)
+![Screenshot_20230626_114343.png](../../_resources/Screenshot_20230626_114343.png)
+		- Once install finishes, DNF updates the local package database:
+![Screenshot_20230626_114442.png](../../_resources/Screenshot_20230626_114442.png)
+	- One features that separates DNF from other repo-based package managers is using DNF Groups
+		- Contain multiple software packages.
+		- All sofrware in a group can be installed at one time.
+		- All software in a group can be removed at one time as well.
+			- Unless other packages require it.
+		- Groups can contain optional software.
+			- Related software, but not installed by default.
+- Select DNF Packages by Name
+	- Being able to list information about whether wanting to install a 32-bit package on a 64-bit system for example, then installing, is very powerful.
+	- For example, attempting to sync `xfsprogs`
+		- Multiple versions of this package are available.
+	- `dnf --showduplicates list xfsprogs`
+		- Shows all packages and their versions.
+		- Granular Package Selection
+			- For example, `Available Packages 5.0.0.-2.el8 BaseOS`
+			                        `xfsprogs.i686      5.0.0-2.el8  BaseOS`
+									`xfsprogs.x86_64`
+		- We can select packages based on:
+			- `name`
+			- `name.arch`
+				- CPU Architecture
+			- `name-ver`
+				- Name and Version
+			- `name-ver-rel`
+				- Name, Version and Release
+			- `name-ver-rel.arch`
+				- Name, Version, Release and CPU Architecture.
+			- `name-epoch:ver-rel.arch`
+		- To select a package by name, we just add the name.
+			- DNS does a greedy search, so as long as we add `--showduplicates` it will show all possible matches.
+		- Narrow down by architecture with.
+			- `dnf list --showduplicates xfsprogs.x86_64`
+		- Select by name and version:
+			- `dnf list --showduplicates xfsprogs-5.0.0`
+		- Name-version-release:
+ 			- `dnf list --showduplicates xfsprogs-5.0.0-2.el8`
+				- The release here is `2.el8`
+		- Name-version-release.architecture
+ 			- `dnf list --showduplicates xfsprogs-5.0.0-2.el8.i686`
+			- Tries to select the architecture, based on OS install, if not specified.
+			- There are times when we do want to overwrite, for example installing a 32-bit package on a 64-bit system.
+		- Can use file globs.
+ 			- `dnf list --showduplicates xfsprogs-5.0.0-[1-6]*`
+		- Select by name-epoch:version-release.arch.
+			- `dnf list --showduplicates ypbind-3:2.5-2.el8.x86_64`
+				- Overwrites the normal comparison order on version checking.
+				- If a packager wanted to mark a lower version for an upgrade, can tag it with an epoch number.
+				- DNF is picky about the format and which fields are necessary with the epoch number.
+				- If leave field out or put in different order, DNF will not find any matches.
+					- The epoch number is usually used to override normal update processes.
+			- To see a list of packages with an `epoch` number, run `dnf list installed`
+				- Any package that has a version prefixed by a colon, has an epoch number.
+- Get Info on Packages with DNF
+	- `dnf list --all`
+		- For this particular sub command, the `--all` is not necessary.
+		- Provides a quick list of all packages.
+		- Includes packages in the local RPM DB.
+		- And packages that are listed in a repository.
+		- The furthest right-hand column shows the repository it came from.
+	- Can show duplicates with:
+		- `dnf list --all --showduplicates`
+			- If the package name is green and underlined, it is the currently installed version.
+			- Shows when both 32-bit and 64-bit versions are available.
+			- Package names in blue, show there is an update available.
+				- Can be different on other distros, blue is what CentOS uses.
+	- To show installed packages.
+		- `dnf list --installed`
+	- To show the packages that need updates.
+		- `dnf list --updates`
+		- The packages listed would be installed, if we did a `dnf upgrade`
+	- `dnf list --available`
+		- Shows software packages available in the repositories, but are not installed.
+	- `dnf list --obsoletes`
+		- Packages can be replaced by other packages, making the original package obsolete.
+	- `dnf info dnf`
+		- Shows more information about the `dnf` package.
+			- Shows `name`, `version`, `release`, `architecture`, `size`, `source`, `repository`, `summary`, `URL`, `licence`, `description`
+				- For both installed version and update.
+			- Shows the same information that you would get from `rpm -qi`
+	- `dnf info --updates`
+	- `dnf info --obsoletes`
+	- To get the dependencies that a package requires:
+		- `dnf deplist dnf`
+		- For example, shows what the `dnf` package requires and which packages provide that item.
+- Get Info on Package Groups
+	- `dnf` has the concept of package groups.
+		- Pre-configured collection of packages, that can be installed or removed at one time.
+		- For example, dev-tool groups.
+			- Contains compilers and coding tools.
+	- `dnf group list`
+		- Shows all groups.
+			- Older versions of CentOS have a sub-command with `grouplist` spelt all as one word.
+		- Shows the following categories:
+			- `Available Environment Groups`
+			- `Installed Environment Groups`
+			- `Installed Groups`
+				- Category of groups currently installed.
+			- `Available Groups`
+				- Contains collections of software for OS configurations.
+			- During system install, there are a lot of environment categories.
+				- Hidden by default and are used during the install process.
+				- `dnf group list hidden`
+					- Shows these groups.
+					- Very specialised, so hidden by default.
+		- `dnf group info "Development Tools"`
+			- Because the group name has a space in it, it needs to be surrounded with double quotes.
+			- Shows three categories:
+				- Mandatory Packages.
+				- Default Packages.
+				- Optional Packages.
+			- Depending on `dnf` config, one or more of the above categories is installed by default.
+				- CentOS8, Mandatory and Default Packages are installed automatically.
+					- Config option needs to be changed, for the Optional Software to be installed automatically.
+						- Can overwrite it with `--with-optional`
+							- Installs optional software.
+- Search for Packages
+	- `dnf search vim`
+		- By default, `dnf` searches the name and summary information only.
+		- Results are printed in bold.
+		- `dnf` will do a case insensitive search.
+	- To search all metadata including the description:
+		- `dnf search --all vim`
+			- The last couple of lines do not have bold text.
+				- It means the name `vim` is not in the name or summary. Probably in the description.
+	- Wildcards:
+		- `dnf list --all vi*`
+			- Shows all packages that start with `vi`
+	- `dnf provides vim`
+		- Shows which packages provide `vim` and what version it is.
+- Install and Remove Packages
+	- `sudo dnf install -y tree`
+		- Allows us to view our file structure as a hierarchy on the command line.
+	- `sudo dnf install -y epel-release`
+		- Third party repository --> Extra Packages for Enterprise Linux
+			- Safe repository.
+			- Always good to install on Enterprise Machines.
+	- `sudo dnf install konsole`
+	- May want to reinstall the exact same version of a package
+		- This is a good way to troubleshoot problems.
+		- Can also use `yum`'s reinstall sub command.
+	- `sudo dnf reinstall vim`
+		- Can reinstall VIM.
+		- Downloads a new RPM and installs it over the old one.
+	- If want to install a package and one of its dependencies is broken and needs fixing by maintainers.
+		- `sudo dnf reinstall vim --skip-broken`
+		- Works with `install`, `reinstall` and `update` sub commands.
+	- `dnf list updates`
+		- Shows all packages that need upgrading.
+		- `sudo dnf upgrade teamd`
+		- Package name example 
+	- `sudo dnf remove teamd`
+		- If want to remove one package and all other software requires that package, `dnf` will uninstall the OS.
+		- If want to remove package and its dependencies (and aren't being used by other packages).
+			- `sudo dnf autoremove`
+				- Gets rid of any unused dependencies in the entire system.
+			- Can also use `autoremove`, juist like `remove` and specify a package.
+- Install and Remove Package Groups
+	- Every `dnf` group has a group ID.
+		- In addition to its name.
+	- `dnf group list ids`
+		- Shows names and IDS.
+			- Shows the group ID inside parenthesis.
+		- Group References
+			- `dnf group install "Security Tools"`
+				- Group name enclosed in double quotes.
+			- Can use the ID of the security tools group, which is:
+				- `dnf group install security-tools`
+					- No need for double quotes with ID.
+			- Can also manage groups using package sub commands:
+				- `dnf install @"Security Tools"`
+					- Need to prefix group names and IDs with an @ symbol.
+				- `dnf install @security-tools`
+					- `dnf group list ids`
+						- Shows the groups that are installed.
+		- To update all packages in a group, use `group upgrade`
+			- `sudo dnf group upgrade security-tools`
+				- Upgrades all packages in the `security-tools` group.
+		- To remove a `dnf` group
+			- `sudo dnf group remove security-tools`
+				- Removes all packages in the group.
+			- If not all packages are removed.
+				- Can use the `autoremove` command.
+- Manage OS Updates
+	- `dnf check-update`
+		- Shows all software packages that need updating
+			- Any packages that are indented, are obsolete.
+			- The packages that they are indented from, will replace them.
+		- Can verify with `dnf list --obsoletes`
+	- Can upgrade specific packages with `sudo dnf upgrade grub2-tools`
+		- Upgrades the `grub2-tools` package and its dependencies.
+	- Upgrade the entire OS with `sudo dnf upgrade`
+	- If want to upgrade all packages except one, can use the `-x` option.
+		- `sudo dnf upgrade -x kernel*`
+			- Upgrades everything instead of the kernel packages.
+			- Can install a `dnf` version lock plugin to stop certain packages from ever being updated.
+				- `sudo dnf install python3-dnf-plugin-versionlock`
+		- There are times we want to lock the Kernel to a specific version so it is not accidentally updated.
+			- A reboot is necessary for the Kernel to be active.
+	- `dnf list --showduplicates kernel`
+		- Any packages shown in blue, are updates that are available.
+		- If want to lock the kernel so it is not updated.
+			- Available to versionlock it.
+		- If want to lock the current kernel.
+			- Can just use the name `kernel`
+		- `sudo dnf versionlock add kernel-4.18.0.193.el8`
+		- To see a list of version lock packages
+			- `dnf versionlock list`
+		- To delete a versionlock:
+			- `sudo dnf versionlock delete kernel-4.18.0.193.el8`
+		- To clear all versionlocks
+			- `sudo dnf versionlock clear`
+		- Can be more granular doing OS updates.
+			- `sudo dnf upgrade --security`
+				- Updates all packages with security updates to the latest version.
+					- Even if the latest version is only a bug fix.
+		- Preserving Configuration Files
+			- Another thing to keep in mind when installing single packages or upgrading the entire OS.
+				- Config files may be renamed when a new package is installed.
+			- Unmodified Configuration File
+				- Config file is overwritten
+			- Modified Configuration File
+				- Modified config file saved with `.rpmsave or .rpmorig` extension.
+					- `.rpmsave` used if the file was installed from a previous RPM package.
+					- `.rpmorig` extension, used if the file came from a non-rpm source.
+						- What would happen if install from source code and then move onto a later RPM package.
+				- New config file is saved from the package.
+			- Modified configuration file and noreplace label in package
+				- If admin has modified the configuration file.
+					- and software package maintainer included the `noreplace` label in the package.
+					- New config file is saved with `.rpmnew` extension.
+					- Original configuration is left in place.
+				- When installing with `dnf` or `rpm`, will see message that shows which operation was done, so can check there.
+			- Can check through the change logs, to see if issues or bugs were fixed.
+				- `dnf changelog kernel`
+			- To only get change logs  for packages listed to be updated:
+				- `dnf changelog --upgrades`
+- Update the Kernel
+	- List currently installed kernel packages.
+		- `dnf list kernel`
+			- Item in bold belong to the current kernel.
+			- Include the kernel itself, along with modules and tools.
+				- Example, kernel version is `4.18.0-` and the release is `193.el8`
+				- The major version is `4`
+				- The major revision is `18`
+				- Kernel patch is `0`
+				- Red Hat release is `193`
+				- Built for `Enterprise Linux 8`
+	- Installed kernels reside in ``/boot`
+	- `ls -l /boot`
+		- Kernels are named `vmlinuz`
+		- Have RAM Disk Images for Booting
+		- Configuration Files.
+	- To see the current Kernel and Release `-r`, type in:
+		- `uname -r`
+	- `sudo ls -l /boot/grub2`
+		- The configuration file for BIOS-based systems is `/boot/grub2/grub.cfg`
+		- Do not edit the files, as they are overwritten on Kernel updates.
+			- If you want to modify the way Linux boots, edit `/etc/default/grub`
+				- After making any changes here, have to run `grub2-mkconfig`, which updates the bootloader code.
+					- `sudo grub2-mkconfig`
+					- Ran automatically whenever a new Kernel is installed.
+						- Takes the `grub2` config files and updates the bootloader code.
+		- For a UEFI system, the bootloader code is stored in `/boot/efi/EFI/centos/grub.cfg`
+			- `redhat` woud replace `CentOS` for the correct path.
+	- To check for an update to the Kernel:
+		- `dnf list --available kernel`
+			- Then upgrade with `sudo dnf upgrade kernel`
+				- Downloads the newest kernel and installs it.
+				- For a specific kernel, can just put the kernel name in.
+					- Can use `dnf remove` to uninstall kernels.
+						- Different from `yum`, where it lets you uninstall a kernel that you are currently using.
+						- Workaround for `dnf`, where you can preserve `x` amount of packages that are the same name.
+							- A configuration item in the `/etc/dnf/dnf.conf`
+								- It is called `--latest-limit`
+									- Can also set this on the command line, when uninstalling kernels.
+	- If want to uninstall all but the last two kernels:
+		- `sudo dnf remove $(dnf repoquery --installonly --latest-limit=-2 -q)`
+			- Uses `dnf repoquery` to get a list of kernels further back than two and passes that list to `dnf remove`.
+	- To set the default boot kernel to another kernel
+		- Use the `grub2-set-default` comman.
+			- Indexing starts at 0, so the newest kernel would be zero.
+			- One kernel older than that would be one.
+		- To set the default Kernel to 1.
+			- `sudo grub2-set-default 1`
+		- Then need to update the `grub` config:
+			- `sudo grub2-mkconfig`
+		- Now if you reboot the system, it comes up with the second kernel.
+- Manage Kernel Modules
+	- In addition to the kernel itself, Linux has other modules that need to match the Kernel version.
+		- Modules add functionality to the kernel, that include:
+			- File systems.
+			- Device Drivers.
+		- 32-bit kernel modules are stored in:
+			- `/lib/modules`
+		- 64-bit kernels:
+			- `/lib/modules`
+	- `/lib/modules/$(uname -r)/kernel`
+		- The `$` in parenthesis around `uname -r` will then execute the command.
+			- The result is then inserted into its place.
+			- Easy way to insert the current kernel version into the path, without having to look it up.
+			- Shows directories for drivers, filesystems, network and virtualisation.
+				- `lsmod`
+					- Shows more information about available modules.
+				- `dm_mod`
+					- Provides LVM mirrors.
+					- `modinfo dm_mirror`
+						- Shows more information about a certain module.
+				- To remove a module:
+					- `sudo modprobe -vr dm_mirror`
+				- To load a new Kernel module:
+					- `sudo modprobe -v dm_mirror`
+					- The `modprobe` command also loads any dependencies that the module may have.
+					- In this case it loads the `dm-log`, `dm-region-hash` and `dm-mirror` modules.
+						- Some modules take a customer parameter, just like a Linux command.
+							- Good idea is to check the `man` page for the syntax of the parameters.
+							- Usually separated by space, but commas as well.
+						- `modprobe` will exit without loading the module, if the module is already loaded.
+							- If you want to change the parameters, have to unload the module and then reload it with custom parameters.
+								- Linux usually loads device drivers automatically, but sometimes needs to be forced.
+							- For instance, a device added across the network, but the local OS does not know it is there.
+							- This is the case with storage or remote printers.
+								- If the hardware is local, we can make Linux scan for it with `sudo depmod -v`
+									- Tells us the modules that are needed, either by hardware or other modules.
+										- `depmod` also updates the module dependency file in `/etc` as well.
+							- To have modules loading automatically at boot.
+								- Need to create a file in `/etc/modules-load.d` and include the module name.
+								- Can name the config file anything, as long as it ends in .conf
+							- Example:
+								- `sudo vim /etc/modules-load.d/dm_mirror.conf`
+									- Add the module name `dm_mirror`
+									- That's it. Then save it. Nothing else aside from the name needs to be in the file.
+								- The `dm_mirror` module willl be loaded at boot.
+							- If you want to make sure a file is not loaded at boot.
+								- Make a file in `/etc/modprobe.d`
+									- This is called `blacklisting` a module.
+								- If we want to blacklist an old soundblaster driver, so it does not load:
+									- `sudo vim /etc/modprobe.d/ctxfi.conf`
+										- The name of the file does not matter, since we are creating it ourselves.
+										- The only line we would add is `blacklist snd-ctxfi`
+											- Save that.
+										- It is rare that we have to manually manage modules like that.
+- The exam is 2.5 hours and has no Internet access. Access to `man` pages is permitted. This is done in a lab enviornment.
+	- The learning is done on a per product basis.
+
+
+
+
+
+
+
+
+
+
+
+
+ [virtualisation_diagram.jpg](../../_resources/virtualisation_diagram.jpg)
+
+-  Virtualisation Environments:
+![screen.jpg](../../_resources/screen.jpg)

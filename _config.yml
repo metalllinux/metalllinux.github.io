@@ -1,0 +1,85 @@
+theme: minimal-mistakes-jekyll
+minimal_mistakes_skin: "dark"
+
+title: "metalinux"
+subtitle: "Linux, Open Source & AI"
+name: "Howard Van Der Wal"
+description: "Sr. Customer Support Engineer @ CIQ | 10+ Years in Linux & Open Source"
+url: "https://metalinux.dev"
+baseurl: ""
+
+author:
+  name: "Howard Van Der Wal"
+  avatar: "/assets/images/metalinux-1.png"
+  bio: "Sr. Customer Support Engineer @ CIQ & CSM for APAC Customers | Daily Claude Power-User for Linux & Open Source Solutions | Rocky Linux Docs Contributor | CKA-certified | <3 Linux & Open Source"
+  location: "Japan"
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/metalllinux"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/howard-linux-open-source/"
+
+header:
+  overlay_image: "/assets/images/metalinux-2.png"
+
+locale: "en-GB"
+words_per_minute: 200
+breadcrumbs: true
+
+include:
+  - _pages
+
+collections:
+  linux_journey:
+    output: true
+    permalink: /linux-journey/:path/
+
+defaults:
+  - scope:
+      path: ""
+      type: "linux_journey"
+    values:
+      layout: single
+      sidebar:
+        nav: "linux-journey"
+      toc: true
+      toc_sticky: true
+      author_profile: false
+      render_with_liquid: false
+  - scope:
+      path: ""
+      type: "posts"
+    values:
+      layout: single
+      author_profile: true
+      show_date: true
+  - scope:
+      path: "_pages"
+      type: "pages"
+    values:
+      layout: single
+      author_profile: true
+
+paginate: 20
+paginate_path: /ai-journey/page:num/
+
+search: true
+search_full_content: false
+
+plugins:
+  - jekyll-paginate
+  - jekyll-sitemap
+  - jekyll-gist
+  - jekyll-feed
+  - jekyll-include-cache
+
+footer:
+  links:
+    - label: "GitHub"
+      icon: "fab fa-fw fa-github"
+      url: "https://github.com/metalllinux"
+    - label: "LinkedIn"
+      icon: "fab fa-fw fa-linkedin"
+      url: "https://www.linkedin.com/in/howard-linux-open-source/"

@@ -1,0 +1,65 @@
+main:
+  - title: "About"
+    url: /about/
+  - title: "Linux Journey"
+    url: /linux-journey/
+  - title: "AI Journey"
+    url: /ai-journey/
+  - title: "GitHub"
+    url: https://github.com/metalllinux
+
+linux-journey:
+  - title: "Topics"
+    children:
+      - title: "Rocky Linux"
+        url: /linux-journey/rocky-linux/
+      - title: "Kubernetes & Containers"
+        url: /linux-journey/kubernetes-and-containers/
+      - title: "Virtualisation"
+        url: /linux-journey/virtualisation/
+      - title: "Kernel & System Internals"
+        url: /linux-journey/kernel-and-system-internals/
+      - title: "Networking"
+        url: /linux-journey/networking/
+      - title: "Storage & Filesystems"
+        url: /linux-journey/storage-and-filesystems/
+      - title: "Security"
+        url: /linux-journey/security/
+      - title: "Editors & Tools"
+        url: /linux-journey/editors-and-tools/
+      - title: "Desktop & Distributions"
+        url: /linux-journey/desktop-and-distributions/
+      - title: "Automation & Configuration"
+        url: /linux-journey/automation-and-configuration/
+      - title: "General Linux"
+        url: /linux-journey/general-linux/
+  - title: "Courses & Projects"
+    children:
+      - title: "CKA Certification"
+        url: /linux-journey/courses/cka-certification/
+      - title: "RHCSA Cert Prep 1"
+        url: /linux-journey/courses/rhcsa-cert-prep-1/
+      - title: "RHCSA Cert Prep 2"
+        url: /linux-journey/courses/rhcsa-cert-prep-2/
+      - title: "LPIC-2 Certification"
+        url: /linux-journey/courses/lpic-2/
+      - title: "Advanced Linux Kernel"
+        url: /linux-journey/courses/advanced-linux-kernel/
+      - title: "Learning Kubernetes"
+        url: /linux-journey/courses/learning-kubernetes/
+      - title: "Learning Go"
+        url: /linux-journey/courses/learning-go/
+      - title: "Learning Regular Expressions"
+        url: /linux-journey/courses/learning-regular-expressions/
+      - title: "Python Essential Training"
+        url: /linux-journey/courses/python-essential-training/
+      - title: "Rocky Linux K8s Setup"
+        url: /linux-journey/courses/rocky-linux-kubernetes-setup/
+      - title: "Project TV"
+        url: /linux-journey/courses/project-tv/
+      - title: "Project TV v2 (Ubuntu)"
+        url: /linux-journey/courses/project-tv-v2/
+      - title: "MongoDB Essentials"
+        url: /linux-journey/courses/mongodb-essentials/
+      - title: "Ansible Playbooks"
+        url: /linux-journey/courses/ansible-playbooks/

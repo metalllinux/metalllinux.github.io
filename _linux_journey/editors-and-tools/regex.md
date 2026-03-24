@@ -1,0 +1,456 @@
+---
+title: "Regex"
+category: "editors-and-tools"
+tags: ["editors-and-tools", "regex"]
+---
+
+- Allow define text patterns.
+- Validate data by users.
+- Pick parts from longer strings.
+- Can convert data into new format.
+- Used for find-and-replace operations.
+- Allow search own code.
+- What are regular expressions?
+    - Tools for searching and matching parts of text.
+    - Symbols representing text pattern.
+    - Format language interpreted by regular expression processor.
+    - Used for matching, searching and replacing text.
+    - Used by programming languages.
+    - RegexP sometimes referred as regular expressions.
+- Usage Examples.
+    - Test if credit card number has correct nuber of digits.
+    - Test email address is in valid format.
+    - Search document either "colour" or "colour"
+    - Replace occurrences of "Bob", "Bobby", or "B." with "Robert"
+    - Count how many times "training" preceded by "computer", "video" or "online".
+- Use symbols to describe a pattern.
+- Matches is a keyword.
+- Regular expression matche text if correctly describes text.
+- Text matches regular express if correctly described by expression.
+- Choosing Regular Expression Engine
+    - C/C++
+    - Java
+    - Javascript
+    - .NET
+    - Perl
+    - PHP
+    - Python
+    - Ruby
+    - Unix
+    - Apache
+    - MySQL
+- RegEx Editors
+    - grep, egrep
+    - TextMate
+    - Atom
+    - Sublime
+    - Notepad++
+    - RegexBuddy
+    - RegexMagic
+    - regexr.com
+    - regex101.com
+    - regexpal.com
+- Notation Conventions and Modes
+    - Regular Expression
+        - /abc/
+            - Inside two forward slashes.
+                - Tells us there is an expression.
+        - / open
+        - / close
+        - Use without forward slashes.
+    - Text String
+        - "abc"
+            - Matches literal character in text string.
+            - Use without quotes.
+    - Flags indicate different modes using with RegEx
+- Modes
+    - Standard: /re/
+    - Global: /re/g
+    - Case insensitive: /re/i
+    - Multiline: /re/m
+        - By default can't span more than one line.
+- Grep
+    - g/re/p
+        - Used to be that global flag was at beginning.
+    - Global Regular Expression Print
+    - Often used as a verb.
+- Literal Characters
+    - /car/ matches "car"
+    - /car/ matches the first three letters of "carnival"
+    - Similar to searching in a word processor.
+    - Simplest match there is.
+    - Case-sensitive (by default)
+        - Good advice, write all Regex characters as case sensitive.
+            - More compatible and stops making mistakes.
+        - /car/i
+            - This would be case insensitive.
+    - Spaces are also characters.
+    - Standard (non-global) matching.
+        - Earliest (leftmost) match is always preferred.
+        - /zz/ matches the first set of Zs in "pizzazz."
+    - Global Matching
+        - All matches found throughout text.
+        - Use Global flag.
+            - /zz/g
+                - Keeps going until gets to the end of the string.
+        - Regex moves from left to write.
+        - /cat/
+            - The cow, camel , and **cat** communi**cat**ed.
+- Metacharacters
+    - Characters with special meaning.
+    - Transform literal characters into powerful expressions.
+    - Only a few to learn.
+    - \ . * + {} \[\] ^ $ | ? () : ! =
+    - Can have more than one meaning.
+    - /zz/ .* .+ \[abc\] $ ? (abc) \\d{2,3}/
+- Wildcard Metacharacter
+    - .
+        - Any character except newline.
+        - /h.t/ matches "hat", "hot" and "hit" but not "heat"
+            - Broadest match possible.
+            - Most common metacharacter.
+            - Most common mistake.
+                - /9.00/ matches "9.00", "9500" and "9-00".
+- A good regular expression should match text want target and only that text.
+    - /h.t/
+        - matches "h t"
+        - matches "h#t"
+        - Line breaks do not match.
+    - /.a.a.a/
+        - Should match "banana", "papaya"
+- Escaping Metacharacters
+    - \
+        - Escape the next character.
+        - What is escaping?
+            - Treat the metacharacter that follows as a literal character.
+    - Allows use of metacharacters as literal characters.
+    - Match a period with /\\./
+    - /9\\.00/ matches "9.00", not "9500" or "9-00"
+    - Match backslash by escaping a backslash
+        - (\\)
+    - Only for metacharacters
+    - Literal characters should never be escaped - may give them meaning.
+    - Quotation marks not metacharacters; do not need escaped.
+    - /9.00/g
+        - /9\\.00/g
+            - Matches 9.00
+    - /h.._export\\.txt/g
+        - Matches all of the following:
+            - his\_export.txt her\_export.txt
+                - Should escape literal period with \\.
+            - /resume.\\.txt/g
+                - resume1.txt resume2.txt resume3_txt.zip
+                    - The above expression matches the first two text files.
+            - /\\//g
+                - Shows that you want to see a literal forward slash.
+    - A space is a character
+    - Tabs
+        - (\\t)
+            - This is a control character.
+    - Line returns (\\r, \\n , \\r\\n)
+    - /a\\tb/g
+    - /c\\rd/g
+        - Matches this:
+            - abc
+                def
+- Define a Character Set
+    - \[
+        - Begin a character set.
+    - \]
+        - End a character set.
+    - Any one of several chracters.
+    - Only one character.
+    - Order of character in set does not matter.
+    - /\[aeiou\]/
+        - Matches any one vowel.
+    - /gr\[ea\]y/
+        - Matches "grey" and "grey"
+            - Only a single character.
+    - /gre\[ea\]t/ does not match "great"
+    - /#\[-123456789\]
+        - Contestant#1
+        - Contestant#2
+- Character Ranges
+    - Helps with character sets.
+    - /\[0123456789/
+    - /\[abcdefghijklmnopqrstuvwxyz\]/
+    - /\[ABCDEFGHIJKLMNOPQRSTUVWXYZ\]/
+        - - Indicates a range of characters.
+            - Includes all characters between two characters.
+                - Can do with letters and symbols.
+            - Only a metacharacter inside a character set; a dash otherwise.
+            - \[0-9\]
+            - \[A-Za-z\]
+                - These two ranges match the character sets above.
+            - Caution
+                - \[50-00\] is not all numbers from 50 to 99.
+                - It is same as \[0-9\].
+                - Character set including 5, 0-9, and 9.
+                - Not a number range, it is a character range.
+            - Matching phone number for example
+                - 555-666-7890
+                    - To match this:
+                        - /\[0-9\]\[0-9\]\[0-9\]-\[0-9\]\[0-9\]0-9\]-\[0-9\]\[0-9\]\[0-9\]/
+- Negative Metacharacters
+    - ^
+        - Negate a character set.
+    - Not any one of several characters.
+        - It can't be there.
+    - Add ^ as first character inside character set.
+    - /\[^aeiou\]/ matches any one consonant (non-vowel)
+    - /see\[^mn\]/ matches:
+        - "seek" and "sees"
+            - Does not match:
+                - "seem" or "seen"
+                - "see." and "see " also matched.
+                    - Caution
+                        - Does not match "see"
+    - \[^abcdefghijklmnopqrstuvwxyz\]
+    - /\[^a-zA-Z\]/g
+        - Looks for spaces.
+- Metacharacters Inside Character Sets
+    - Most metacharacters inside character sets already escaped.
+    - Do not need escape them again.
+    - /h\[a.\]t/ matches
+        - "hat" and "h.t"
+            - NOT "hot"
+    - Exceptions: \] - ^ \
+    - /var\[\[(\]\[0-9\]\[\\\])\]/
+        - Finds var(3) var\[4\]
+    - /file\[0\\-\\_\]1/
+    - /2013\[-/\]10\[-/\]05/
+    - /file\[0\\-\\_\]1/g
+        - file01 file-1 file\\1 file_1
+- Shorthand Character Sets
+    - \\d
+        - Digit
+            - \[0-9\]
+    - \\w
+        - Word Character
+            - \[a-zA-Z0-9\]
+    - \\s
+        - Whitespace
+            - \[\\t\\r\\n\]
+    - \\D
+        - Not digit
+            - \[^0-9\]
+    - \\W
+        - Not word character
+            - \[^a-zA-Z0-9_\]
+    - \\S
+        - Not whitespace
+            - \[^ \\t\\r\\n\]
+        - Very old expression tools in Unix might not have these.
+    - Caution
+        - Underscore is a word character!
+        - Hyphen is not a word character!
+    - /\\d\\d\\d\\d/ matches "1984", but not "text"
+    - /\\w\\w\\w/ matches "ABC", "123" and "1_A"
+    - /\\w\\s\\w\\w/ matches "I am", but not "Am I"
+    - /\[\\w\\-\]/ matches any word character or hyphen (useful)
+    - /\[^\\d\]/ same as /\\D/ and /\[^0-9\]/
+        - Caution
+            - /\[^\\d\\s\] IS NOT THE SAME AS \[\\D\\S\]
+            - /\[^\\d\\s\]/ IS NOT digit OR space character
+            - /\[\\D\\S\]/ EITHER NOT digit OR NOT space character
+    - \[^\\d\\s\]
+        - Finds something is not a digit or a space.
+- Repetition Metacharacters
+    - - - Preceding (item) zero or more times.
+            - Preceding (item) one or more times.
+    - ?
+        - Preceding (item) zero or one time.
+    - /.+/ matches any string of characters except a line return.
+    - /Good .+\\./ matches "Good morning.", "Good day.", "Good evening." and "Good night."
+    - /\\d+/
+        - matches "90210"
+    - /\\s\[a-\]+ed\\s/
+        - matches "lowercase words ending in "ed"
+    - /apples*/ matches
+        - "apple", "apples" and "applesssssss"
+    - /apples+/ matches
+        - "apples" and "applesssss", but not "apple"
+    - /appples?/ matches "apple" and "apples", but not "applessssss"
+    - /\\d\\d\\d+/ matches
+        - numbers with three digits or more.
+    - /colou?r/ matches
+        - "colour" and "colour"
+    - /.+/
+        - Anything but a new line gets matached.
+        - /Good .+\\./g
+            - Matches:
+                - Good morning.
+                - Good day.
+                - Good evening.
+                - Good night.
+- Quantified Repetition.
+    - {
+        - Start quantified repetition of preceding item.
+    - }
+        - End quantified repetition of preceding item.
+    - Specify amount of times something is repeated.
+        - {min,max}
+            - min and max are positive numbers.
+            - min must always be included and can be zero.
+            - max is optional.
+    - Three syntaxes
+        - \\d{4,8} matches numbers with four - eight digits.
+        - \\d{4} matches numbers exactly four digits (min is max).
+        - \\d{4} matches numbers with four or more digits (max is infinite).
+    - \\d{0,} is same as \\d*
+    - \\d{1} is same as \\d+
+    - /\\d{3}-\\d{3}-\\d{4}/
+        - Matches most US phone numbers.
+    - /A{1,2} bonds/ matches
+        - "A bonds" and "AA bonds"
+            - NOT "AAA bonds"
+    - /\\d\\. \\w{5}\\s/g
+        - 1\. a
+        - 2\. ab
+        - 3\. abc
+        - 4\. abcd
+        - 5\. abcde
+        - 6\. abcdef
+            - The above expression matches number 5. string.
+- Greedy Expressions
+    - /\\d+\\w+\\d+/
+        - 01\_FY\_07\_report\_99.xls
+    - /".+", ".+"/
+        - "Milton", "Waddams", "Initech, Inc."
+        - "Milton", "Waddams"
+        - "Milton", "Waddams", "Initech, Inc."
+    - Standard repetition quantifiers are greedy.
+    - Expression tries match longest possible string.
+    - Defers to achieving overall match.
+    - / .+\\.jpg/
+        - matches "filename.jpg"
+    - The + is greedy, but "gives back" the ".jpg" to make match.
+    - Gives back as little as possible.
+        - /.*\[0-9\]+/
+            - matches "Page 266"
+            - .\* matches "Page 26"
+            - \[0-9\]+ portion matches only "6"
+            - Match as much as possible before give control next expression part.
+        - / .*\[0-9\]+/
+            - End of string doesn't match wildcard anymore.
+                - Page 266
+    - Regular Expressions are eager.
+        - Try and give back to you.
+- Lazy Expression
+    - ?
+        - Make preceding quantifier lazy.
+    - \*? \- zero or one time.
+    - \+? \- lazy behaviour
+        - Instructs quantifier to do lazy strategy, before greedy strategy.
+    - Still defers to overall match.
+    - Not necessarily faster or slower.
+    - /.*?\[0-9\]+/
+        - Page 266
+            - Matches the whole thing here.
+- Grouping Metacharacters
+    - (
+        - Start grouped expression.
+    - )
+        - End grouped expression.
+    - Group portions of the expression.
+    - Apply repetition operators to a group.
+    - Create a group of alternation expressions.
+    - Captures group for use in matching and replacing.
+    - /(abc)+/ matches
+        - "abc" and "abcabcabc"
+        - /(in)?dependent/ matches
+            - "independent" and "dependent"
+        - /run(s)?/ same as /runs?/
+    - Regexr can replace parts of text you find.
+    - $1, $2 can give you matching groups of characters.
+- Alternation Metacharacter
+    - |
+        - Match previous or next expression.
+    - | is an OR
+        - Either match expression on left or match expression on right.
+        - Ordered, leftmost expression gets precedence.
+    - Multiple choices daisy-chained.
+    - Group alternation expressions keep distinct.
+    - /apple|orange/
+        - match "apple" and "orange"
+    - /abc|def|ghi|jkl/
+        - matches "abc", "def", "ghi" and "jkl"
+    - /apple(juice|sauce)/ not same as /applejuice|sauce/
+    - /w(eilie)rd/
+        - matches "weird" and "wierd"
+    - /(AA|BB|CC){4}/
+        - matches "AABBAACC" and "CCCCBBBB"
+- Efficiency Using Alternation
+    - /(peanut|peanutbutter)/g
+    - /peanut(butter)??/g
+        - matches "peanut", but not "butter".
+    - /(abc|def|ghi|jkl)/
+    - /(three|see|thee|tree)/
+        - - I think those are thin trees.
+    - Put simplest and most efficient expression first.
+    - /\\w+_\\d{2,4}|d{4}\_export|export\_\\d{2}}/
+    - /export_\\d{2}|\\d{4}\_export|\\w+\_\\d{2,4}
+- Start and End Anchors
+    - ^
+        - Start of string/line.
+    - $
+        - End of string/line
+    - \\A
+        - Start of string, never end of line.
+    - \\Z
+        - End of string, never end of line.
+    - Reference a position, not a character.
+    - They are zero-width.
+    - /^apple/ or /\\Aapple/
+    - /apple$ or /apple\\Z/
+    - /^apple$/ or /\\Aapple\\Z/
+        - Javascript does not support these.
+        - Have to use PCRE.
+    - /^def/
+        - matches first occurence of string
+            - defabcdefghi
+    - /def$/
+        - Check if at the end of the string
+            - defabcdefghi**def**
+    - /\\w+@\\w+\\.\[a-z\]{3}/g
+        - matches **someone@nowhere.com**-blahblahblah
+- Line Breaks and Multiline Mode
+    - Using perl compatible here.
+    - /^\[a-z \]+/g
+    - Single-line mode
+        - default mode.
+            - ^ and $ do not match at line breaks.
+            - \\A and \\Z do not match at line breaks.
+    - Multiline mode
+        - ^ and $ match start and end of lines.
+        - \\A and \\Z not match line breaks.
+            - /m
+                - Tells it to evaluate it in multiline mode.
+
+![Screenshot 2022-06-10 at 15.03.09.png](../_resources/Screenshot%202022-06-10%20at%2015.03.09.png)
+
+- /^\[a-z \]+$/gm
+    - Matches everything here except "sweet peas (2)":
+        milk
+        apple juice
+        sweet peas (2)
+- Word Boundaries
+    - \\b
+        - Word boundary (start/end of word)
+    - \\B
+        - Not word boundary
+    - Reference position and not actual character.
+    - Before first word character in string.
+    - After last word character in string.
+    - Between word character and non-word character.
+    - Word Characters: \[A-Za-z0-9_\]
+    - /\\b\\w+\\b/ finds four matches in "This is a test."
+    - /\\b\\w+\\b/ matches
+        - "abc_123", only part of "top-notch"
+    - /\\bNew\\bYork\\b/ does not match "New York"
+    - /\\bNew\\b \\bYork\\b/ matches "New York"
+    - /\\B\\w+\\B/ finds two matches in "This is a test.", "hi and "es".
+    - /\\ba\\b/g
+        - looks for the letter "a" with words on the side of it.
+    - /\\b\\w+s\\b/
+        - We picked apples.

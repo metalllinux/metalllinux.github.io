@@ -1,0 +1,93 @@
+---
+title: "Tube Archivist Setup"
+category: "project-tv-v2"
+tags: ["project-tv-v2", "tube", "archivist", "setup"]
+---
+
+* Create the `cache` directory:
+```
+mkdir -p /home/howard/tube_archivist/cache
+```
+* Create an `Elasticsearch` directory:
+```
+mkdir -p /home/howard/tube_archivist/elasticsearch
+```
+* Create a `redis` directory:
+```
+mkdir -p /home/howard/tube_archivist/redis
+```
+* Create the `docker compose` directory:
+```
+mkdir -p /home/howard/docker_compose_files/tube_archivist
+```
+* Generate the `docker compose` file:
+```
+cat << "EOF" | tee /home/howard/docker_compose_files/tube_archivist/docker-compose.yml
+version: '3.5'
+services:
+  tubearchivist:
+    container_name: tubearchivist
+    restart: unless-stopped
+    image: bbilly1/tubearchivist
+    ports:
+      - 8000:8000
+    volumes:
+      - /mnt/vector/youtube:/youtube
+      - /home/howard/tube_archivist/cache:/cache
+    environment:
+      - ES_URL=http://archivist-es:9200     # needs protocol e.g. http and port
+      - REDIS_HOST=archivist-redis          # don't add protocol
+      - HOST_UID=1000
+      - HOST_GID=1000
+      - TA_HOST=192.168.1.107               # set your host name
+      - TA_USERNAME=tubearchivist           # your initial TA credentials
+      - TA_PASSWORD=sC5to*bdA62N7&          # your initial TA credentials
+      - ELASTIC_PASSWORD=sC5to*bdA62N7&     # set password for Elasticsearch
+      - TZ=Asia/Tokyo                 # set your time zone
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 2m
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    depends_on:
+      - archivist-es
+      - archivist-redis
+  archivist-redis:
+    image: redis/redis-stack-server
+    container_name: archivist-redis
+    restart: unless-stopped
+    expose:
+      - "6379"
+    volumes:
+      - /home/howard/tube_archivist/redis:/data
+    depends_on:
+      - archivist-es
+  archivist-es:
+    image: bbilly1/tubearchivist-es         # only for amd64, or use official es 8.16.0
+    container_name: archivist-es
+    restart: unless-stopped
+    environment:
+      - "ELASTIC_PASSWORD=sC5to*bdA62N7&"   # matching Elasticsearch password
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "xpack.security.enabled=true"
+      - "discovery.type=single-node"
+      - "path.repo=/usr/share/elasticsearch/data/snapshot"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - /home/howard/tube_archivist/elasticsearch:/usr/share/elasticsearch/data    # check for permission error when using bind mount, see readme
+    expose:
+      - "9200"
+EOF
+```
+* Change into the `tube_archivist` directory:
+```
+cd /home/howard/docker_compose_files/tube_archivist
+```
+* Run `docker compose up -d`:
+```
+docker compose up -d
+```
