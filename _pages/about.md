@@ -20,7 +20,7 @@ Based in Nasushiobara, Tochigi, Japan
 
 ## About
 
-I'm a Linux-focused infrastructure engineer with 10+ years of hands-on experience across a wide range of open-source technologies and large-scale HPC environments.
+I'm an AI and Linux-focused infrastructure engineer with 10+ years of hands-on experience across a wide range of open-source technologies and large-scale HPC environments.
 
 - **Containers & Runtime:** Rootless Podman (overlay driver, cgroup v2, user-namespace mapping, subuid/subgid handling), Enroot integration, Docker, OCI image workflows, troubleshooting of container networking (rootless Podman, multicast limits, NFS-shared storage).
 
