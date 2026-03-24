@@ -1,10 +1,79 @@
 ---
 ---
 
+/* Override max-width BEFORE importing the theme */
+$max-width: 1600px;
+
 @import "minimal-mistakes/skins/dark";
 @import "minimal-mistakes";
 
-/* Banner/header image improvements */
+/* ========================================
+   RESPONSIVE WIDTH - ultrawide, desktop, mobile
+   ======================================== */
+
+/* Ultrawide monitors (2560px+) */
+@media (min-width: 2560px) {
+  .page {
+    max-width: 1920px;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 2em;
+    padding-right: 2em;
+  }
+
+  .page__hero--overlay {
+    max-width: 100%;
+  }
+
+  .masthead__inner-wrap {
+    max-width: 1920px;
+  }
+
+  .page__content {
+    font-size: 1.1em;
+  }
+}
+
+/* Wide monitors (1920px-2559px) */
+@media (min-width: 1920px) and (max-width: 2559px) {
+  .page {
+    max-width: 1600px;
+    padding-left: 1.5em;
+    padding-right: 1.5em;
+  }
+
+  .masthead__inner-wrap {
+    max-width: 1600px;
+  }
+}
+
+/* Standard desktop (1280px-1919px) - theme defaults mostly fine */
+@media (min-width: 1280px) and (max-width: 1919px) {
+  .page {
+    max-width: 1400px;
+  }
+
+  .masthead__inner-wrap {
+    max-width: 1400px;
+  }
+}
+
+/* Make the full-width hero banner always stretch edge to edge */
+.page__hero--overlay,
+.page__hero {
+  max-width: 100% !important;
+  width: 100%;
+}
+
+/* Masthead (navigation bar) should also stretch full width */
+.masthead {
+  max-width: 100%;
+}
+
+/* ========================================
+   BANNER / HEADER
+   ======================================== */
+
 .page__hero--overlay {
   padding: 6em 0;
   background-size: cover;
@@ -16,23 +85,31 @@
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
 }
 
-/* Author profile sidebar - cleaner layout */
+/* ========================================
+   AUTHOR PROFILE SIDEBAR
+   ======================================== */
+
 .author__avatar img {
   border-radius: 50%;
   border: 3px solid #52adc8;
 }
 
 .author__bio {
-  font-size: 0.8em;
-  line-height: 1.4;
+  font-size: 0.85em;
+  line-height: 1.5;
   margin-top: 0.5em;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .author__name {
   font-size: 1.1em;
 }
 
-/* Better content spacing */
+/* ========================================
+   CONTENT AREA
+   ======================================== */
+
 .page__content {
   font-size: 1em;
   line-height: 1.7;
@@ -48,32 +125,69 @@
   margin-top: 1.5em;
 }
 
-/* Table improvements */
+/* ========================================
+   TABLES
+   ======================================== */
+
 .page__content table {
   font-size: 0.85em;
+  width: 100%;
+  display: table;
 }
 
-/* Navigation bar improvements for many items */
+/* ========================================
+   NAVIGATION BAR
+   ======================================== */
+
+/* Fit more items in the nav bar */
 .greedy-nav .visible-links a {
-  font-size: 0.85em;
-  padding: 0 0.6em;
+  font-size: 0.8em;
+  padding: 0 0.5em;
 }
 
-/* Splash page hero buttons */
+/* On wider screens, give nav items more room */
+@media (min-width: 1400px) {
+  .greedy-nav .visible-links a {
+    font-size: 0.85em;
+    padding: 0 0.7em;
+  }
+}
+
+@media (min-width: 1920px) {
+  .greedy-nav .visible-links a {
+    font-size: 0.9em;
+    padding: 0 0.9em;
+  }
+}
+
+/* ========================================
+   SPLASH PAGE HERO BUTTONS
+   ======================================== */
+
 .page__hero--overlay .btn {
   font-size: 1em;
   padding: 0.6em 1.2em;
   margin: 0.3em;
 }
 
-/* Code blocks */
+/* ========================================
+   CODE BLOCKS
+   ======================================== */
+
 .page__content pre {
   font-size: 0.8em;
   line-height: 1.5;
   padding: 1em;
 }
 
-/* Footer link spacing */
+/* ========================================
+   FOOTER
+   ======================================== */
+
 .page__footer-follow li {
   margin-right: 0.5em;
+}
+
+.page__footer {
+  max-width: 100%;
 }
