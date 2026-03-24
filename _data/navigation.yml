@@ -5,6 +5,8 @@ main:
     url: /linux-journey/
   - title: "AI Journey"
     url: /ai-journey/
+  - title: "Contributions"
+    url: /contributions/
   - title: "GitHub"
     url: https://github.com/metalllinux
 
