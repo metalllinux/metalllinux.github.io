@@ -10,11 +10,11 @@ wget https://bitcoin.org/bin/bitcoin-core-28.1/bitcoin-28.1-x86_64-linux-gnu.tar
 ```
 * Create the pool:
 ```
-sudo zfs create silver4/bitcoin
+sudo zfs create mypool/bitcoin
 ```
 * Change the user ownership:
 ```
-sudo chown -R howard:howard /mnt/silver4/bitcoin/
+sudo chown -R myuser:myuser /mnt/mypool/bitcoin/
 ```
 * Install the EPEL package:
 ```

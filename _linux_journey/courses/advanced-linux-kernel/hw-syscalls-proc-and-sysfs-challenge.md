@@ -16,7 +16,7 @@ lrwxrwxrwx 1 root root        26  3月 19 11:40 vmlinuz -> vmlinuz-5.15.0-101-ge
 	* Swap memory is used by the Kernel itself.
 	* Can also get information from a `proc` file, with `/proc/meminfo` looks like this:
 ```
-howard@explosion:~$ head /proc/meminfo
+myuser@myhost:~$ head /proc/meminfo
 MemTotal:       16299920 kB
 MemFree:        11054764 kB
 MemAvailable:   13460144 kB
@@ -98,20 +98,20 @@ CHDIR(2)
 * Question 7, Run a `sleep 100` with `&` and put in in the background.
 	* For example, running `sleep 100 &` will run the command in the background and provide us our prompt back. The process ID is also provided below as an example:
 ```
-howard@explosion:~$ sleep 100 &
+myuser@myhost:~$ sleep 100 &
 [1] 7028
 ```
 * We then run `cd fd` and then `ls -l` and we see:
 ```
-lrwx------ 1 howard howard 64  3月 26 18:06 0 -> /dev/pts/1
-lrwx------ 1 howard howard 64  3月 26 18:06 1 -> /dev/pts/1
-lrwx------ 1 howard howard 64  3月 26 18:06 2 -> /dev/pts/1
-lrwx------ 1 howard howard 64  3月 26 18:06 74 -> 'socket:[22516]'
-lrwx------ 1 howard howard 64  3月 26 18:06 78 -> 'socket:[22518]'
+lrwx------ 1 myuser myuser 64  3月 26 18:06 0 -> /dev/pts/1
+lrwx------ 1 myuser myuser 64  3月 26 18:06 1 -> /dev/pts/1
+lrwx------ 1 myuser myuser 64  3月 26 18:06 2 -> /dev/pts/1
+lrwx------ 1 myuser myuser 64  3月 26 18:06 74 -> 'socket:[22516]'
+lrwx------ 1 myuser myuser 64  3月 26 18:06 78 -> 'socket:[22518]'
 ```
 * We can see that the `sleep` command was running on the window `/dev/pts/1`:
 ```
-howard@explosion:/proc/7028/fd$ tty
+myuser@myhost:/proc/7028/fd$ tty
 /dev/pts/1
 [1]+  Done                    sleep 100  (wd: ~)
 (wd now: /proc/7028/fd)
@@ -125,14 +125,14 @@ howard@explosion:/proc/7028/fd$ tty
 	* Good way is to use the `find` command.
 	* In `/proc/sys`, run the following: `find . | grep ip_forward`. Example output is:
 ```
-howard@explosion:/proc/sys$ find . | grep ip_forward
+myuser@myhost:/proc/sys$ find . | grep ip_forward
 ./net/ipv4/ip_forward
 ./net/ipv4/ip_forward_update_priority
 ./net/ipv4/ip_forward_use_pmtu
 ```
 * Then we change directory to `cd /net/ipv4`. We `cat ip_forward`. In my example, I see:
 ```
-howard@explosion:/proc/sys$ cat ./net/ipv4/ip_forward
+myuser@myhost:/proc/sys$ cat ./net/ipv4/ip_forward
 0
 ```
 * Because it is set to `0`, that means it is not forwarding packets between interfaces.
@@ -141,9 +141,9 @@ howard@explosion:/proc/sys$ cat ./net/ipv4/ip_forward
 		* That will output all of the system call commands that are available.
 		* Need to be `root` and can `sudo` the Shell with `sudo bash`. Will then look like the following:
 ```
-howard@explosion:/proc/sys$ sudo bash
-[sudo] password for howard: 
-root@explosion:/proc/sys# sysctl -a | grep ip_forward
+myuser@myhost:/proc/sys$ sudo bash
+[sudo] password for myuser: 
+root@myhost:/proc/sys# sysctl -a | grep ip_forward
 net.ipv4.ip_forward = 0
 net.ipv4.ip_forward_update_priority = 1
 net.ipv4.ip_forward_use_pmtu = 0
@@ -151,7 +151,7 @@ net.ipv4.ip_forward_use_pmtu = 0
 * It leaves off the `/proc/sys` part and replaces the `/` for `.` instead.
 * Can then report the value with `sysctl net.ipv4.ip_forward` and it outputs the following:
 ```
-root@explosion:/proc/sys# sysctl net.ipv4.ip_forward
+root@myhost:/proc/sys# sysctl net.ipv4.ip_forward
 net.ipv4.ip_forward = 0
 ```
 * We can change these values with:
@@ -160,7 +160,7 @@ sysctl net.ipv4.ip_forward=1
 ```
 * Checking the value again, it will then say:
 ```
-root@explosion:/proc/sys# sysctl net.ipv4.ip_forward
+root@myhost:/proc/sys# sysctl net.ipv4.ip_forward
 net.ipv4.ip_forward = 1
 ```
 * Can set a config file, so whenever the system is booted, `ip_forward` is set to `number`.
@@ -173,7 +173,7 @@ lrwxrwxrwx 1 root root 0  3月 27 08:55 sda -> ../devices/pci0000:00/0000:00:1f.
 * Confirmed there is a block device called `sda`.
 * To check for device files for `sda`, we can do:
 ```
-howard@explosion:/sys/block$ ls -l /dev/sda*
+myuser@myhost:/sys/block$ ls -l /dev/sda*
 brw-rw---- 1 root disk 8, 0  3月 27 08:55 /dev/sda
 brw-rw---- 1 root disk 8, 1  3月 27 08:55 /dev/sda1
 brw-rw---- 1 root disk 8, 2  3月 27 08:55 /dev/sda2
@@ -190,7 +190,7 @@ strace fdisk -l |&
 * To check how many things it opened, we can use `strace fdisk -l |& grep sys/dev/block | grpe open | wc -l`.
 * In my case, we get `28`:
 ```
-root@explosion:/sys/block# strace fdisk -l |& grep sys/dev/block | grep open | wc -l
+root@myhost:/sys/block# strace fdisk -l |& grep sys/dev/block | grep open | wc -l
 28
 ```
 * Question 11. Using `dmesg` and `grep`, do you see the Kernel reporting the Kernel Command Line?
@@ -204,7 +204,7 @@ root@explosion:/sys/block# strace fdisk -l |& grep sys/dev/block | grep open | w
 	* `grep -rl BOOT_IMAGE .`
 		* The `l` will list out the file if there is a match. `r` of course is for `recursive`. That outputs something similar to:
 ```
-howard@explosion:/var/log$ sudo grep -rl BOOT_IMAGE .
+myuser@myhost:/var/log$ sudo grep -rl BOOT_IMAGE .
 ./dmesg.0
 ./syslog.1
 ./installer/syslog
@@ -224,7 +224,7 @@ howard@explosion:/var/log$ sudo grep -rl BOOT_IMAGE .
 * What other devices are character devices and share the same major number with `/dev/null`?
 	* In the `/dev/` directory, we have the following:
 ```
-howard@explosion:/dev$ ls -l null
+myuser@myhost:/dev$ ls -l null
 crw-rw-rw- 1 root root 1, 3  3月 27 21:40 null
 ```
 * Major is `1` and Minor is `3`
@@ -235,7 +235,7 @@ ls -l | grep "^c" | grep " 1,"
 * The `^` will match lines that start with a `c` (character device file)
 * The `grep " 1,"` will show lines where the major is number `1`. That will then output:
 ```
-howard@explosion:/dev$ ls -l | grep "^c" | grep " 1,"
+myuser@myhost:/dev$ ls -l | grep "^c" | grep " 1,"
 crw-rw-rw-  1 root   root      1,   7  3月 27 21:40 full
 crw-r--r--  1 root   root      1,  11  3月 27 21:40 kmsg
 crw-r-----  1 root   kmem      1,   1  3月 27 21:40 mem
@@ -252,8 +252,8 @@ crw-rw-rw-  1 root   root      1,   5  3月 27 21:40 zero
 	* That then creates a character device file with a Major numbe of `1` and a Minor number of `2`.
 	* If you then try to `cat` the file, the Kernel will not recognise it.
 ```
-howard@explosion:/tmp$ sudo mknod try_me c 1 2
-howard@explosion:/tmp$ cat try_me
+myuser@myhost:/tmp$ sudo mknod try_me c 1 2
+myuser@myhost:/tmp$ cat try_me
 cat: try_me: No such device or address
 ```
 * There is nothing that corresponds to a device file with `1, 2`

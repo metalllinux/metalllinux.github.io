@@ -10,6 +10,6 @@ Displays the `directory` stack.
 
 `dirs -v -l`. Which provides an output like:
 ```
-[howard@skwigelf Documents]$ dirs -v -l
- 0  /home/howard/Documents
+[myuser@myhost Documents]$ dirs -v -l
+ 0  /home/myuser/Documents
 ```

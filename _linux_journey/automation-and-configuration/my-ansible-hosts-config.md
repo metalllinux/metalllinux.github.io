@@ -59,9 +59,9 @@ tags: ["automation-and-configuration", "ansible", "hosts", "config"]
 ## green.example.com
 ## blue.example.com
 
-[metalocalypse]
-skwigelf ansible_ssh_host=192.168.3.53
-mordhaus ansible_ssh_host=192.168.3.51
-tribunal ansible_ssh_host=192.168.3.50
+[homelab]
+host-a ansible_ssh_host=192.168.3.53
+host-b ansible_ssh_host=192.168.3.51
+host-c ansible_ssh_host=192.168.3.50
 
 ```

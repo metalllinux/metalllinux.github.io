@@ -27,7 +27,7 @@ dr-xr-xr-x 337 root root     0 Jan 24 08:52 proc
 		* In that directory, you will find a file called `version`
 		* If you then `cat version`, you then receive an output like this:
 ```
-howard@explosion:~$ cat /proc/sys/kernel/version
+myuser@myhost:~$ cat /proc/sys/kernel/version
 #101-Ubuntu SMP Tue Nov 14 13:30:08 UTC 2023
 ```
 * When running `cat` and receiving the output of the above, we interacted with the Linux API.
@@ -60,7 +60,7 @@ howard@explosion:~$ cat /proc/sys/kernel/version
 		* Google has an outage in their GCP. Took 3.5 hours to come back online. Google was re-provisioning some servers. During the re-provisioning, they had a shared caching database. When the servers tried to connect to each other, they exceeded the maximum amount of open connections that the Linux Kernel allows by default. The Kernel has limits that are put in place. The engineers needed to increase the limit within the Linux Kernel.
 			* An example is the maximum amount of open files. This would be `/proc/sys/fs` for file system.
 				* Inside, you will see `file-max`, which is the maximum amount of files you can have open.
-				* `file-nr` is the amount of files that I currently have open. For example we have `howard@explosion:~$ cat /proc/sys/fs/file-nr
+				* `file-nr` is the amount of files that I currently have open. For example we have `myuser@myhost:~$ cat /proc/sys/fs/file-nr
 12448	0	9223372036854775807` and so `12448` are currently open.
 				* If we want to change `file-max`, we can just open that as a text file and then save it. If you make a typo, that can cause a lot of issues.
 					* The utility used instead is `sysctl` or System Control.
@@ -71,7 +71,7 @@ howard@explosion:~$ cat /proc/sys/kernel/version
 								* If you want the changes to persist, you have to store them in the filesystem.
 									* In older Linux distros, you can change `/etc/sysctl.conf`, make the changes to the Kernel there and they then persist. There is a file afterwards called `sysctl.d`. Example of `sysctl.d` for Linux Mint:
 ```
-howard@explosion:/etc/sysctl.d$ ls
+myuser@myhost:/etc/sysctl.d$ ls
 10-console-messages.conf  10-ipv6-privacy.conf  10-kernel-hardening.conf  10-magic-sysrq.conf  10-network-security.conf  10-ptrace.conf  10-zeropage.conf  99-sysctl.conf  README.sysctl
 ```
 * Each of the above changes are numbered at the start and are applied in order from lowest to highest.

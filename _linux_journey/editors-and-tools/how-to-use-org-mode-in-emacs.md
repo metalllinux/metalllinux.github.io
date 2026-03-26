@@ -14,7 +14,7 @@ tags: ["editors-and-tools", "org", "mode", "emacs"]
 
 #+title:  Org Mode Basics in Doom Emacs
 #+description: An org mode document
-#+author: Howard Van Der Wal
+#+author: Example User
 
 * A new headline
  ** Level 2 headline

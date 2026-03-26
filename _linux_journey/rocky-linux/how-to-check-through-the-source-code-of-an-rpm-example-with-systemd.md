@@ -29,7 +29,7 @@ rpmbuild --nodeps -bp ~/rpmbuild/SPECS/systemd.spec
 * Confirmed that indeed 20% of RAM is used in Rocky Linux 9.6:
 
 ```
-grep TMPFS_LIMITS_RUN /home/howard/rpmbuild/BUILD/systemd-252/src/shared/mount-util.h
+grep TMPFS_LIMITS_RUN /home/myuser/rpmbuild/BUILD/systemd-252/src/shared/mount-util.h
 #define TMPFS_LIMITS_RUN             ",size=20%,nr_inodes=800k"
 ```
 

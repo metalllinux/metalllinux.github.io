@@ -14,9 +14,9 @@ docker run -d -t \
     --name=handbrake \
     -p 5800:5800 \
     -p 5900:5900 \
-    -v /home/howard/.config/handbrake:/config:rw \
-    -v /home/howard/to_encode_queue:/storage:ro \
-    -v /home/howard/completed_videos:/output:rw \
+    -v /home/myuser/.config/handbrake:/config:rw \
+    -v /home/myuser/to_encode_queue:/storage:ro \
+    -v /home/myuser/completed_videos:/output:rw \
     --gpus all \
     zocker160/handbrake-nvenc:latest
 ```

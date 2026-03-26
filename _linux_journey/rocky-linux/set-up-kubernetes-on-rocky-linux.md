@@ -7,7 +7,7 @@ tags: ["rocky-linux", "kubernetes", "rocky", "linux"]
 ```
 # Add IPs of all hosts to each /etc/hosts file
 sudo tee /etc/hosts <<EOF
-192.168.1.104   knuckles-rl9.kubernetes.local
+192.168.1.104   server-c-rl9.kubernetes.local
 192.168.1.103   amy-rl9.kubernetes.local
 
 # Disable swap on each node

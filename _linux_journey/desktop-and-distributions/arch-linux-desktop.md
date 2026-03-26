@@ -199,16 +199,16 @@ systemctl enable firewalld
 systemctl enable acpid
 
 # Add user.
-useradd -m howard
+useradd -m myuser
 
-echo howard:password | chpasswd
+echo myuser:password | chpasswd
 
-usermod -aG libvirt howard
+usermod -aG libvirt myuser
 
 # To be able to access the cups interface at localhost:631
-usermod -aG sys howard
+usermod -aG sys myuser
 
-echo "howard ALL=(ALL) ALL" >> /etc/sudoers.d/howard
+echo "myuser ALL=(ALL) ALL" >> /etc/sudoers.d/myuser
 
 # Edit the mkinitcpio file.
 vim /etc/mkinitcpio.conf
@@ -255,7 +255,7 @@ sudo mkdir /.snapshots
 sudo mount -a
 sudo chmod 750 /.snapshots
 sudo vim /etc/snapper/configs/shadow
-# Change ALLOW_USERS to ALLOW_USERS="howard"
+# Change ALLOW_USERS to ALLOW_USERS="myuser"
 # Change timeline cleanup
 TIMELINE_MIN_AGE="1800"
 TIMELINE_LIMIT_HOURLY="5"

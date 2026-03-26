@@ -38,7 +38,7 @@ func main() {
 ```
 * The `%T` is know as a `verb` or a `placeholder`. This will output the following:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.howard/MVnh52/3
+:!'go' 'run' '/home/myuser/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.myuser/MVnh52/3
 This is Go!
 The variable's type is string
 ```
@@ -62,7 +62,7 @@ func main() {
 ```
 * This looks like:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.howard/MVnh52/5                                                                                                                               
+:!'go' 'run' '/home/myuser/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.myuser/MVnh52/5                                                                                                                               
 This is Go!
 The variable's type is string42
 ```
@@ -86,7 +86,7 @@ func main() {
 ```
 * This then outputs:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.howard/MVnh52/8
+:!'go' 'run' '/home/myuser/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.myuser/MVnh52/8
 This is Go!
 The variable's type is string
 42
@@ -114,7 +114,7 @@ func main() {
 ```
 * This outputs the following:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.howard/rnzMUc/3
+:!'go' 'run' '/home/myuser/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.myuser/rnzMUc/3
 This is Go!
 The variable's type is string
 42
@@ -148,7 +148,7 @@ func main() {
 ```
 * This then outputs:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.howard/rnzMUc/6                                                                                                                                
+:!'go' 'run' '/home/myuser/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.myuser/rnzMUc/6                                                                                                                                
 This is Go!
 The variable's type is string
 42
@@ -270,7 +270,7 @@ func main() {
 ```
 * The output would then be:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.howard/rnzMUc/12
+:!'go' 'run' '/home/myuser/learning-go-2875237/practice/main.go'  2>&1| tee /tmp/nvim.myuser/rnzMUc/12
 [No write since last change]
 This is Go!
 The variable's type is string

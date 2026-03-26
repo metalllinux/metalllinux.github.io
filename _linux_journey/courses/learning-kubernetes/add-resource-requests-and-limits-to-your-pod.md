@@ -77,7 +77,7 @@ kubectl apply -f deployment.yaml
 ```
 * If you receive an output such as:
 ```
-howard@skwigelf:~$ kubectl get pod -n development
+myuser@myhost:~$ kubectl get pod -n development
 NAME                                   READY   STATUS        RESTARTS      AGE
 pod-info-deployment-7587d5cc86-lkccq   1/1     Terminating   1 (25h ago)   4d19h
 pod-info-deployment-7587d5cc86-vk6br   1/1     Running       1 (25h ago)   4d19h

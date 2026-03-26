@@ -22,7 +22,7 @@ func main() {
 ```
 * Running the above will then generate the following output:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.howard/T2rxr5/2
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.myuser/T2rxr5/2
 Value of p: <nil>
 ```
 * However, if we add the asterisk to the variable name like so:
@@ -56,7 +56,7 @@ func main() {
 ```
 * If we run this code, we can see that the value is correctly `42`:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.howard/T2rxr5/6                                                                                              
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.myuser/T2rxr5/6                                                                                              
 Value of p: 42
 ```
 * The reason is that is pointing at the value variable.
@@ -83,7 +83,7 @@ func main() {
 ```
 * Thus the output would be"
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.howard/T2rxr5/9
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.myuser/T2rxr5/9
 Value of p: 42
 Value 1: 42.13
 ```
@@ -116,7 +116,7 @@ func main() {
 ```
 * Here is the output of the above code:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.howard/T2rxr5/12
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/reference_values_with_pointers/main.go'  2>&1| tee /tmp/nvim.myuser/T2rxr5/12
 Value of p: 42
 Value 1: 42.13
 Pointer 1: 1.3590322580645162

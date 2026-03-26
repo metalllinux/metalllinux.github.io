@@ -26,7 +26,7 @@ class WordSet:
 		  
 wordSet = WordSet()
 
-wordSet.addText('Hi, I\'m Howard! Here is a sentence I want to add!')
+wordSet.addText('Hi, I\'m Alice! Here is a sentence I want to add!')
 wordSet.addText('Here is another sentence I want to add.')
 
 print(wordSet.words)
@@ -74,7 +74,7 @@ class WordSet:
 		  
 wordSet = WordSet()
 
-wordSet.addText('Hi, I\'m Howard! Here is a sentence I want to add!')
+wordSet.addText('Hi, I\'m Alice! Here is a sentence I want to add!')
 wordSet.addText('Here is another sentence I want to add.')
 
 print(wordSet.words)
@@ -104,7 +104,7 @@ class WordSet:
 		  
 wordSet = WordSet()
 
-wordSet.addText('Hi, I\'m Howard! Here is a sentence I want to add!')
+wordSet.addText('Hi, I\'m Alice! Here is a sentence I want to add!')
 wordSet.addText('Here is another sentence I want to add.')
 
 print(wordSet.words)
@@ -137,7 +137,7 @@ class WordSet:
 		  
 wordSet = WordSet()
 
-wordSet.addText('Hi, I\'m Howard! Here is a sentence I want to add!')
+wordSet.addText('Hi, I\'m Alice! Here is a sentence I want to add!')
 wordSet.addText('Here is another sentence I want to add.')
 
 print(wordSet.words)

@@ -20,7 +20,7 @@ Thanks ever so much for taking the time to look at my question and the Rocky Lin
 
 Wale's Response:
 
-@Howard   - 1st off - THANK YOU  :rockyheart: 
+@contributor   - 1st off - THANK YOU  :rockyheart: 
 
 Either approach is fine. But:
 I'll recommend that you start of creating one for latest Rocky Linux v10.

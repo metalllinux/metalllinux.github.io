@@ -11,7 +11,7 @@ tags: ["rhcsa-cert-prep-2", "list", "create", "delete", "partitions"]
 * Via the Terminal, can get a list of drives with:
 	* `cat /proc/partitions`
 		* Has an output similar to
-howard@skwigelf:~$ cat /proc/partitions
+myuser@myhost:~$ cat /proc/partitions
 major minor  #blocks  name
 
  259        0  500107608 nvme0n1

@@ -4,13 +4,13 @@ category: "kubernetes-and-containers"
 tags: ["kubernetes-and-containers", "nextcloud", "docker", "container", "tailscale"]
 ---
 
-* Create the `/home/howard/docker_compose_files/nextcloud` directory:
+* Create the `/home/myuser/docker_compose_files/nextcloud` directory:
 ```
-mkdir -p /home/howard/docker_compose_files/nextcloud
+mkdir -p /home/myuser/docker_compose_files/nextcloud
 ```
 * Setup this `compose.yml` file:
 ```
-cat << "EOF" | tee /home/howard/docker_compose_files/nextcloud/docker-compose.yaml
+cat << "EOF" | tee /home/myuser/docker_compose_files/nextcloud/docker-compose.yaml
 services:
   nextcloud-aio-mastercontainer:
     image: nextcloud/all-in-one:latest
@@ -99,7 +99,7 @@ EOF
 ```
 * My configuration:
 ```
-cat << "EOF" | tee /home/howard/docker_compose_files/nextcloud/docker-compose.yaml
+cat << "EOF" | tee /home/myuser/docker_compose_files/nextcloud/docker-compose.yaml
 services:
   nextcloud-aio-mastercontainer:
     image: nextcloud/all-in-one:latest
@@ -192,7 +192,7 @@ cd ~/docker_compose_files/nextcloud/
 ```
 * Create the `Caddyfile`:
 ```
-cat << "EOF" | tee /home/howard/docker_compose_files/nextcloud/Caddyfile
+cat << "EOF" | tee /home/myuser/docker_compose_files/nextcloud/Caddyfile
 {
     layer4 {
         127.0.0.1:3478 {
@@ -221,7 +221,7 @@ EOF
 ```
 * Create the `Caddy.Dockerfile`:
 ```
-cat << "EOF" | tee /home/howard/docker_compose_files/nextcloud/Caddy.Dockerfile
+cat << "EOF" | tee /home/myuser/docker_compose_files/nextcloud/Caddy.Dockerfile
 FROM caddy:2.9.1-builder-alpine AS builder
 RUN xcaddy build --with github.com/mholt/caddy-l4@87e3e5e2c7f986b34c0df373a5799670d7b8ca03
 

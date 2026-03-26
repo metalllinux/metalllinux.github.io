@@ -677,21 +677,21 @@ tags: ["rhcsa-cert-prep-1", "rhcsa", "ex200", "cert", "prep"]
 			- Stored in `/etc/cron.d`
 		- The format of whether setting `system` or `user` Cron jobs is the same.
 	- Cron Tab example:
-		- `45 23 * * 6 /home/howard/bin/backup.sh`
+		- `45 23 * * 6 /home/myuser/bin/backup.sh`
 			- The above example runs `45` minutes after the hour.
 				- Valid values are `0 ~ 59`
 					- `0` is on the hour.
 				- If there was an `*` replacing the `45`, it would run every minute of the hour.
 			- Can have multiple values in each field:
-				- `15,30,45 23 * * 6 /home/howard/bin/backup.sh`
+				- `15,30,45 23 * * 6 /home/myuser/bin/backup.sh`
 					- The Cron Job then runs on the `15`th, `30`th and `45`th minute of the hour.
 			- Range is also possible:
-				- `15-45 23 * * 6 /home/howard/bin/backup.sh`
+				- `15-45 23 * * 6 /home/myuser/bin/backup.sh`
 			- Step value also possible:
-				- `*/10 23 * * 6 /home/howard/bin/backup.sh`
+				- `*/10 23 * * 6 /home/myuser/bin/backup.sh`
 					- Runs on the `10th` minute, skipping the 9 inbetween.
 				- Can do every odd minute with:
-					- `1-59/2 23 * * 6 /home/howard/bin/backup.sh`
+					- `1-59/2 23 * * 6 /home/myuser/bin/backup.sh`
 			- The second column is the hour of the day `23`.
 				- In this case, the cron job only uns on the 23rd hour (11pm).
 				- Midnight is `0`
@@ -976,7 +976,7 @@ tags: ["rhcsa-cert-prep-1", "rhcsa", "ex200", "cert", "prep"]
 			- `f`
 				- File Name
 	- If you want to extrac this somewhere else:
-		- `sudo tar --xattrs -xvpf etc.tar -C /home/howard/`
+		- `sudo tar --xattrs -xvpf etc.tar -C /home/myuser/`
  - Compress files and archives
 	 - Compressor can be used separately with `tar`.]
 		 - If not concerned about metadata like file ownership, permissions or timestamps.

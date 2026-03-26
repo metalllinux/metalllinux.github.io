@@ -4,9 +4,9 @@ category: "general-linux"
 tags: ["working", "smbconf", "setup"]
 ---
 
-[tribunal_pictures_backup]
-path = /mnt/dethklok/pictures
-valid users = howard
+[backup_pictures]
+path = /mnt/mypool/pictures
+valid users = myuser
 browsable = yes
 writable = yes
 read only = no
@@ -22,10 +22,10 @@ read only = no
   142  sudo firewall-cmd --permanent --add-service=samba
   143  sudo firewall-cmd --reload
   144  sudo firewall-cmd --list-services
-  145  sudo smbpasswd -a howard
-  146  sudo chmod 755 /mnt/dethklok/pictures/
-  147  ls -l /mnt/dethklok/
-  148  sudo chcon -t samba_share_t /mnt/dethklok/pictures/
+  145  sudo smbpasswd -a myuser
+  146  sudo chmod 755 /mnt/mypool/pictures/
+  147  ls -l /mnt/mypool/
+  148  sudo chcon -t samba_share_t /mnt/mypool/pictures/
   149  sudo vim /etc/samba/smb.conf
   150  sudo systemctl restart smb
   151  sudo systemctl restart nmb

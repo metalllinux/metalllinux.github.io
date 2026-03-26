@@ -7,7 +7,7 @@ tags: ["python-essential-training", "strings"]
 * Slicing
 	* Literally taking a slice out of a string and returning it.
 ```
-name = 'My name is Super Howard'
+name = 'My name is Super Alice'
 ```
 * To get the first character of the string, we can do: `name[0]` = `M`
 * Second character, `name[1]` = `y`.

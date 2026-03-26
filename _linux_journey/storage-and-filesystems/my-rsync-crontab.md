@@ -1,11 +1,11 @@
 ---
-title: "rsync to tails"
+title: "rsync to server-b"
 category: "storage-and-filesystems"
 tags: ["storage-and-filesystems", "rsync", "crontab"]
 ---
 
 ```
-# rsync to tails
+# rsync to server-b
 0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory6/ user@192.168.1.x:/mnt/pool-foxtrot/directory6/
 0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory7/ user@192.168.1.x:/mnt/pool-foxtrot/directory7/
 0 0 * * * rsync --ignore-existing -azvr --progress /mnt/pool-echo/directory2/ user@192.168.1.x:/mnt/pool-foxtrot/directory2/

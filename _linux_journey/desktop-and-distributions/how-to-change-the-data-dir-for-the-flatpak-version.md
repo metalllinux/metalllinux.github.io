@@ -4,4 +4,4 @@ category: "desktop-and-distributions"
 tags: ["desktop-and-distributions", "change", "data", "dir", "flatpak"]
 ---
 
-flatpak run org.bitcoincore.bitcoin-qt --datadir=/mnt/rockso/Bitcoin_Core_Data/
+flatpak run org.bitcoincore.bitcoin-qt --datadir=/mnt/mypool/Bitcoin_Core_Data/

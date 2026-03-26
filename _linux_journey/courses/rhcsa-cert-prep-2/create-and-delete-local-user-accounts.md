@@ -49,7 +49,7 @@ tags: ["rhcsa-cert-prep-2", "create", "delete", "local", "user"]
 			* Where the skeleton directory resides.
 			* Contains the files that are copied to each new users' home directory.
 			* An example of this is here:
-`howard@explosion:~$ ls -la /etc/skel
+`myuser@myhost:~$ ls -la /etc/skel
 total 28
 drwxr-xr-x 1 root root   84 Jun 20 11:07 .
 drwxr-xr-x 1 root root 4040 Jul 13 21:46 ..

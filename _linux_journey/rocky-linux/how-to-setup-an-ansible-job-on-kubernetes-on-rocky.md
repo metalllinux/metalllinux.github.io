@@ -133,7 +133,7 @@ spec:
       volumes:
       - name: ansible-playbook-volume
         hostPath:
-          path: /home/howard/playbooks/update-the-node.yaml
+          path: /home/myuser/playbooks/update-the-node.yaml
           type: File
       tolerations:
         - key: "node-role.kubernetes.io/control-plane"
@@ -147,7 +147,7 @@ kubectl create -f ~/ansible-update-node.yaml
 ```
 * Checking `kubectl logs` for the `pod`, I can see that the job ran as required:
 ```
-[howard@rocky-linux-95-kubernetes-ansible ~]$ kubectl logs -f ansible-update-node-9qg6z
+[myuser@rocky-linux-95-kubernetes-ansible ~]$ kubectl logs -f ansible-update-node-9qg6z
 [DEPRECATION WARNING]: Ansible will require Python 3.8 or newer on the 
 controller starting with Ansible 2.12. Current version: 3.6.8 (default, Dec  4 
 2024, 12:35:02) [GCC 8.5.0 20210514 (Red Hat 8.5.0-22)]. This feature will be 

@@ -75,7 +75,7 @@ tags: ["advanced-linux-kernel", "proc", "sys", "filesystems", "device"]
 * Checking through `/proc`
 	* Run `ps -l`  and you see na output similar to:
 ```
-howard@explosion:~$ ps -l
+myuser@myhost:~$ ps -l
 F S   UID     PID    PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
 0 S  1000    6395    6366  0  80   0 -  3083 do_wai pts/1    00:00:00 bash
 4 R  1000    6403    6395  0  80   0 -  3430 -      pts/1    00:00:00 ps
@@ -87,16 +87,16 @@ F S   UID     PID    PPID  C PRI  NI ADDR SZ WCHAN  TTY          TIME CMD
 * `cwd` is a soft link and points to the directory that the process is in at the time.
 * `exe` is a soft link and shows you what program that the process is running. For example:
 ```
-lrwxrwxrwx  1 howard howard 0  3月 23 21:33 cwd -> /proc/10303
-lrwxrwxrwx  1 howard howard 0  3月 23 21:33 exe -> /usr/bin/bash
+lrwxrwxrwx  1 myuser myuser 0  3月 23 21:33 cwd -> /proc/10303
+lrwxrwxrwx  1 myuser myuser 0  3月 23 21:33 exe -> /usr/bin/bash
 ```
 * There is also the directory called `fd`.
 	* In this directory, we see 4 file descriptors:
 ```
-lrwx------ 1 howard howard 64  3月 23 21:37 0 -> /dev/pts/1
-lrwx------ 1 howard howard 64  3月 23 21:37 1 -> /dev/pts/1
-lrwx------ 1 howard howard 64  3月 23 21:37 2 -> /dev/pts/1
-lrwx------ 1 howard howard 64  3月 23 21:37 255 -> /dev/pts/1
+lrwx------ 1 myuser myuser 64  3月 23 21:37 0 -> /dev/pts/1
+lrwx------ 1 myuser myuser 64  3月 23 21:37 1 -> /dev/pts/1
+lrwx------ 1 myuser myuser 64  3月 23 21:37 2 -> /dev/pts/1
+lrwx------ 1 myuser myuser 64  3月 23 21:37 255 -> /dev/pts/1
 ```
 * By convention, filedescriptor 0 is called standardIn.
 * Filedescriptor 1 is called standardout.
@@ -121,7 +121,7 @@ TRM:      90078      90077      90078      90077   Thermal event interrupts
 * To look further into device files, we check `/dev`.
 	* Example is:
 ```
-howard@skwigelf:/dev$ ls -l | grep null
+myuser@myhost:/dev$ ls -l | grep null
 crw-rw-rw-  1 root   root      1,   3  3月 24 06:14 null
 ```
 * The first character you see is `c` and this stands for `character device` file.
@@ -132,7 +132,7 @@ crw-rw-rw-  1 root   root      1,   3  3月 24 06:14 null
 * For `/dev/null`, if you redirect any output to it, it is essentially gone.
 * Another related device file is `/dev/zero`. It looks like:
 ```
-howard@skwigelf:/dev$ ls -l /dev/zero
+myuser@myhost:/dev$ ls -l /dev/zero
 crw-rw-rw- 1 root root 1, 5  3月 24 06:14 /dev/zero
 ```
 * Remember, if you had a device driver assigned with the same major and minor numbers, it would act like `/dev/null`. It can be ran anywhere and does not have to be in `/dev/null` - it could be in your home directory.

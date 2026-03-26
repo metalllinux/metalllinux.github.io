@@ -152,7 +152,7 @@ services:
             - ./epgstation/data:/app/data
             - ./epgstation/thumbnail:/app/thumbnail
             - ./epgstation/logs:/app/logs
-            - /mnt/vector/tv:/app/recorded
+            - /mnt/mediapool/tv:/app/recorded
         environment:
             TZ: "Asia/Tokyo"
         depends_on:

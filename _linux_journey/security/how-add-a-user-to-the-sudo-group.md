@@ -4,6 +4,6 @@ category: "security"
 tags: ["security", "add", "user", "sudo", "group"]
 ---
 
-usermod -aG sudo howard
+usermod -aG sudo myuser
 
 This has to be done as `root`

@@ -20,7 +20,7 @@ tags: ["learning-kubernetes", "kubernetes", "control", "plane"]
 * `kubectl` and `kubeadm` are CLI tools to communicate with the Kubernetes API via HTTP requests.
 * To see all of the Kubernetes Objects and their API version, run `kubectl api-resources`. This will output the following:
 ```
-howard@skwigelf:~$ kubectl api-resources
+myuser@myhost:~$ kubectl api-resources
 NAME                              SHORTNAMES   APIVERSION                             NAMESPACED   KIND
 bindings                                       v1                                     true         Binding
 componentstatuses                 cs           v1                                     false        ComponentStatus

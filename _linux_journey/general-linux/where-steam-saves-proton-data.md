@@ -4,4 +4,4 @@ category: "general-linux"
 tags: ["where", "steam", "saves", "proton", "data"]
 ---
 
-/home/howard/.steam/steam/steamapps/compatdata
+/home/myuser/.steam/steam/steamapps/compatdata

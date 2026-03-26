@@ -12,7 +12,7 @@ sudo cp /usr/lib/systemd/system/vncserver@.service /etc/systemd/system/vncserver
 ```
 ```
 sudo tee -a /etc/tigervnc/vncserver.users <<EOF
-:3=howard
+:3=myuser
 EOF
 ```
 ```

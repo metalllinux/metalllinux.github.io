@@ -5,5 +5,5 @@ tags: ["sftp", "put", "command", "point", "another"]
 ---
 
 Example
-put /home/howard/isos/rocky_8.9-x86_64-minimal.iso ./test.iso
+put /home/myuser/isos/rocky_8.9-x86_64-minimal.iso ./test.iso
 `put <local directory> <remote directory>`

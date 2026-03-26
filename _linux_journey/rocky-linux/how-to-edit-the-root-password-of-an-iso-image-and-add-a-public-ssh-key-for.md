@@ -90,7 +90,7 @@ chmod 700 /root/.ssh
 
 * Added my public key and also assigned the right permissions:
 ```
-echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCOZfq6DVBBBEN3dkAMu9vRPfRLiZgNMN+95U+Yvs7KeASnr5r1Urk6tdUBifY5GEjc1O1agh/1FtoOUAV+90fFzXDQVs11RIn1A4xc31jIXO9kEND+luGQueekh8p6tbtQ+TVAoOyMKOjrveRQmuGPk1qbL7FWktOOmB5XeAapT71DzeoqFD+qKLvCA/jEHiAP0ewVc/ugq8dnzscTQMODShjRzt0KqHrnZcHxatRyw1JPJ700mPWDAB9ntdOKsPt89lMKRLU9A4ac6b2sGJZ4QDFwUTBVd07m+qnmmoqDe6rGDmbwrtAb9/eI5oZsjXgtc6n95J5ffp+AQ2gx80mXb4hIipqKkegdwE4Z/0FFEWuayqBRhnLVzajJ2KfY1Op9IE7JiFqIqjvP1b7aBWvXbVZWVUbpQzz/9izQ+kGdl2LhTvEilMeHTUlPrC3Ge+4NCZZX2s0GACpgE/t8/7TzxnH+3YlKKCJceQhxDspu+meKRrxpP2edQZUuXzfW+QySUNrT1nOUp91Z1hTXkYEL9SRoN3BPqgsqGX/lZuGs4qrHvhcfm34ToxjJfPVTkctkvuQkFfF7jPEkxWzx6uFw/vn86WfjlbkOm9P6iigWEMBtP5uoLD/KJWsQTQKqlldItAMr/PzV7n0A573z5snoO1yYLzqriy9Zy3FRNO93lw== howard@ciq-rocky-linux10" >> /root/.ssh/authorized_keys
+echo "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCOZfq6DVBBBEN3dkAMu9vRPfRLiZgNMN+95U+Yvs7KeASnr5r1Urk6tdUBifY5GEjc1O1agh/1FtoOUAV+90fFzXDQVs11RIn1A4xc31jIXO9kEND+luGQueekh8p6tbtQ+TVAoOyMKOjrveRQmuGPk1qbL7FWktOOmB5XeAapT71DzeoqFD+qKLvCA/jEHiAP0ewVc/ugq8dnzscTQMODShjRzt0KqHrnZcHxatRyw1JPJ700mPWDAB9ntdOKsPt89lMKRLU9A4ac6b2sGJZ4QDFwUTBVd07m+qnmmoqDe6rGDmbwrtAb9/eI5oZsjXgtc6n95J5ffp+AQ2gx80mXb4hIipqKkegdwE4Z/0FFEWuayqBRhnLVzajJ2KfY1Op9IE7JiFqIqjvP1b7aBWvXbVZWVUbpQzz/9izQ+kGdl2LhTvEilMeHTUlPrC3Ge+4NCZZX2s0GACpgE/t8/7TzxnH+3YlKKCJceQhxDspu+meKRrxpP2edQZUuXzfW+QySUNrT1nOUp91Z1hTXkYEL9SRoN3BPqgsqGX/lZuGs4qrHvhcfm34ToxjJfPVTkctkvuQkFfF7jPEkxWzx6uFw/vn86WfjlbkOm9P6iigWEMBtP5uoLD/KJWsQTQKqlldItAMr/PzV7n0A573z5snoO1yYLzqriy9Zy3FRNO93lw== myuser@ciq-rocky-linux10" >> /root/.ssh/authorized_keys
 
 chmod 600 /root/.ssh/authorized_keys
 ```
@@ -168,7 +168,7 @@ sudo xorriso -as mkisofs \
 I observed you are using an Ubuntu VM and to make sure I do my due diligence, I will also provide instructions on how to go through the above steps on Ubuntu as well.
 
 Kind Regards,
-Howard
+myuser
 
 Hi Ping,
 

@@ -29,8 +29,8 @@ tags: ["advanced-linux-kernel", "read", "messages", "kernel"]
 * For Journal Control (journalctl). The journalctl command does its own paging (no need for `less`)
 * Running `journalctl -t kernel | grep command` can show the amount of times the machine has booted:
 ```
- 3月 18 08:58:44 explosion kernel: Kernel command line: BOOT_IMAGE=/boot/vmlinuz-6.5.0-25-generic root=UUID=ca2eb2d6-2fc2-4c9e-8001-11190efd85ee ro quiet splash radeon.cik_support=0 radeon.si_support=0 amdgpu.cik_support=1 amdgpu.si_support=1 amdgpu.dc=1 vt.handoff=7
- 3月 18 08:58:44 explosion kernel: Unknown kernel command line parameters "splash BOOT_IMAGE=/boot/vmlinuz-6.5.0-25-generic", will be passed to user space.
+ 3月 18 08:58:44 myhost kernel: Kernel command line: BOOT_IMAGE=/boot/vmlinuz-6.5.0-25-generic root=UUID=ca2eb2d6-2fc2-4c9e-8001-11190efd85ee ro quiet splash radeon.cik_support=0 radeon.si_support=0 amdgpu.cik_support=1 amdgpu.si_support=1 amdgpu.dc=1 vt.handoff=7
+ 3月 18 08:58:44 myhost kernel: Unknown kernel command line parameters "splash BOOT_IMAGE=/boot/vmlinuz-6.5.0-25-generic", will be passed to user space.
 ```
 * Can check the journal command with in real-time with:
 ```

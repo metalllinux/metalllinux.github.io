@@ -8,7 +8,6 @@ tags: ["rocky-linux", "pxe", "boot", "rocky", "linux"]
 
 [dnsmasq](https://kb.ciq.com/articles?tag=dnsmasq)[how-to](https://kb.ciq.com/articles?tag=how-to)[iso](https://kb.ciq.com/articles?tag=iso)[kickstart](https://kb.ciq.com/articles?tag=kickstart)[linux](https://kb.ciq.com/articles?tag=linux)[PXE](https://kb.ciq.com/articles?tag=pxe)[rocky](https://kb.ciq.com/articles?tag=rocky)[tftp](https://kb.ciq.com/articles?tag=tftp)[uefi](https://kb.ciq.com/articles?tag=uefi)
 
-Howard Van Der Wal  
 Sr. Customer Support Engineer
 
 Jan 30, 2025

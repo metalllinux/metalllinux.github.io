@@ -10,7 +10,7 @@ https://flirc.tv/products/skip1s-remote-universal-remote-control?variant=4348909
 ```
 * `rsync` the image from your host to the media server:
 ```
-rsync /home/howard/Downloads/SkipApp-0.9.993.9235-Beta-x64.AppImage.tar.gz howard@192.168.1.107:~/****
+rsync /home/myuser/Downloads/SkipApp-0.9.993.9235-Beta-x64.AppImage.tar.gz myuser@192.168.1.107:~/****
 ```
 * Extract the `appimage`;
 ```

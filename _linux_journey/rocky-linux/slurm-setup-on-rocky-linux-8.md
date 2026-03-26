@@ -79,7 +79,7 @@ cat << "EOF" | tee -a /etc/auto.master
 EOF
 ```
 
-* Create the `nfs` directory for the `howard` user on the Compute Node:
+* Create the `nfs` directory for the `myuser` user on the Compute Node:
 
 ```
 mkdir ~/nfs
@@ -100,7 +100,7 @@ systemctl restart autofs
 systemctl restart rpcbind
 ```
 
-* On the Controller Node, go into the `nfs` directory in the `howard` user. Create the following test MPI C program:
+* On the Controller Node, go into the `nfs` directory in the `myuser` user. Create the following test MPI C program:
 
 ```
 cat << "EOF" | tee ~/nfs/test.c
@@ -122,7 +122,7 @@ int main(int argc, char *argv[]){
 EOF
 ```
 
-* Add the following to the `howard` user's `bashrc` on the Controller and the Compute Nodes:
+* Add the following to the `myuser` user's `bashrc` on the Controller and the Compute Nodes:
 
 ```
 cat << "EOF" | tee -a ~/.bashrc
@@ -137,7 +137,7 @@ EOF
 source ~/.bashrc
 ```
 
-* Then compile the `test.c` program for the `howard` user:
+* Then compile the `test.c` program for the `myuser` user:
 
 ```
 mpicc ~/nfs/test.c
@@ -178,7 +178,7 @@ mpirun -n 2 ~/a.out
 
 * `-n <integer>` can choose how many processes to run in paralle (up to the amount of CPUs that you have available)
 
-* Create a `machinefile` in the `howard` user's `~/nfs` directory and add the Compute Node:
+* Create a `machinefile` in the `myuser` user's `~/nfs` directory and add the Compute Node:
 
 ```
 cat << "EOF" | tee ~/nfs/machinefile
@@ -616,5 +616,5 @@ rocky-linux810-slurm-compute-node
 * Execute a test job using the test.c program file like the following:
 
 ```
-srun -c 1 -n 1 -J crunchy "/home/howard/nfs/a.out"
+srun -c 1 -n 1 -J crunchy "/home/myuser/nfs/a.out"
 ```

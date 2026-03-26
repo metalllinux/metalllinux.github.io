@@ -4,5 +4,5 @@ category: "general-linux"
 tags: ["more", "information", "about", "zpool"]
 ---
 
-zfs get all dethklok
-zpool get all dethklok
+zfs get all mypool
+zpool get all mypool

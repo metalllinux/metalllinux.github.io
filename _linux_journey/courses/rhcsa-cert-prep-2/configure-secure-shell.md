@@ -24,7 +24,7 @@ tags: ["rhcsa-cert-prep-2", "configure", "secure", "shell"]
 			* Example of a user's personal configuration:
 ![Screenshot_20230916_220232.png](../../_resources/Screenshot_20230916_220232.png)
 * If a remote server uses port `1022` and a private-public key is generated for it, the above image configuration file would look like that.
-	* If there was no configuration file, we would hae to type in the command like so: `ssh -p 1022 howard@server1.vmguests.com -i ~/.ssh/server1.key`
+	* If there was no configuration file, we would hae to type in the command like so: `ssh -p 1022 myuser@server1.vmguests.com -i ~/.ssh/server1.key`
 		* `-i` is used for the identity of the file.
 * WIth the above config file in place, all we need to do is type in `ssh server_name`
 	* Makes management and access to multiple servers easier.

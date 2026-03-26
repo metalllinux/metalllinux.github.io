@@ -321,7 +321,7 @@ az disk create -n <yourdiskname> -g <yourresourcegroupname> -l <yourregion> --os
 ```
 * An example is below:
 ```
-az disk create -n howardtesting -g howard-test -l JapanEast --os-type Linux --for-upload --upload-size-bytes 10737418752 --sku standard_lrs --hyper-v-generation V2
+az disk create -n myuser-testing -g myuser-test -l JapanEast --os-type Linux --for-upload --upload-size-bytes 10737418752 --sku standard_lrs --hyper-v-generation V2
 ```
 * Create a writable SAS:
 ```
@@ -341,7 +341,7 @@ AzCopy copy "./<IMAGE>.vhd" "SAS-URL" --blob-type PageBlob
 ```
 * Revoke the SAS when no more data is needed to be written to the disk:
 ```
-az disk revoke-access -n howardtesting -g howard-test
+az disk revoke-access -n myuser-testing -g myuser-test
 ```
 * Find the `storage-account` ID:
 ```
@@ -349,7 +349,7 @@ az disk show --name <Disk_Name> --resource-group <Resource_Group>
 ```
 * Example is here:
 ```
-az disk show -n howardtesting --resource-group howard-test
+az disk show -n myuser-testing --resource-group myuser-test
 ```
 * Create a VM and attach a disk to that:
 ```
@@ -357,7 +357,7 @@ az vm create --name $virtualMachineName --resource-group $resourceGroupName --at
 ```
 * An example can be found below:
 ```
-az vm create --name howardtesting2 --resource-group howard-test --attach-os-disk "/subscriptions/5741f913-5ca2-45a1-8faa-dca48613c619/resourceGroups/howard-test/providers/Microsoft.Compute/disks/howardtesting" --os-type linux
+az vm create --name myuser-testing2 --resource-group myuser-test --attach-os-disk "/subscriptions/5741f913-5ca2-45a1-8faa-dca48613c619/resourceGroups/myuser-test/providers/Microsoft.Compute/disks/myuser-testing" --os-type linux
 ```
 * Clean up everything include the VM and resource groups using the following command:
 ```

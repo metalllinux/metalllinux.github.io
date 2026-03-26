@@ -5,7 +5,7 @@ tags: ["project-tv", "setup", "zfs", "ubuntu"]
 ---
 
 ```
-sudo zfs create vector/tv
-sudo zfs create vector/youtube
+sudo zfs create mediapool/tv
+sudo zfs create mediapool/youtube
 ```
 * The other datasets are automatically created by the Sanoid / Syncoid replication process.

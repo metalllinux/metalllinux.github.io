@@ -40,7 +40,7 @@ sudo logrotate -f /etc/logrotate.conf
 Check under /var/log/ and you should observe a messages file generated with a timestamp of the current date, similar to the below:
 
 ```
-[howard@rocky-linux810 ~]$ ls -lh /var/log/messages*
+[myuser@rocky-linux810 ~]$ ls -lh /var/log/messages*
 -rw-r-----. 1 root root 174 Jul  1 16:32 /var/log/messages
 -rw-r-----. 1 root root 161 Jul  1 16:30 /var/log/messages-20250701
 ```

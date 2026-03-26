@@ -41,7 +41,7 @@ tags: ["rhcsa-cert-prep-2", "initial", "permissions", "umask"]
 * If a user wants to permanently change their `umask`, they can add it to their `bash` startup file.
 	* In `.bashrc`
 * An example of `.bashrc`:
-`File: /home/howard/.bashrc
+`File: /home/myuser/.bashrc
 # .bashrc
 umask 0002
 # If not running interactively, don't do anything

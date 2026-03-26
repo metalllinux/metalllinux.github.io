@@ -5,5 +5,5 @@ tags: ["recursively", "pull", "files", "directories"]
 ---
 
 ```
-wget -r ftp://howard@192.168.1.200/dev_hdd0/*
+wget -r ftp://myuser@192.168.1.200/dev_hdd0/*
 ```

@@ -10,7 +10,7 @@ kubectl delete -f <file.yaml>
 ```
 * The deletion looks like this:
 ```
-howard@skwigelf:~$ kubectl delete -f ./Ex_Files_Learning_Kubernetes/Exercise\ Files/04_02_Begin/deployment.yaml 
+myuser@myhost:~$ kubectl delete -f ./Ex_Files_Learning_Kubernetes/Exercise\ Files/04_02_Begin/deployment.yaml 
 deployment.apps "pod-info-deployment" deleted
 ```
 * In the example, we would delete:

@@ -92,6 +92,6 @@ sudo systemctl restart libvirtd
 ```
 * Then for testing, set up a local VM with `virt-install` and in particular set the graphics option as `vnc` (default port is `5900`):
 ```
-virt-install --connect qemu:///system --name testvm --ram 4096 --vcpus 4 --network=bridge:virbr0 --pxe --osinfo detect=on,require=off --disk path=/home/howard/images/testvm.qcow2,size=20 --graphics vnc
+virt-install --connect qemu:///system --name testvm --ram 4096 --vcpus 4 --network=bridge:virbr0 --pxe --osinfo detect=on,require=off --disk path=/home/myuser/images/testvm.qcow2,size=20 --graphics vnc
 ```
 * Connect to the host that has the VM via its IP address and port `5900` like so: IP:PORT

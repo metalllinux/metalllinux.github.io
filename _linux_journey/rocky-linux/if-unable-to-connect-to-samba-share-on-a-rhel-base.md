@@ -7,8 +7,8 @@ tags: ["rocky-linux", "unable", "connect", "samba", "share"]
 For example you receive:
 
 ```
-[howard@explosion ~]$ smbclient //192.168.3.50/tribunal_pictures_backup
-Password for [SAMBA\howard]:
+[myuser@myhost ~]$ smbclient //192.168.3.50/backup_pictures
+Password for [SAMBA\myuser]:
 tree connect failed: NT_STATUS_BAD_NETWORK_NAME
 ```
 

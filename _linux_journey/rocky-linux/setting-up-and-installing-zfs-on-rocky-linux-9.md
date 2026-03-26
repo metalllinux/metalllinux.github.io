@@ -76,45 +76,45 @@ zpool status -v
 ```
 * Create the datasets:
 ```
-sudo zfs create sonic/anime
-sudo zfs create sonic/bitcoin
-sudo zfs create sonic/children_shows
-sudo zfs create sonic/dance_videos
-sudo zfs create sonic/documents
-sudo zfs create sonic/ebooks
-sudo zfs create sonic/films
-sudo zfs create sonic/games
-sudo zfs create sonic/gaming_videos
-sudo zfs create sonic/isos
-sudo zfs create sonic/linux
-sudo zfs create sonic/live_shows
-sudo zfs create sonic/music
-sudo zfs create sonic/photos
-sudo zfs create sonic/shows
-sudo zfs create sonic/skateboarding
-sudo zfs create sonic/software
+sudo zfs create server-a/anime
+sudo zfs create server-a/bitcoin
+sudo zfs create server-a/media-d
+sudo zfs create server-a/media-b
+sudo zfs create server-a/documents
+sudo zfs create server-a/ebooks
+sudo zfs create server-a/films
+sudo zfs create server-a/games
+sudo zfs create server-a/gaming_videos
+sudo zfs create server-a/isos
+sudo zfs create server-a/linux
+sudo zfs create server-a/media-c
+sudo zfs create server-a/music
+sudo zfs create server-a/media-a
+sudo zfs create server-a/shows
+sudo zfs create server-a/media-e
+sudo zfs create server-a/software
 ```
 * Set compression for each dataset:
 ```
-sudo zfs set compression=zstd-19 sonic/anime
-sudo zfs set compression=zstd-19 sonic/bitcoin
-sudo zfs set compression=zstd-19 sonic/children_shows
-sudo zfs set compression=zstd-19 sonic/dance_videos
-sudo zfs set compression=zstd-19 sonic/documents
-sudo zfs set compression=zstd-19 sonic/ebooks
-sudo zfs set compression=zstd-19 sonic/films
-sudo zfs set compression=zstd-19 sonic/games
-sudo zfs set compression=zstd-19 sonic/gaming_videos
-sudo zfs set compression=zstd-19 sonic/isos
-sudo zfs set compression=zstd-19 sonic/linux
-sudo zfs set compression=zstd-19 sonic/live_shows
-sudo zfs set compression=zstd-19 sonic/music
-sudo zfs set compression=zstd-19 sonic/photos
-sudo zfs set compression=zstd-19 sonic/shows
-sudo zfs set compression=zstd-19 sonic/skateboarding
-sudo zfs set compression=zstd-19 sonic/software
+sudo zfs set compression=zstd-19 server-a/anime
+sudo zfs set compression=zstd-19 server-a/bitcoin
+sudo zfs set compression=zstd-19 server-a/media-d
+sudo zfs set compression=zstd-19 server-a/media-b
+sudo zfs set compression=zstd-19 server-a/documents
+sudo zfs set compression=zstd-19 server-a/ebooks
+sudo zfs set compression=zstd-19 server-a/films
+sudo zfs set compression=zstd-19 server-a/games
+sudo zfs set compression=zstd-19 server-a/gaming_videos
+sudo zfs set compression=zstd-19 server-a/isos
+sudo zfs set compression=zstd-19 server-a/linux
+sudo zfs set compression=zstd-19 server-a/media-c
+sudo zfs set compression=zstd-19 server-a/music
+sudo zfs set compression=zstd-19 server-a/media-a
+sudo zfs set compression=zstd-19 server-a/shows
+sudo zfs set compression=zstd-19 server-a/media-e
+sudo zfs set compression=zstd-19 server-a/software
 ```
 * Set the owner of the mount directory and all sub-directories to your user:
 ```
-sudo chown -R howard:howard /mnt/sonic/<mount_point_name>
+sudo chown -R myuser:myuser /mnt/server-a/<mount_point_name>
 ```

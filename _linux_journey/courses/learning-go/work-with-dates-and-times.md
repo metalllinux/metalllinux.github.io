@@ -24,7 +24,7 @@ func main() {
 * A variable declared with the `time` type, encapsulates maths operations, timezone management and more.
 * When we run the above code, we receive the following:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/work_with_dates_and_times/main.go'  2>&1| tee /tmp/nvim.howard/OA5SJz/1                                                                                                      
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/work_with_dates_and_times/main.go'  2>&1| tee /tmp/nvim.myuser/OA5SJz/1                                                                                                      
 I recorded this video at  2024-04-17 14:29:24.296399799 +0900 JST m=+0.000008168
 Dates and times
 ```

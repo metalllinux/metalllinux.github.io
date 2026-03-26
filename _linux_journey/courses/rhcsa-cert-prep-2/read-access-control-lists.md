@@ -15,8 +15,8 @@ tags: ["rhcsa-cert-prep-2", "read", "access", "control", "lists"]
 		* For example, you would see a similar output to this:
 `getfacl temp
 # file: temp
-# owner: howard
-# group: howard
+# owner: myuser
+# group: myuser
 user::rw-
 group::r--
 other::r--
@@ -26,8 +26,8 @@ other::r--
 	* `getfacl -t aclfile`
 `getfacl -t temp
 # file: temp
-USER   howard    rw-
-GROUP  howard    r--
+USER   myuser    rw-
+GROUP  myuser    r--
 other            r--`
 * Can set ACLs using `setfacl`.
 	* `setfacl -m user:root:rwx aclfile`
@@ -38,9 +38,9 @@ other            r--`
 * Then the file would look something like this:
 `getfacl -t temp
 # file: temp
-USER   howard    rw-
+USER   myuser    rw-
 user   root      rwx
-GROUP  howard    r--
+GROUP  myuser    r--
 mask             rwx
 other            r--`
 * Will see on CentOs that the permissions of the file will now look like `-rw-rwxr--+`, notice the `+` at the end.

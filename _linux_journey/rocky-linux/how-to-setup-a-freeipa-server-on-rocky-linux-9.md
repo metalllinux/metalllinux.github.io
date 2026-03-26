@@ -117,25 +117,25 @@ kinit admin
 * Was able to navigate to and use the `admin` credentials to log into the  `https://ipa.metalinux.site/ipa/ui/` FreeIPA Dashboard.
 * Successfully added a new user as well:
 ```
-[root@Rocky-Linux-9-FreeIPA-Server ~]# ipa user-add howard --first=Howard --last=VanDerWal --password
+[root@Rocky-Linux-9-FreeIPA-Server ~]# ipa user-add myuser --first=Admin --last=Smith --password
 Password: 
 Enter Password again to verify: 
 -------------------
-Added user "howard"
+Added user "myuser"
 -------------------
-  User login: howard
-  First name: Howard
-  Last name: VanDerWal
-  Full name: Howard VanDerWal
-  Display name: Howard VanDerWal
-  Initials: HV
-  Home directory: /home/howard
-  GECOS: Howard VanDerWal
+  User login: myuser
+  First name: Admin
+  Last name: Smith
+  Full name: Admin Smith
+  Display name: Admin Smith
+  Initials: AS
+  Home directory: /home/myuser
+  GECOS: Admin Smith
   Login shell: /bin/sh
-  Principal name: howard@METALINUX.SITE
-  Principal alias: howard@METALINUX.SITE
+  Principal name: myuser@METALINUX.SITE
+  Principal alias: myuser@METALINUX.SITE
   User password expiration: 20241210064445Z
-  Email address: howard@metalinux.site
+  Email address: myuser@metalinux.site
   UID: 1443200003
   GID: 1443200003
   Password: True

@@ -14,7 +14,7 @@ toc_sticky: true
 
 **Senior Customer Support Engineer @ CIQ & CSM for APAC Customers -- Daily Claude Power-User for Linux & Open Source Solutions -- Rocky Linux Docs Contributor -- CKA-certified -- <3 Linux, Open Source & AI**
 
-Based in Nasushiobara, Tochigi, Japan
+Based in Japan
 
 ---
 

@@ -192,7 +192,7 @@ sudo ipa-client-install --enable-dns-updates --mkhomedir
 ```
 * Example `ipa-client-install` configuration options:
 ```
-[howard@rocky-linux-9 ~]$ sudo ipa-client-install --enable-dns-updates --mkhomedir
+[myuser@rocky-linux-9 ~]$ sudo ipa-client-install --enable-dns-updates --mkhomedir
 This program will set up IPA client.
 Version 4.12.2
 

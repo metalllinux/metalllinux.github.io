@@ -51,13 +51,13 @@ lrwxrwxrwx 1 root root        25 Jan 15 21:31 vmlinuz -> vmlinuz-5.15.0-91-gener
 									* The size of the `initrd.img` file depends on your hardware.
 										* If you go to `/lib/modules`, there is where all of the modules are installed.
 										* Will see separate directories for each Kernel.
-										* This is an example output: `howard@explosion:/lib/modules/5.15.0-91-generic$ ls
+										* This is an example output: `myuser@myhost:/lib/modules/5.15.0-91-generic$ ls
 build   kernel         modules.alias.bin  modules.builtin.alias.bin  modules.builtin.modinfo  modules.dep.bin  modules.order    modules.symbols      vdso
 initrd  modules.alias  modules.builtin    modules.builtin.bin        modules.dep              modules.devname  modules.softdep  modules.symbols.bin
 `
 										* The modules that are in the `initrd` directory, those are the ones that will end up in the RAM Disk.
 										* The modules are that are in the `kernel` directory are loaded after the Kernel is up.
-										* Within the `kernel` directory, you'll see directories for all of the different sub-systems like this: `howard@explosion:/lib/modules/5.15.0-91-generic/kernel$ ls
+										* Within the `kernel` directory, you'll see directories for all of the different sub-systems like this: `myuser@myhost:/lib/modules/5.15.0-91-generic/kernel$ ls
 arch  block  crypto  drivers  fs  kernel  lib  mm  net  samples  sound  ubuntu  v4l2loopback  zfs`
 										* `block` is for block storage. `net` will have network such as `ipv4`.
 		* You can check if you have the Kernel source code installed. Then you will have the Kernel documentation available. This will be in `/usr/src`. Then you can go into that directory and find a directory called `documentation`

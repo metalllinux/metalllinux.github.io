@@ -128,9 +128,9 @@ systemctl enable firewalld
 systemctl enable acpid
 # Add user.
 useradd -m ermanno
-echo howard:password | chpasswd
-usermod -aG libvirt howard
-echo "howard ALL=(ALL) ALL" >> /etc/sudoers.d/howard
+echo myuser:password | chpasswd
+usermod -aG libvirt myuser
+echo "myuser ALL=(ALL) ALL" >> /etc/sudoers.d/myuser
 # Edit the mkinitcpio file.
 vim /etc/mkinitcpio.conf
 # Add the following into the MODULES section.

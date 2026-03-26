@@ -5,15 +5,15 @@ tags: ["security", "add", "group", "samba", "share"]
 ---
 
 sudo groupadd samba
-sudo usermod -g samba howard
+sudo usermod -g samba myuser
 sudo usermod -g samba guest
-sudo chmod 770 /mnt/watanabe_memories/
+sudo chmod 770 /mnt/shared_files/
 In smb.conf, we need:
 valid users = @samba
 Like so:
 ```
-[tribunal_watanabe_memories]
-path = /mnt/watanabe_memories
+[backup_shared_files]
+path = /mnt/shared_files
 valid users = @samba
 browsable = yes
 writable = yes

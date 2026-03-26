@@ -98,7 +98,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   hostPath:
-    path: /mnt/sonic
+    path: /mnt/server-a
 EOF
 ```
 
@@ -235,7 +235,7 @@ data:
   CLUSTER_INIT_MODE: "true"
 
   ## for Seafile admin
-  INIT_SEAFILE_ADMIN_EMAIL: "howard.a.vanderwal@protonmail.com"
+  INIT_SEAFILE_ADMIN_EMAIL: "admin@example.com"
 
   ## for cluster basic service
   CLUSTER_INIT_ES_HOST: "elasticsearch"
@@ -668,7 +668,7 @@ data:
   CLUSTER_INIT_MODE: "false"
 
   ## for Seafile admin
-  INIT_SEAFILE_ADMIN_EMAIL: "howard.a.vanderwal@protonmail.com"
+  INIT_SEAFILE_ADMIN_EMAIL: "admin@example.com"
 
   ## for cluster basic service
   CLUSTER_INIT_ES_HOST: "elasticsearch"
@@ -698,13 +698,13 @@ sudo dnf install -y nfs-utils
 * If on ZFS and using datasets, do the following instead:
 
 ```
-sudo zfs set sharenfs='rw=@192.168.1.102,no_root_squash' tails
+sudo zfs set sharenfs='rw=@192.168.1.102,no_root_squash' server-b
 ```
 
 * Check to make sure NFS on ZFS was shared properly:
 
 ```
-sudo zfs get sharenfs tails
+sudo zfs get sharenfs server-b
 ```
 
 * ExportFS:
@@ -725,7 +725,7 @@ sudo systemctl restart nfs-server rpcbind
 
 ```
 cat << "EOF" | tee /etc/exports
-/mnt/tails 192.168.1.102(rw,sync,no_subtree_check,no_root_squash)
+/mnt/server-b 192.168.1.102(rw,sync,no_subtree_check,no_root_squash)
 EOF
 ```
 
@@ -747,19 +747,19 @@ sudo firewall-cmd --reload
 * On the Client machine, create the following directory:
 
 ```
-sudo mkdir -p /nfs/green_hills-tails
+sudo mkdir -p /nfs/nfs-server-b
 ```
 
 * Mount the NFS share on the Client:
 
 ```
-sudo mount 192.168.1.100:/mnt/tails /nfs/green_hills-tails
+sudo mount 192.168.1.100:/mnt/server-b /nfs/nfs-server-b
 ```
 
 * Add the following into `/etc/fstab` on the Client:
 
 ```
 cat << "EOF" | sudo tee -a /etc/fstab
-192.168.1.100:/mnt/tails /nfs/green_hills-tails nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+192.168.1.100:/mnt/server-b /nfs/nfs-server-b nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
 EOF
 ```

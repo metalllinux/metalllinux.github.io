@@ -23,7 +23,7 @@ func main() {
 ```
 * The output of this then looks like:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/store_ordered_values_in_arrays/main.go'  2>&1| tee /tmp/nvim.howard/2S30Qh/2
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/store_ordered_values_in_arrays/main.go'  2>&1| tee /tmp/nvim.myuser/2S30Qh/2
 [Red Green Blue]
 ```
 * If we want to access one of those values, we can use an array index.
@@ -45,7 +45,7 @@ func main() {
 ```
 * The output is like this:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/store_ordered_values_in_arrays/main.go'  2>&1| tee /tmp/nvim.howard/2S30Qh/6                                                                                             
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/store_ordered_values_in_arrays/main.go'  2>&1| tee /tmp/nvim.myuser/2S30Qh/6                                                                                             
 [Red Green Blue]
 Red
 ```
@@ -75,7 +75,7 @@ func main() {
 ```
 * The output for this one is:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/store_ordered_values_in_arrays/main.go'  2>&1| tee /tmp/nvim.howard/2S30Qh/10
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/store_ordered_values_in_arrays/main.go'  2>&1| tee /tmp/nvim.myuser/2S30Qh/10
 [Red Green Blue]
 Red
 [5 3 1 2 4]

@@ -11,7 +11,7 @@ cat << "EOF" | sudo tee /etc/sddm.conf
 InputMethod=
 
 [Autologin]
-User=howard
+User=myuser
 Session=plasma.desktop
 EOF
 ```

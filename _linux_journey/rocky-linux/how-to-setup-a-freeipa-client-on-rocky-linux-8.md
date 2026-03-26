@@ -93,7 +93,7 @@ The ipa-client-install command was successful
 ```
 * I could successfully log in with my `test-no-1` user generated on the FreeIPA server, using the client machine:
 ```
-hvanderwal@hvanderwal-MacBook-Pro 1822 % ssh test-no-1@45.76.216.137
+myuser@myuser-MacBook-Pro 1822 % ssh test-no-1@45.76.216.137
 (test-no-1@45.76.216.137) Password: 
 (test-no-1@45.76.216.137) Password expired. Change your password now.
 Current Password: 
@@ -177,4 +177,4 @@ sudo dnf install -y remmina
 Many thanks always for going through all of my testing and findings. I hope you have a lovely weekend on your side and look forward to working on this more next week.
 
 Kind Regards,
-Howard
+myuser

@@ -6,23 +6,23 @@ tags: ["project-tv-v2", "tube", "archivist", "setup"]
 
 * Create the `cache` directory:
 ```
-mkdir -p /home/howard/tube_archivist/cache
+mkdir -p /home/myuser/tube_archivist/cache
 ```
 * Create an `Elasticsearch` directory:
 ```
-mkdir -p /home/howard/tube_archivist/elasticsearch
+mkdir -p /home/myuser/tube_archivist/elasticsearch
 ```
 * Create a `redis` directory:
 ```
-mkdir -p /home/howard/tube_archivist/redis
+mkdir -p /home/myuser/tube_archivist/redis
 ```
 * Create the `docker compose` directory:
 ```
-mkdir -p /home/howard/docker_compose_files/tube_archivist
+mkdir -p /home/myuser/docker_compose_files/tube_archivist
 ```
 * Generate the `docker compose` file:
 ```
-cat << "EOF" | tee /home/howard/docker_compose_files/tube_archivist/docker-compose.yml
+cat << "EOF" | tee /home/myuser/docker_compose_files/tube_archivist/docker-compose.yml
 version: '3.5'
 services:
   tubearchivist:
@@ -32,8 +32,8 @@ services:
     ports:
       - 8000:8000
     volumes:
-      - /mnt/vector/youtube:/youtube
-      - /home/howard/tube_archivist/cache:/cache
+      - /mnt/mediapool/youtube:/youtube
+      - /home/myuser/tube_archivist/cache:/cache
     environment:
       - ES_URL=http://archivist-es:9200     # needs protocol e.g. http and port
       - REDIS_HOST=archivist-redis          # don't add protocol
@@ -60,7 +60,7 @@ services:
     expose:
       - "6379"
     volumes:
-      - /home/howard/tube_archivist/redis:/data
+      - /home/myuser/tube_archivist/redis:/data
     depends_on:
       - archivist-es
   archivist-es:
@@ -78,14 +78,14 @@ services:
         soft: -1
         hard: -1
     volumes:
-      - /home/howard/tube_archivist/elasticsearch:/usr/share/elasticsearch/data    # check for permission error when using bind mount, see readme
+      - /home/myuser/tube_archivist/elasticsearch:/usr/share/elasticsearch/data    # check for permission error when using bind mount, see readme
     expose:
       - "9200"
 EOF
 ```
 * Change into the `tube_archivist` directory:
 ```
-cd /home/howard/docker_compose_files/tube_archivist
+cd /home/myuser/docker_compose_files/tube_archivist
 ```
 * Run `docker compose up -d`:
 ```

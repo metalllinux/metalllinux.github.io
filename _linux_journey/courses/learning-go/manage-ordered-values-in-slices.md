@@ -29,7 +29,7 @@ func main() {
 ```
 * The output of this one is:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/manage_ordered_values_in_slices/main.go'  2>&1| tee /tmp/nvim.howard/lBEKZJ/8
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/manage_ordered_values_in_slices/main.go'  2>&1| tee /tmp/nvim.myuser/lBEKZJ/8
 [Red Green Blue]
 [Red Green Blue Purple]
 ```
@@ -59,7 +59,7 @@ func main() {
 ```
 * Once we run the above, we will observe the following:
 ```
-:!'go' 'run' '/home/howard/learning-go-2875237/go_learning/manage_ordered_values_in_slices/main.go'  2>&1| tee /tmp/nvim.howard/lBEKZJ/8
+:!'go' 'run' '/home/myuser/learning-go-2875237/go_learning/manage_ordered_values_in_slices/main.go'  2>&1| tee /tmp/nvim.myuser/lBEKZJ/8
 [Red Green Blue]
 [Red Green Blue Purple]
 [Green Blue Purple]

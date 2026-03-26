@@ -13,7 +13,7 @@ Debian 13 Baremetal Machine Setup
 
  
 
-usermod -aG sudo howard
+usermod -aG sudo myuser
 
  
 
@@ -221,7 +221,7 @@ sudo apt install -y xorriso
  
 
 sudo apt install rsync -y
-rsync -AvP ./rocky-86-1.15-v20250716_iso_rocky-86-1.15-v20250716.iso howard@192.168.1.160:~/
+rsync -AvP ./rocky-86-1.15-v20250716_iso_rocky-86-1.15-v20250716.iso myuser@192.168.1.160:~/
 
  
 
@@ -229,7 +229,7 @@ rsync -AvP ./rocky-86-1.15-v20250716_iso_rocky-86-1.15-v20250716.iso howard@192.
 
  
 
-howard@debian:~$ isoinfo -d -i rocky-86-1.15-v20250716_iso_rocky-86-1.15-v20250716.iso | grep "Volume id"
+myuser@debian:~$ isoinfo -d -i rocky-86-1.15-v20250716_iso_rocky-86-1.15-v20250716.iso | grep "Volume id"
 Volume id: rocky86lts
 
  
@@ -242,8 +242,8 @@ mkdir -p ~/temp/mnt_iso ~/temp/custom_iso
 
     Mounted the ISO:
 
-howard@debian:~$ sudo mount -o loop rocky-86-1.15-v20250716_iso_rocky-86-1.15-v20250716.iso ~/temp/mnt_iso
-mount: /home/howard/temp/mnt_iso: WARNING: source write-protected, mounted read-only.
+myuser@debian:~$ sudo mount -o loop rocky-86-1.15-v20250716_iso_rocky-86-1.15-v20250716.iso ~/temp/mnt_iso
+mount: /home/myuser/temp/mnt_iso: WARNING: source write-protected, mounted read-only.
 
  
 

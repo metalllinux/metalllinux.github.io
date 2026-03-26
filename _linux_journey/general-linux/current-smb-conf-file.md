@@ -15,7 +15,7 @@ tags: ["current", "smbconf", "file"]
 # SMB3 are no longer able to connect to smbd (by default).
 
 [global]
-	workgroup = METALOCALYPSE
+	workgroup = WORKGROUP
 	security = user
 
 	passdb backend = tdbsam
@@ -47,29 +47,29 @@ tags: ["current", "smbconf", "file"]
 	create mask = 0664
 	directory mask = 0775
 
-[tribunal_documents_backup]
-path = /mnt/dethklok/documents
-valid users = howard
+[backup_documents]
+path = /mnt/mypool/documents
+valid users = myuser
 browsable = yes
 writable = yes
 read only = no
 
-[tribunal_movies_backup]
-path = /mnt/dethklok/movies
-valid users = howard
+[backup_movies]
+path = /mnt/mypool/movies
+valid users = myuser
 browsable = yes
 writable = yes
 read only = no
 
-[tribunal_pictures_backup]
-path = /mnt/dethklok/pictures
-valid users = howard
+[backup_pictures]
+path = /mnt/mypool/pictures
+valid users = myuser
 browsable = yes
 writable = yes
 read only = no
 
-[tribunal_watanabe_memories]
-path = /home/howard/watanabe_memories
+[backup_shared_files]
+path = /home/myuser/shared_files
 browsable = yes
 writable = yes
 read only = no

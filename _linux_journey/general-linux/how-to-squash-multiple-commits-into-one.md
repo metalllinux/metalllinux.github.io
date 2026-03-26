@@ -11,7 +11,7 @@ Will look like the following:
 ```
 [owood@localhost ciqctl]$ git log --name-status 
 commit ef586d7c96e55db9aef8a084c99bad3a6ad8f776 (HEAD -> main, origin/main, origin/HEAD)
-Author: Howard Van Der Wal <user@example.com>
+Author: Example User <user@example.com>
 Date:   Thu May 2 07:41:02 2024 +0000
 
     Merged in ciqctl_testing (pull request #6)

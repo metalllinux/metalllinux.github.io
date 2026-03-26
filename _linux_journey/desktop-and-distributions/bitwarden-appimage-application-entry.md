@@ -8,7 +8,7 @@ tags: ["desktop-and-distributions", "bitwarden", "appimage", "application", "ent
 Type=Application
 Name=Bitwarden
 Comment=Bitwarden
-Icon=/home/howard/appimages/icons/bitwarden.png
-Exec=/home/howard/appimages/Bitwarden-2023.8.4-x86_64.AppImage
+Icon=/home/myuser/appimages/icons/bitwarden.png
+Exec=/home/myuser/appimages/Bitwarden-2023.8.4-x86_64.AppImage
 Terminal=false
 Categories=Utilities

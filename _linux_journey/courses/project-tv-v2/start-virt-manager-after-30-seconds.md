@@ -7,7 +7,7 @@ tags: ["project-tv-v2", "start", "virt", "manager", "after"]
 # Start virt-manager After 2 Minutes Script
 
 ```
-cat << "EOF" | tee /home/howard/scripts/virt-manager_start.sh
+cat << "EOF" | tee /home/myuser/scripts/virt-manager_start.sh
 #!/bin/bash
 
 sleep 30
@@ -17,6 +17,6 @@ EOF
 ```
 * Make it executable:
 ```
-chmod +x /home/howard/scripts/virt-manager_start.sh
+chmod +x /home/myuser/scripts/virt-manager_start.sh
 ```
 

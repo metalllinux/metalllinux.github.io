@@ -45,4 +45,4 @@ These tags direct your network configuration system (e.g., NetworkManager) to us
  
 For both of these suggestions, don't forget to rebuild your container image and/or overlays as necessary.
  
-I hope this information is useful to you. Like I said, let us know if you need any further assistance with Warewulf. As for the rest of this case, I'll leave that to Howard and the rest of the CSX team.
+I hope this information is useful to you. Like I said, let us know if you need any further assistance with Warewulf. As for the rest of this case, I'll leave that to our engineer and the rest of the CSX team.

@@ -31,7 +31,7 @@ cd sanoid
 ```
 * Make the directory safe:
 ```
-git config --global --add safe.directory /home/howard/sanoid
+git config --global --add safe.directory /home/myuser/sanoid
 ```
 * Checkout the stable release:
 ```
@@ -152,9 +152,9 @@ Description=Create and send snapshots from the source host to the remote host.
 After=network.target
 
 [Service]
-ExecStart=/home/howard/scripts/syncoid.sh
+ExecStart=/home/myuser/scripts/syncoid.sh
 Type=oneshot
-User=howard
+User=myuser
 EOF
 ```
 * Make a `timer` service file for `syncoid`:
@@ -186,21 +186,21 @@ mkdir ~/scripts
 ```
 tee ~/scripts/syncoid.sh <<EOF
 #!/bin/bash
-syncoid -r howard@192.168.1.101:sonic/anime tails/anime
-syncoid -r howard@192.168.1.101:sonic/bitcoin tails/bitcoin
-syncoid -r howard@192.168.1.101:sonic/children_shows tails/children_shows
-syncoid -r howard@192.168.1.101:sonic/dance_videos tails/dance_videos
-syncoid -r howard@192.168.1.101:sonic/ebooks tails/ebooks
-syncoid -r howard@192.168.1.101:sonic/films tails/films
-syncoid -r howard@192.168.1.101:sonic/games tails/games
-syncoid -r howard@192.168.1.101:sonic/gaming_videos tails/gaming_videos
-syncoid -r howard@192.168.1.101:sonic/linux tails/linux
-syncoid -r howard@192.168.1.101:sonic/live_shows tails/live_shows
-syncoid -r howard@192.168.1.101:sonic/music tails/music
-syncoid -r howard@192.168.1.101:sonic/photos tails/photos
-syncoid -r howard@192.168.1.101:sonic/shows tails/shows
-syncoid -r howard@192.168.1.101:sonic/skateboarding tails/skateboarding
-syncoid -r howard@192.168.1.101:sonic/software tails/software
+syncoid -r myuser@192.168.1.101:server-a/anime server-b/anime
+syncoid -r myuser@192.168.1.101:server-a/bitcoin server-b/bitcoin
+syncoid -r myuser@192.168.1.101:server-a/media-d server-b/media-d
+syncoid -r myuser@192.168.1.101:server-a/media-b server-b/media-b
+syncoid -r myuser@192.168.1.101:server-a/ebooks server-b/ebooks
+syncoid -r myuser@192.168.1.101:server-a/films server-b/films
+syncoid -r myuser@192.168.1.101:server-a/games server-b/games
+syncoid -r myuser@192.168.1.101:server-a/gaming_videos server-b/gaming_videos
+syncoid -r myuser@192.168.1.101:server-a/linux server-b/linux
+syncoid -r myuser@192.168.1.101:server-a/media-c server-b/media-c
+syncoid -r myuser@192.168.1.101:server-a/music server-b/music
+syncoid -r myuser@192.168.1.101:server-a/media-a server-b/media-a
+syncoid -r myuser@192.168.1.101:server-a/shows server-b/shows
+syncoid -r myuser@192.168.1.101:server-a/skateboarding server-b/skateboarding
+syncoid -r myuser@192.168.1.101:server-a/software server-b/software
 EOF
 ```
 * Make the script executable:
@@ -226,7 +226,7 @@ sudo tee /etc/sanoid/sanoid.conf <<EOF
 [version]
 version = 2
 
-[template_sonic]
+[template_server-a]
 
 # these settings don't make sense in a template, but we use the defaults file
 # as our list of allowable settings also, so they need to be present here even if
@@ -343,7 +343,7 @@ sudo systemctl start syncoid
 ```
 * Pull snapshots from the source. Run this on the nodes that are pulling the snapshots:
 ```
-syncoid -r howard@192.168.1.101:sonic/linux tails/linux
+syncoid -r myuser@192.168.1.101:server-a/linux server-b/linux
 ```
 * List all snapshots available on the node:
 ```

@@ -42,12 +42,12 @@ filteredList
 * `split` function splits a string based on the characters that you give it.
 * For instance:
 ```
-myString = 'My name is Howard. I am awesome'
+myString = 'My name is Alice. I am awesome'
 myString.split('.')
 ```
 * This will output the following and split the above into two sentences:
 ```
-['My name is Howard', 'I am awesome']
+['My name is Alice', 'I am awesome']
 ```
 * If nothing is passed in, the `split` function will split on spaces. For example:
 ```
@@ -55,7 +55,7 @@ myString.split()
 ```
 * Will output:
 ```
-['My', 'name', 'is', 'Howard.', 'I', 'am', 'awesome']
+['My', 'name', 'is', 'Alice.', 'I', 'am', 'awesome']
 ```
 * To clean up the above output, we can use:
 ```
@@ -71,7 +71,7 @@ def cleanWord(word):
 	* Be careful not to use it too often, as it can lead to long lines of code.
 * Running the above function `[cleanWord(word) for word in myString.split()]` will result in an output of:
 ```
-['my', 'name', 'is', 'Howard', 'I', 'am', 'awesome']
+['my', 'name', 'is', 'Alice', 'I', 'am', 'awesome']
 ```
 * We can also clean and filter at the same time and have the lowercase words in the text.
 	* Can do something like this:
@@ -90,6 +90,6 @@ def cleanWord(word):
 ```
 * This will output a "list of lists", like a 2D structure.
 ```
-[['my', 'name', 'is', 'Howard'], ['I', 'am', 'awesome']]
+[['my', 'name', 'is', 'Alice'], ['I', 'am', 'awesome']]
 ```
 * Allows you to write clean, readable and "Pythonic" code and is recommended by Python programmers.

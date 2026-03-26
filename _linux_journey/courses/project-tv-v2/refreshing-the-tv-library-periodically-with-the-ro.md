@@ -72,6 +72,6 @@ crontab -e
 ```
 * Add the following:
 ```
-0 * * * * /home/howard/refresh_library.sh
+0 * * * * /home/myuser/refresh_library.sh
 ```
 * Add the GNOME Extensions extension into Firefox and install Dash to Dock - disable the overlay when GNOME first boots.

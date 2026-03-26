@@ -6,4 +6,4 @@ tags: ["lutris", "icon", "size"]
 
 Lutris Icon Sise
 * To find icons, go to the following location:
-/home/howard/.local/share/icons/hicolor/128x128/apps
+/home/myuser/.local/share/icons/hicolor/128x128/apps

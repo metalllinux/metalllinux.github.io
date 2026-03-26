@@ -4,7 +4,7 @@ category: "general-linux"
 tags: ["change", "username", "user"]
 ---
 
-sudo usermod -l howard -d /home/howard -m howrd
+sudo usermod -l myuser -d /home/myuser -m howrd
 
 The username at the end is the one that you want to change.
 

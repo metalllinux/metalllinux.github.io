@@ -31,7 +31,7 @@ cp ~/mnt/casper/initrd ~/isos/
 ```
 * Install Ubuntu using `virt-install`.
 ```
-virt-install --name ubuntu22.04 --ram=4096 --vcpus=3 --cpu host --hvm --disk path=~/vms/ubuntu22-04.qcow2,size=15 --cdrom ~/isos/ubuntu-22.04.5-live-server-amd64.iso --graphics none --console pty,target_type=serial --os-variant ubuntu22.04 --network bridge=virbr0,model=virtio --hvm --force --debug --boot kernel=/home/howard/isos/vmlinuz,initrd=/home/howard/isos/initrd,kernel_args="console=ttyS0"
+virt-install --name ubuntu22.04 --ram=4096 --vcpus=3 --cpu host --hvm --disk path=~/vms/ubuntu22-04.qcow2,size=15 --cdrom ~/isos/ubuntu-22.04.5-live-server-amd64.iso --graphics none --console pty,target_type=serial --os-variant ubuntu22.04 --network bridge=virbr0,model=virtio --hvm --force --debug --boot kernel=/home/myuser/isos/vmlinuz,initrd=/home/myuser/isos/initrd,kernel_args="console=ttyS0"
 ```
 * Detach with `ctrl + ]`
 * Stop the VM
@@ -42,7 +42,7 @@ virsh destroy --domain ubuntu22.04
 ```
 virsh edit ubuntu22.04
 # Remove these options.
-<kernel>/home/howard/isos/vmlinuz</kernel><initrd>/home/howard/isos/initrd</initrd>
+<kernel>/home/myuser/isos/vmlinuz</kernel><initrd>/home/myuser/isos/initrd</initrd>
 <cmdline>console=ttyS0</cmdline>
 ```
 * Unmount the ISO.

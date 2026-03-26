@@ -11,6 +11,6 @@ rpm -q --changelog https://dl.rockylinux.org/pub/rocky/9.3/BaseOS/source/tree/Pa
 ```
 * Example output:
 ```
-[howard@rocky-linux-9-1 Downloads]$ rpm -q --changelog kernel-5.14.0-362.8.1.el9_3.x86_64.rpm | grep openvswitch | grep ct_state
+[myuser@rocky-linux-9-1 Downloads]$ rpm -q --changelog kernel-5.14.0-362.8.1.el9_3.x86_64.rpm | grep openvswitch | grep ct_state
 - net: openvswitch: Fix ct_state nat flags for conns arriving from tc (Antoine Tenart) [2045048]
 ```

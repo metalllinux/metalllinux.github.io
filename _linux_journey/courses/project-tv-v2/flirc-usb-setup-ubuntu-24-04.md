@@ -18,7 +18,7 @@ tar -xf ./flirc.latest.x86_64.tar.gz
 ```
 * Make the `binaries` directory:
 ```
-mkdir -p /home/howard/binaries
+mkdir -p /home/myuser/binaries
 ```
 * Move the `Flirc` binary to the directory:
 ```

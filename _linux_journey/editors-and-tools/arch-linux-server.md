@@ -197,11 +197,11 @@ systemctl enable firewalld
 systemctl enable acpid
 
 # Add user.
-useradd -m howard
+useradd -m myuser
 
-echo howard:password | chpasswd
+echo myuser:password | chpasswd
 
-echo "howard ALL=(ALL) ALL" >> /etc/sudoers.d/howard
+echo "myuser ALL=(ALL) ALL" >> /etc/sudoers.d/myuser
 
 # Edit the mkinitcpio file.
 vim /etc/mkinitcpio.conf
@@ -250,7 +250,7 @@ sudo mkdir /.snapshots
 sudo mount -a
 sudo chmod 750 /.snapshots
 sudo vim /etc/snapper/configs/shadow
-# Change ALLOW_USERS to ALLOW_USERS="howard"
+# Change ALLOW_USERS to ALLOW_USERS="myuser"
 # Change timeline cleanup
 TIMELINE_MIN_AGE="1800"
 TIMELINE_LIMIT_HOURLY="5"
@@ -318,7 +318,7 @@ sudo bcachefs format --compression=zstd:15 /dev/sd<X> /dev/sd<X>
 sudo bcachefs format --compression=zstd:15 /dev/sda /dev/sdb --replicas=2
 
 # Create a systemd mount to mount at boot
-vim /etc/systemd/system/tails-mount.service
+vim /etc/systemd/system/server-b-mount.service
 [Unit]
 Description=Mount bcachefs
 After=network-online.target
@@ -326,30 +326,30 @@ Wants=network-online.target
 
 [Service]
 Type=oneshot
-ExecStart=/home/howard/scripts/tails-mount.sh
+ExecStart=/home/myuser/scripts/server-b-mount.sh
 
 [Install]
 WantedBy=multi-user.target
 
 # Create the directory to mount the drives
-sudo mkdir /mnt/tails
+sudo mkdir /mnt/server-b
 
 # Create the following boot script
 mkdir ~/scripts
-vim ~/scripts/tails-mount.sh 
+vim ~/scripts/server-b-mount.sh 
 
 #!/bin/bash
 # Mount the bcachefs devices
-mount -t bcachefs /dev/sda:/dev/sdc /mnt/tails
+mount -t bcachefs /dev/sda:/dev/sdc /mnt/server-b
 
 # Make the script executable
-chmod +x ~/scripts/tails-mount.sh
+chmod +x ~/scripts/server-b-mount.sh
 
 # Enable and start the services
-sudo systemctl enable --now tails-mount.service
+sudo systemctl enable --now server-b-mount.service
 
 # Set permissions on the drives:
-sudo chown howard:howard -R /mnt/tails
+sudo chown myuser:myuser -R /mnt/server-b
 
 # ZFS setup
 yay -S zfs-utils-git
@@ -369,70 +369,70 @@ yay -S tmux-bash-completion-git
 
 # systemd service files for rsync transfer
 # Create the following service file:
-vim /etc/systemd/system/sonic-send.service
+vim /etc/systemd/system/server-a-send.service
 
 # Add this to the service file:
 [Unit]
-Description=Rsync files to tails
+Description=Rsync files to server-b
 After=network.target
 
 [Service]
-ExecStart=/home/howard/scripts/sonic-send.sh
+ExecStart=/home/myuser/scripts/server-a-send.sh
 Restart=always
-User=howard
+User=myuser
 
-# Create the script in /home/howard/scripts/sonic-send.sh
+# Create the script in /home/myuser/scripts/server-a-send.sh
 # Add the following:
 #!/bin/bash
-# rsync to tails
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/anime/ howard@192.168.1.102:/mnt/tails/anime/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/cartoons/ howard@192.168.1.102:/mnt/tails/cartoons/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/documents/ howard@192.168.1.102:/mnt/tails/documents/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/ebooks/ howard@192.168.1.102:/mnt/tails/ebooks/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/games/ howard@192.168.1.102:/mnt/tails/games/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/linux/ howard@192.168.1.102:/mnt/tails/linux/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/live_shows/ howard@192.168.1.102:/mnt/tails/live_shows/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/movies/ howard@192.168.1.102:/mnt/tails/movies/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/music/ howard@192.168.1.102:/mnt/tails/music/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/photos/ howard@192.168.1.102:/mnt/tails/photos/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/shows/ howard@192.168.1.102:/mnt/tails/shows/
+# rsync to server-b
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/anime/ myuser@192.168.1.y:/mnt/server-b/anime/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/cartoons/ myuser@192.168.1.y:/mnt/server-b/cartoons/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/documents/ myuser@192.168.1.y:/mnt/server-b/documents/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/ebooks/ myuser@192.168.1.y:/mnt/server-b/ebooks/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/games/ myuser@192.168.1.y:/mnt/server-b/games/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/linux/ myuser@192.168.1.y:/mnt/server-b/linux/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/media-c/ myuser@192.168.1.y:/mnt/server-b/media-c/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/movies/ myuser@192.168.1.y:/mnt/server-b/movies/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/music/ myuser@192.168.1.y:/mnt/server-b/music/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/media-a/ myuser@192.168.1.y:/mnt/server-b/media-a/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/shows/ myuser@192.168.1.y:/mnt/server-b/shows/
 
-# rsync to knuckles
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/anime/ howard@192.168.1.103:/mnt/knuckles/anime/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/cartoons/ howard@192.168.1.103:/mnt/knuckles/cartoons/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/documents/ howard@192.168.1.103:/mnt/knuckles/documents/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/ebooks/ howard@192.168.1.103:/mnt/knuckles/ebooks/
-#rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/games/ howard@192.168.1.103:/mnt/knuckles/games/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/linux/ howard@192.168.1.103:/mnt/knuckles/linux/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/live_shows/ howard@192.168.1.103:/mnt/knuckles/live_shows/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/movies/ howard@192.168.1.103:/mnt/knuckles/movies/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/music/ howard@192.168.1.103:/mnt/knuckles/music/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/photos/ howard@192.168.1.103:/mnt/knuckles/photos/
-rsync -e "ssh -i /home/howard/.ssh/sonic" --ignore-existing -azvr --progress /mnt/sonic/shows/ howard@192.168.1.103:/mnt/knuckles/shows/
+# rsync to server-c
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/anime/ myuser@192.168.1.z:/mnt/server-c/anime/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/cartoons/ myuser@192.168.1.z:/mnt/server-c/cartoons/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/documents/ myuser@192.168.1.z:/mnt/server-c/documents/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/ebooks/ myuser@192.168.1.z:/mnt/server-c/ebooks/
+#rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/games/ myuser@192.168.1.z:/mnt/server-c/games/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/linux/ myuser@192.168.1.z:/mnt/server-c/linux/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/media-c/ myuser@192.168.1.z:/mnt/server-c/media-c/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/movies/ myuser@192.168.1.z:/mnt/server-c/movies/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/music/ myuser@192.168.1.z:/mnt/server-c/music/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/media-a/ myuser@192.168.1.z:/mnt/server-c/media-a/
+rsync -e "ssh -i /home/myuser/.ssh/server-a" --ignore-existing -azvr --progress /mnt/server-a/shows/ myuser@192.168.1.z:/mnt/server-c/shows/
 
 # Make the script executable:
-chmod +x ~/scripts/sonic-send.sh
+chmod +x ~/scripts/server-a-send.sh
 
 # Create the systemd timer file
-vim /etc/systemd/system/sonic-send.timer
+vim /etc/systemd/system/server-a-send.timer
 
 [Unit]
-Description=rsync directories from sonic to tails every month
+Description=rsync directories from server-a to server-b every month
 
 [Timer]
 OnCalendar=monthly
 Persistent=true
-Unit=sonic-send.service
+Unit=server-a-send.service
 
 [Install]
 WantedBy=timers.target
 
 # Enable and start the timer
-sudo systemctl enable --now sonic-send.timer
+sudo systemctl enable --now server-a-send.timer
 
 # If you want to start the service straight away, use
-sudo systemctl start sonic-send
+sudo systemctl start server-a-send
 
 # Track the journal with
-journalctl -fu sonic-send
+journalctl -fu server-a-send
 ```

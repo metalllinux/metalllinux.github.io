@@ -19,15 +19,15 @@ services:
       - VERSION=docker
 	  - PLEX_CLAIM=claim-q9sNahz8hKAemjnw-UYe
     volumes:
-      - /home/howard/plex/config:/config
-      - /mnt/vector/children_shows:/children_shows
-      - /mnt/vector/films:/films
-      - /mnt/vector/live_shows:/live_shows
-      - /mnt/vector/music:/music
-      - /mnt/vector/photos:/photos
-      - /mnt/vector/shows:/shows
-      - /mnt/vector/tv:/tv
-      - /mnt/vector/youtube_videos:/youtube_videos
+      - /home/myuser/plex/config:/config
+      - /mnt/mediapool/media-d:/media-d
+      - /mnt/mediapool/films:/films
+      - /mnt/mediapool/media-c:/media-c
+      - /mnt/mediapool/music:/music
+      - /mnt/mediapool/media-a:/media-a
+      - /mnt/mediapool/shows:/shows
+      - /mnt/mediapool/tv:/tv
+      - /mnt/mediapool/youtube_videos:/youtube_videos
     restart: unless-stopped
 EOF
 ```

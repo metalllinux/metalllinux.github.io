@@ -35,10 +35,10 @@ sudo cp /usr/lib/systemd/system/vncserver@.service /etc/systemd/system/vncserver
 
 # Configure VNC users file
 sudo tee /etc/tigervnc/vncserver.users << EOF
-:3=howard
+:3=myuser
 EOF
 
-# Replace 'howard' with your actual username
+# Replace 'myuser' with your actual username
 ```
 
 ## Step 3: Set VNC Password

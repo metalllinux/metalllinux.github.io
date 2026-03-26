@@ -14,9 +14,9 @@ services:
       - "5800:5800"
     volumes:
       - "/docker/appdata/handbrake:/config:rw"
-      - "/home/howard:/storage:ro"
-      - "/home/howard/HandBrake/watch:/watch:rw"
-      - "/home/howard/HandBrake/output:/output:rw"
+      - "/home/myuser:/storage:ro"
+      - "/home/myuser/HandBrake/watch:/watch:rw"
+      - "/home/myuser/HandBrake/output:/output:rw"
 ```
 * Then run `kompose convert` in the same directory.
 * Create the pod with:

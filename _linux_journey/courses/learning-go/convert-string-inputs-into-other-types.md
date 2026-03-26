@@ -70,13 +70,13 @@ func main() {
 }
 ```
 ```
-[howard@rocky-linux-9-1 convert_string_inputs_to_other_types]$ ./main_2 
+[myuser@rocky-linux-9-1 convert_string_inputs_to_other_types]$ ./main_2 
 Enter text: test
 You entered: test
 
 Enter a number: 42.2
 Value of number: 42.2
-[howard@rocky-linux-9-1 convert_string_inputs_to_other_types]$ ./main_2 
+[myuser@rocky-linux-9-1 convert_string_inputs_to_other_types]$ ./main_2 
 Enter text: temp
 You entered: temp
 

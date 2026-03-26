@@ -62,9 +62,9 @@ tags: ["mongodb-essentials", "mongodb", "essentials", "training"]
 		* `use admin`
 	* LocalHost Exception for creating a user.
 		* This commands creates a user within the DB (need admin privileges) and prompts for a password:
-			* `db.createUser({user: 'howard', pwd: passwordPrompt(), roles: ["root"]})`
+			* `db.createUser({user: 'myuser', pwd: passwordPrompt(), roles: ["root"]})`
 		* To then authenticate the user from the admin setting:
-			* `db.getSiblingDB("admin").auth("howard", passwordPrompt())`
+			* `db.getSiblingDB("admin").auth("myuser", passwordPrompt())`
 		* Add each of the replica sets with this command:
 			* ` rs.add("localhost:27017")`
 			* `rs.add("localhost:27018")`
@@ -97,9 +97,9 @@ MBP00-3f041b:replicaset $ mongod -f m1.conf`
 	* How to initiate the replica set.
 * Create User with Local Host Exception:
 * The first user you create, should have privileges to create further users.
-	* db.createUser({user: 'howard', pwd: passwordPrompt(), roles: ["root"]})
+	* db.createUser({user: 'myuser', pwd: passwordPrompt(), roles: ["root"]})
 * To authenticate, you have to authenticate again the database where you created the user.
-	* db.getSiblingDB("admin").auth("howard")
+	* db.getSiblingDB("admin").auth("myuser")
 * rs.status()
 	* Reports on the health of replica set members.
 * db.serverStatus()['repl']
@@ -119,7 +119,7 @@ MBP00-3f041b:replicaset $ mongod -f m1.conf`
 	* mongoimport
 		* Import data from JSON or CSV.
 	* An example of importing data into a Mongo database:
-		* mongoimport --username="howard" --authenticationDatabase="admin" --db=sample_data inventory.json
+		* mongoimport --username="myuser" --authenticationDatabase="admin" --db=sample_data inventory.json
 * Debugging Development
 	* Good way is to check mongod.log
 	* Disable the fork option as well.
@@ -146,7 +146,7 @@ MBP00-3f041b:replicaset $ mongod -f m1.conf`
 			* "course": "MongoDB Essentials",
 			* "tags": ["databases", "document databases", "noSQL"],
 			* "author": {
-				"name": "Howard",
+				"name": "Alice",
 				"website": "mongodb.learn",
 				"mastadon": "toot"
 			}
@@ -161,7 +161,7 @@ MBP00-3f041b:replicaset $ mongod -f m1.conf`
 		* Each document has a maximum size of 16MB
 * How insert a document into a collection.
 	* The collection "authors" is also created here.
-	* db.authors.insertOne({"name": "Howard VDW"})
+	* db.authors.insertOne({"name": "Alice Smith"})
 	* Each document in MongoDB must have  unique ObjectId value. If one is not given, MongoDB will automatically assign one.
 * MongoDB Query Language (MQL)
 	* Can also be referenced as MongoDB Query API
@@ -170,18 +170,18 @@ MBP00-3f041b:replicaset $ mongod -f m1.conf`
 * insertMany command takes in an array of documents.
 	* db.authors.insertMany([{ "name": "Bob"},{"name": "Kevin"},{"name": "Stuart"}])
 * How to find a document within MongoDB:
-	* db.authors.find({"name":"Howard"})
+	* db.authors.find({"name":"Alice"})
 	* It doesn't matter if you put quotes around the field name or not.
 	* For example:
-		* db.authors.find({"name":"Howard"})
+		* db.authors.find({"name":"Alice"})
 * How to update one document:
-	* db.authors.updateOne({ name : "Howard"  }, { $set: { website: "www.soundsgood.com" } })
+	* db.authors.updateOne({ name : "Alice"  }, { $set: { website: "www.soundsgood.com" } })
 * How to update many documents at once.
 	* How to update multiple documents, set the first field as empty.
 	* The below example creates an empty array:
  		* db.authors.updateMany({  }, { $set: { books: [] } })
 * How to delete a document:
-	* db.authors.deleteOne({ name: "Howard" })
+	* db.authors.deleteOne({ name: "Alice" })
 * How to delete multiple documents (literally deletes all of the documents within a collection):
 	* db.authors.deleteMany({})
 * Indexes and How They Work.
@@ -236,7 +236,7 @@ MBP00-3f041b:replicaset $ mongod -f m1.conf`
 	* Low Durability - Faster Writes
 	* An example of Durability:
 db.authors.insertOne(
-         { "name": "Howard" },
+         { "name": "Alice" },
 		 {
 		          w: "majority",
 				  j: "true",
@@ -343,15 +343,15 @@ db.authors.insertOne(
 * updateOne and updateMany
 	* If you run this and it matches multiple documents, only the first document matched will be updated.
 	* an updateOne example:
-		* db.authors.updateOne({name: "Howard VDW"}, { $set: {message: "Hello World!" }})
+		* db.authors.updateOne({name: "Alice Smith"}, { $set: {message: "Hello World!" }})
 		* The above example adds the "message" field.
 		* It was this before:
 		*     _id: ObjectId("640924af841d3b1208bbf975"),
-    name: 'Howard VDW',
+    name: 'Alice Smith',
     books: [],
 		* Now it is this:
 		*     _id: ObjectId("640924af841d3b1208bbf975"),
-    name: 'Howard VDW',
+    name: 'Alice Smith',
     books: [],
     message: 'Hello World!'
 	* an updateMany example:

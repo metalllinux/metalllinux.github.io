@@ -24,7 +24,7 @@ tags: ["advanced-linux-kernel", "understand", "system", "maintenance", "mechanic
 		* The `!$` means it will read the last thing on the previous line.
 * If you download the Kernel source code, go to `/usr/src/line-(number)/include/uapi/asm-generic`. An example link is:
 ```
-howard@skwigelf:/usr/src/linux-headers-5.15.0-100-generic/include/uapi/asm-generic
+myuser@myhost:/usr/src/linux-headers-5.15.0-100-generic/include/uapi/asm-generic
 ```
 * To get an estimate of the number of system calls, we can do the following in the above directory: 
 	* `grep "define __NR" unistd.d`

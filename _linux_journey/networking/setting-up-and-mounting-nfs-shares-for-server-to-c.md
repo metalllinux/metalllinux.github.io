@@ -4,11 +4,11 @@ category: "networking"
 tags: ["networking", "setting", "mounting", "nfs", "shares"]
 ---
 
-sudo mount -t nfs -vvvv 10.110.1.48:/mnt/mustakrakish/mustakrakish_nfs_share /mnt/mustakrakish_nfs_share/
+sudo mount -t nfs -vvvv 10.110.1.48:/mnt/mypool/mypool_nfs_share /mnt/mypool_nfs_share/
 
 Contents of  `/etc/exports` on the server side:
 
-/mnt/mustakrakish/mustakrakish_nfs_share *(rw,sync,no_root_squash,insecure) 
+/mnt/mypool/mypool_nfs_share *(rw,sync,no_root_squash,insecure)
 
 Refreshed the above config with
 
@@ -20,8 +20,8 @@ sudo systemctl enable rpcbind                                                   
 
 How I set up the directory on the server side:
 
-sudo mkdir /mnt/mustakrakish/mustakrakish_nfs_share                                                                        
-sudo chown howard:howard /mnt/mustakrakish/mustakrakish_nfs_share/                                          
-chmod 777 /mnt/mustakrakish/mustakrakish_nfs_share/ 
+sudo mkdir /mnt/mypool/mypool_nfs_share
+sudo chown myuser:myuser /mnt/mypool/mypool_nfs_share/
+chmod 777 /mnt/mypool/mypool_nfs_share/
 
 Finally, if you want to copy anything into the directory on the client side and the user is not root, use `chown` to set the permissions.

@@ -6,21 +6,21 @@ tags: ["kubernetes-and-containers", "docker", "compose", "handbrake", "setup"]
 
 * Create the docker directory:
 ```
-mkdir -p /home/howard/docker_compose_files/handbrake
+mkdir -p /home/myuser/docker_compose_files/handbrake
 ```
 * Create the required directories:
 ```
-mkdir -p /home/howard/handbrake/config
+mkdir -p /home/myuser/handbrake/config
 
-mkdir -p /home/howard/handbrake/storage
+mkdir -p /home/myuser/handbrake/storage
 
-mkdir -p /home/howard/handbrake/watch
+mkdir -p /home/myuser/handbrake/watch
 
-mkdir -p /home/howard/handbrake/output
+mkdir -p /home/myuser/handbrake/output
 ```
 * Generate the compose file:
 ```
-cat << "EOF" | tee /home/howard/docker_compose_files/handbrake/docker-compose.yml
+cat << "EOF" | tee /home/myuser/docker_compose_files/handbrake/docker-compose.yml
 version: '3'
 services:
   handbrake:
@@ -28,15 +28,15 @@ services:
     ports:
       - "5800:5800"
     volumes:
-      - "/home/howard/handbrake/config:/config:rw"
-      - "/home/howard/handbrake/storage:/storage:ro"
-      - "/home/howard/handbrake/watch:/watch:rw"
-      - "/home/howard/handbrake/output:/output:rw"
+      - "/home/myuser/handbrake/config:/config:rw"
+      - "/home/myuser/handbrake/storage:/storage:ro"
+      - "/home/myuser/handbrake/watch:/watch:rw"
+      - "/home/myuser/handbrake/output:/output:rw"
 EOF
 ```
 * Change into the docker-compose directory:
 ```
-cd /home/howard/docker_compose_files/handbrake
+cd /home/myuser/docker_compose_files/handbrake
 ```
 * Bring up the container:
 ```
