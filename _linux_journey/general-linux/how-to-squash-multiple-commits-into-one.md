@@ -18,7 +18,7 @@ Date:   Thu May 2 07:41:02 2024 +0000
     
     CUSP-357 - Add Bundle Plugin test for anaconda
     
-    Approved-by: Owen Wood
+    Approved-by: Reviewer
 
 M       internal/bundle/plugin/anaconda.go
 A       internal/bundle/plugin/anaconda_test.go
