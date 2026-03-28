@@ -65,6 +65,8 @@ linux-journey:
         url: /linux-journey/courses/project-tv/
       - title: "Project TV v2 (Ubuntu)"
         url: /linux-journey/courses/project-tv-v2/
+      - title: "Project TV v3 (Rocky)"
+        url: /linux-journey/courses/project-tv-v3/
       - title: "MongoDB Essentials"
         url: /linux-journey/courses/mongodb-essentials/
       - title: "Ansible Playbooks"
