@@ -731,17 +731,12 @@ Ensure `SEAFILE_SERVER_HOSTNAME` in `seafile-env.yaml` includes the NodePort:
 SEAFILE_SERVER_HOSTNAME: "<your-worker-node-ip>:30007"
 ```
 
-Then add `SERVICE_URL` and `FILE_SERVER_ROOT` to `seahub_settings.py` (located at `/opt/seafile/conf/seahub_settings.py` inside the frontend pod):
+**Important:** In Seafile Pro 13.0, Seahub's Django `settings.py` computes `SERVICE_URL` and `FILE_SERVER_ROOT` from the `SEAFILE_SERVER_HOSTNAME` environment variable **after** loading `seahub_settings.py`. This means setting `SERVICE_URL` and `FILE_SERVER_ROOT` in `seahub_settings.py` alone will not work — the environment variable takes precedence.
 
-```python
-SERVICE_URL = 'http://<your-worker-node-ip>:30007'
-FILE_SERVER_ROOT = 'http://<your-worker-node-ip>:30007/seafhttp'
-```
-
-To apply the change without restarting the pod (which would trigger the init container's `chown -R` on the entire data volume), exec into the frontend pod and restart Seahub:
+To apply the fix without restarting the pod (which would trigger the init container's `chown -R` on the entire data volume), exec into the frontend pod and restart Seahub with the corrected environment variable:
 
 ```
-kubectl exec <seafile-frontend-pod> -n seafile -- /opt/seafile/seafile-pro-server-<version>/seahub.sh restart
+kubectl exec <seafile-frontend-pod> -n seafile -- bash -c 'export SEAFILE_SERVER_HOSTNAME="<your-worker-node-ip>:30007" && /opt/seafile/seafile-pro-server-<version>/seahub.sh restart'
 ```
 
 Then patch the ConfigMap so future pod starts use the correct value:
