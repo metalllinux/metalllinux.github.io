@@ -8,10 +8,10 @@ tags: ["rocky-linux", "setting", "seafile", "kubernetes", "rocky"]
 
 ## Seafile 13 Steps
 
-* Label the `green-hills` node and say that it has local storage available:
+* Label your worker node and say that it has local storage available:
 
 ```
-kubectl label nodes green-hills local-storage-available=true
+kubectl label nodes <your-worker-node> local-storage-available=true
 ```
 
 * Create the `namespace`:
@@ -98,7 +98,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   storageClassName: local-storage
   hostPath:
-    path: /mnt/server-a
+    path: <your-storage-path>
 EOF
 ```
 
@@ -188,7 +188,7 @@ data:
   TIME_ZONE: "Asia/Tokyo"
   SEAFILE_LOG_TO_STDOUT: "true"
   SITE_ROOT: "/"
-  SEAFILE_SERVER_HOSTNAME: "192.168.1.100"
+  SEAFILE_SERVER_HOSTNAME: "<your-worker-node-ip>:30007"
   SEAFILE_SERVER_PROTOCOL: "http"
 
   # for database
@@ -208,7 +208,7 @@ data:
   REDIS_PORT: "6379"
 
   ## for memcached
-  MEMCACHED_HOST: "192.168.1.100"
+  MEMCACHED_HOST: "<your-worker-node-ip>"
   MEMCACHED_PORT: "11211"
 
   # for s3
@@ -229,7 +229,7 @@ data:
 
   # for seadoc
   ENABLE_SEADOC: "true"
-  SEADOC_SERVER_URL: "192.168.1.100" # only valid in ENABLE_SEADOC = true
+  SEADOC_SERVER_URL: "<your-worker-node-ip>" # only valid in ENABLE_SEADOC = true
 
   # initialization (only valid in first-time deployment and CLUSTER_INIT_MODE = true)
   CLUSTER_INIT_MODE: "true"
@@ -243,7 +243,7 @@ data:
 
   # Seafile AI
   ENABLE_SEAFILE_AI: "yes"
-  SEAFILE_AI_SERVER_URL: "192.168.1.100"
+  SEAFILE_AI_SERVER_URL: "<your-worker-node-ip>"
 
   # Matedata server
   MD_FILE_COUNT_LIMIT: "100000"
@@ -276,6 +276,27 @@ spec:
       port: 80
       targetPort: 80
       nodePort: 30007
+EOF
+```
+
+* Create the `seafile-http` service for the file server (required for file uploads and downloads):
+
+```
+cat << "EOF" | tee /opt/seafile-k8s-yaml/seafile-http-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: seafile-http
+  namespace: seafile
+spec:
+  selector:
+    app: seafile-frontend
+  type: NodePort
+  ports:
+    - protocol: TCP
+      port: 8082
+      targetPort: 8082
+      nodePort: 30008
 EOF
 ```
 
@@ -621,7 +642,7 @@ data:
   TIME_ZONE: "Asia/Tokyo"
   SEAFILE_LOG_TO_STDOUT: "true"
   SITE_ROOT: "/"
-  SEAFILE_SERVER_HOSTNAME: "192.168.1.100"
+  SEAFILE_SERVER_HOSTNAME: "<your-worker-node-ip>:30007"
   SEAFILE_SERVER_PROTOCOL: "http"
 
   # for database
@@ -641,7 +662,7 @@ data:
   REDIS_PORT: "6379"
 
   ## for memcached
-  MEMCACHED_HOST: "192.168.1.100"
+  MEMCACHED_HOST: "<your-worker-node-ip>"
   MEMCACHED_PORT: "11211"
 
   # for s3
@@ -662,7 +683,7 @@ data:
 
   # for seadoc
   ENABLE_SEADOC: "true"
-  SEADOC_SERVER_URL: "192.168.1.100" # only valid in ENABLE_SEADOC = true
+  SEADOC_SERVER_URL: "<your-worker-node-ip>" # only valid in ENABLE_SEADOC = true
 
   # initialization (only valid in first-time deployment and CLUSTER_INIT_MODE = true)
   CLUSTER_INIT_MODE: "false"
@@ -676,7 +697,7 @@ data:
 
   # Seafile AI
   ENABLE_SEAFILE_AI: "yes"
-  SEAFILE_AI_SERVER_URL: "192.168.1.100"
+  SEAFILE_AI_SERVER_URL: "<your-worker-node-ip>"
 
   # Matedata server
   MD_FILE_COUNT_LIMIT: "100000"
@@ -689,6 +710,54 @@ EOF
 kubectl apply -f /opt/seafile-k8s-yaml/
 ```
 
+## Troubleshooting: File Uploads and Downloads Not Working
+
+If the Seahub web UI loads correctly but file uploads and downloads fail (from both the browser and the Seafile mobile app), the most likely cause is a misconfigured `SEAFILE_SERVER_HOSTNAME`.
+
+### The Problem
+
+When `SEAFILE_SERVER_HOSTNAME` is set without the NodePort (e.g., just the IP address), Seafile generates file operation URLs pointing to port 80:
+
+- `SERVICE_URL = http://<ip>` (port 80)
+- `FILE_SERVER_ROOT = http://<ip>/seafhttp`
+
+If Seahub is exposed via NodePort (e.g., 30007), port 80 on the node is not serving Seafile. The browser and mobile app receive a connection refused error when attempting file operations.
+
+### The Fix
+
+Ensure `SEAFILE_SERVER_HOSTNAME` in `seafile-env.yaml` includes the NodePort:
+
+```
+SEAFILE_SERVER_HOSTNAME: "<your-worker-node-ip>:30007"
+```
+
+Then add `SERVICE_URL` and `FILE_SERVER_ROOT` to `seahub_settings.py` (located at `/opt/seafile/conf/seahub_settings.py` inside the frontend pod):
+
+```python
+SERVICE_URL = 'http://<your-worker-node-ip>:30007'
+FILE_SERVER_ROOT = 'http://<your-worker-node-ip>:30007/seafhttp'
+```
+
+To apply the change without restarting the pod (which would trigger the init container's `chown -R` on the entire data volume), exec into the frontend pod and restart Seahub:
+
+```
+kubectl exec <seafile-frontend-pod> -n seafile -- /opt/seafile/seafile-pro-server-<version>/seahub.sh restart
+```
+
+Then patch the ConfigMap so future pod starts use the correct value:
+
+```
+kubectl patch configmap seafile-env -n seafile --type merge -p '{"data":{"SEAFILE_SERVER_HOSTNAME":"<your-worker-node-ip>:30007"}}'
+```
+
+### Note on Elasticsearch
+
+Elasticsearch is used solely for file search indexing. Warnings in the frontend logs about Elasticsearch security features not being enabled are informational only — they do not affect file uploads or downloads.
+
+---
+
+## Data Transfer via NFS
+
 * To transfer data, install `nfs-utils` on both the Worker Node and the Client:
 
 ```
@@ -698,13 +767,13 @@ sudo dnf install -y nfs-utils
 * If on ZFS and using datasets, do the following instead:
 
 ```
-sudo zfs set sharenfs='rw=@192.168.1.102,no_root_squash' server-b
+sudo zfs set sharenfs='rw=@<your-client-ip>,no_root_squash' <your-zfs-dataset>
 ```
 
 * Check to make sure NFS on ZFS was shared properly:
 
 ```
-sudo zfs get sharenfs server-b
+sudo zfs get sharenfs <your-zfs-dataset>
 ```
 
 * ExportFS:
@@ -725,7 +794,7 @@ sudo systemctl restart nfs-server rpcbind
 
 ```
 cat << "EOF" | tee /etc/exports
-/mnt/server-b 192.168.1.102(rw,sync,no_subtree_check,no_root_squash)
+<your-nfs-path> <your-client-ip>(rw,sync,no_subtree_check,no_root_squash)
 EOF
 ```
 
@@ -747,19 +816,19 @@ sudo firewall-cmd --reload
 * On the Client machine, create the following directory:
 
 ```
-sudo mkdir -p /nfs/nfs-server-b
+sudo mkdir -p <your-nfs-mount-point>
 ```
 
 * Mount the NFS share on the Client:
 
 ```
-sudo mount 192.168.1.100:/mnt/server-b /nfs/nfs-server-b
+sudo mount <your-worker-node-ip>:<your-nfs-path> <your-nfs-mount-point>
 ```
 
 * Add the following into `/etc/fstab` on the Client:
 
 ```
 cat << "EOF" | sudo tee -a /etc/fstab
-192.168.1.100:/mnt/server-b /nfs/nfs-server-b nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
+<your-worker-node-ip>:<your-nfs-path> <your-nfs-mount-point> nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
 EOF
 ```
