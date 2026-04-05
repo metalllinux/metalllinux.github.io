@@ -47,3 +47,12 @@ I am a frequent contributor to the [Rocky Linux Documentation](https://docs.rock
 | Updated packer documentation with URL to kickstart article | [#3104](https://github.com/rocky-linux/documentation/pull/3104) |
 
 All contributions can be viewed on the [Rocky Linux Documentation GitHub repository](https://github.com/rocky-linux/documentation).
+
+## Repositories
+
+| Repository | Description |
+|------------|-------------|
+| [project-tv-rocky-linux-edition](https://github.com/metallinux/project-tv-rocky-linux-edition) | Project TV Rocky Linux Edition |
+| [metallinux.github.io](https://github.com/metallinux/metalllinux.github.io) | metalinux.dev website source |
+| [px4_drv](https://github.com/metallinux/px4_drv) | Fork of px4_drv |
+| [NixOS-Setup](https://github.com/metallinux/NixOS-Setup) | NixOS Setup |

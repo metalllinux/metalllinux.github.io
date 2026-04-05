@@ -239,4 +239,4 @@ Jira, PowerShell, Quality Assurance, Oculus Rift, Public Speaking, Interpersonal
 
 I love AI. <3 Linux, Open Source and AI.
 
-[View my LinkedIn profile](https://www.linkedin.com/in/howard-linux-open-source/) | [View my GitHub](https://github.com/metalllinux)
+[View my LinkedIn profile](https://www.linkedin.com/in/howard-linux-open-source/) | [View my GitHub](https://github.com/metalllinux) | [Fosstodon](https://fosstodon.org/@metalinux)
