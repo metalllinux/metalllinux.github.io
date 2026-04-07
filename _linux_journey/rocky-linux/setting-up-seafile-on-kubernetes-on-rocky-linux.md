@@ -246,7 +246,7 @@ data:
   SEAFILE_AI_SERVER_URL: "<your-worker-node-ip>"
 
   # Matedata server
-  MD_FILE_COUNT_LIMIT: "100000"
+  MD_FILE_COUNT_LIMIT: "0"
 EOF
 ```
 
@@ -700,7 +700,7 @@ data:
   SEAFILE_AI_SERVER_URL: "<your-worker-node-ip>"
 
   # Matedata server
-  MD_FILE_COUNT_LIMIT: "100000"
+  MD_FILE_COUNT_LIMIT: "0"
 EOF
 ```
 
@@ -748,6 +748,81 @@ kubectl patch configmap seafile-env -n seafile --type merge -p '{"data":{"SEAFIL
 ### Note on Elasticsearch
 
 Elasticsearch is used solely for file search indexing. Warnings in the frontend logs about Elasticsearch security features not being enabled are informational only — they do not affect file uploads or downloads.
+
+---
+
+## Troubleshooting: Library Cannot Be Synced Due to Too Many Files
+
+If the Seafile desktop client shows "Library cannot be synced since it has too many files", the library exceeds the default file count limit. This commonly occurs with large directories such as Steam game libraries, which can contain 200,000–500,000+ files.
+
+![Library cannot be synced error](/assets/images/seafile-too-many-files-error.png)
+
+### Two Separate File Count Limits
+
+Seafile has two independent file count settings that are often confused:
+
+1. **`max_sync_file_count`** in `seafile.conf` under `[fileserver]` — controls whether the desktop or mobile client can sync a library. Default: 100,000. **This is the setting that causes the sync error.**
+2. **`MD_FILE_COUNT_LIMIT`** in the ConfigMap (environment variable) — controls whether the metadata management feature is enabled for a library. Default: 100,000. This does not affect sync.
+
+Both should be raised for large libraries.
+
+### The Fix (without pod restart)
+
+Since `seafile.conf` lives on the shared PVC at `/opt/seafile/conf/seafile.conf`, it can be edited in-place via `kubectl exec` without restarting the pod (which would trigger the slow `chown -R` on the entire data volume).
+
+* Add `max_sync_file_count` and `fs_id_list_request_timeout` under the `[fileserver]` section of `seafile.conf`:
+
+```
+kubectl exec <seafile-frontend-pod> -n seafile -- bash -c 'sed -i "/^\[fileserver\]/a max_sync_file_count = -1\nfs_id_list_request_timeout = -1" /opt/seafile/conf/seafile.conf'
+```
+
+Setting both values to `-1` removes the limit entirely (supported since Seafile Pro 8.0.4). The resulting `seafile.conf` should look like:
+
+```
+[fileserver]
+max_sync_file_count = -1
+fs_id_list_request_timeout = -1
+port=8082
+
+[cluster]
+enable = true
+```
+
+* Restart the fileserver process inside the frontend pod (not the pod itself):
+
+```
+kubectl exec <seafile-frontend-pod> -n seafile -- /opt/seafile/seafile-pro-server-<version>/seafile.sh restart
+```
+
+* Since both frontend and backend pods share the same PVC, the config edit is already visible to the backend pod. Restart its fileserver process too:
+
+```
+kubectl exec <seafile-backend-pod> -n seafile -- /opt/seafile/seafile-pro-server-<version>/seafile.sh restart
+```
+
+* Verify the settings took effect by checking the startup logs for:
+
+```
+fileserver: max_sync_file_count = -1
+fileserver: fs_id_list_request_timeout = -1
+```
+
+### Updating the Metadata File Count Limit
+
+To also raise `MD_FILE_COUNT_LIMIT`, patch the live ConfigMap:
+
+```
+kubectl patch configmap seafile-env -n seafile --type merge -p '{"data":{"MD_FILE_COUNT_LIMIT":"0"}}'
+```
+
+Then update the on-disk manifest (`/opt/seafile-k8s-yaml/seafile-env.yaml`) to match:
+
+```
+  # Matedata server
+  MD_FILE_COUNT_LIMIT: "0"
+```
+
+This change only takes effect on future pod restarts, since environment variables injected via `envFrom` require a pod restart to update.
 
 ---
 
