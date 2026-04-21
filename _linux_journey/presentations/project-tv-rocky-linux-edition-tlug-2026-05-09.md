@@ -1,7 +1,7 @@
 ---
 title: "Project TV — Rocky Linux Edition"
 event: "TLUG (Tokyo Linux Users Group)"
-date: 2026-05-09
+event_date: 2026-05-09
 layout: single
 permalink: /linux-journey/presentations/project-tv-rocky-linux-edition-tlug-2026-05-09/
 sidebar:
