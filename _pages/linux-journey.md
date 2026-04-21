@@ -46,3 +46,9 @@ Welcome to my Linux Journey -- a collection of over 2,000 personal notes, guides
 | [Project TV v2 (Ubuntu)](/linux-journey/courses/project-tv-v2/) | Media server v2 on Ubuntu |
 | [MongoDB Essentials](/linux-journey/courses/mongodb-essentials/) | MongoDB training notes |
 | [Ansible Playbooks](/linux-journey/courses/ansible-playbooks/) | Ansible automation examples |
+
+## Presentations
+
+| Talk | Event |
+|------|-------|
+| [Project TV — Rocky Linux Edition](/linux-journey/presentations/project-tv-rocky-linux-edition-tlug-2026-05-09/) | TLUG, 9 May 2026 |

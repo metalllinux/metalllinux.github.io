@@ -71,3 +71,9 @@ linux-journey:
         url: /linux-journey/courses/mongodb-essentials/
       - title: "Ansible Playbooks"
         url: /linux-journey/courses/ansible-playbooks/
+  - title: "Presentations"
+    children:
+      - title: "All presentations"
+        url: /linux-journey/presentations/
+      - title: "Project TV (TLUG, 2026-05-09)"
+        url: /linux-journey/presentations/project-tv-rocky-linux-edition-tlug-2026-05-09/
