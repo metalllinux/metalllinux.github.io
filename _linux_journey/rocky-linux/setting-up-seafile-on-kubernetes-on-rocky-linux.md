@@ -1063,3 +1063,1281 @@ Confirm the node is `Ready` and schedulable:
 ```
 kubectl get nodes
 ```
+
+---
+
+## Monitoring the Cluster with Prometheus and Grafana
+
+This section deploys independent Prometheus and Grafana monitoring stacks on both the worker node and the control plane node. Each node gets its own Prometheus instance scraping local metrics and its own Grafana dashboard. A shared node-exporter DaemonSet runs on all nodes to expose CPU, RAM, and disk metrics.
+
+All YAML files are created on the control plane and applied via `kubectl`.
+
+### Create the Monitoring Directories
+
+On the control plane, create a directory to hold all monitoring YAML files:
+
+```
+sudo mkdir -p /opt/monitoring-k8s-yaml
+```
+
+### Worker Node Monitoring Stack
+
+#### Namespace and RBAC
+
+Create the `monitoring` namespace, a ServiceAccount for Prometheus, and the required ClusterRole and ClusterRoleBinding:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/namespace-rbac.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus
+  namespace: monitoring
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - nodes/metrics
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus
+subjects:
+- kind: ServiceAccount
+  name: prometheus
+  namespace: monitoring
+EOF
+```
+
+Apply it:
+
+```
+kubectl apply -f /opt/monitoring-k8s-yaml/namespace-rbac.yaml
+```
+
+#### node-exporter DaemonSet
+
+The node-exporter DaemonSet runs on every node in the cluster (including the control plane via tolerations) and exposes hardware and OS-level metrics on port 9100:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/node-exporter.yaml
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: node-exporter
+  namespace: monitoring
+  labels:
+    app: node-exporter
+spec:
+  selector:
+    matchLabels:
+      app: node-exporter
+  template:
+    metadata:
+      labels:
+        app: node-exporter
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "9100"
+    spec:
+      hostNetwork: true
+      hostPID: true
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: node-exporter
+        image: prom/node-exporter:latest
+        args:
+        - "--path.procfs=/host/proc"
+        - "--path.sysfs=/host/sys"
+        - "--path.rootfs=/host/root"
+        - "--collector.filesystem.mount-points-exclude=^/(dev|proc|sys|var/lib/docker/.+|var/lib/kubelet/.+|var/lib/containerd/.+)($|/)"
+        - "--collector.netclass.ignored-devices=^(veth.*|cni.*|flannel.*|cali.*)$"
+        ports:
+        - containerPort: 9100
+          name: metrics
+        volumeMounts:
+        - name: proc
+          mountPath: /host/proc
+          readOnly: true
+        - name: sys
+          mountPath: /host/sys
+          readOnly: true
+        - name: root
+          mountPath: /host/root
+          readOnly: true
+        resources:
+          requests:
+            memory: "64Mi"
+            cpu: "100m"
+          limits:
+            memory: "128Mi"
+            cpu: "200m"
+      volumes:
+      - name: proc
+        hostPath:
+          path: /proc
+      - name: sys
+        hostPath:
+          path: /sys
+      - name: root
+        hostPath:
+          path: /
+EOF
+```
+
+If your control plane has additional custom taints, add corresponding tolerations to the DaemonSet spec.
+
+Apply it:
+
+```
+kubectl apply -f /opt/monitoring-k8s-yaml/node-exporter.yaml
+```
+
+Verify that a node-exporter pod is running on every node:
+
+```
+kubectl get pods -n monitoring -l app=node-exporter -o wide
+```
+
+#### Prometheus Configuration
+
+Create a ConfigMap with the Prometheus scrape configuration. This configures Prometheus to scrape itself and the node-exporter instance on the worker node:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/prometheus-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config
+  namespace: monitoring
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+    - job_name: "prometheus"
+      static_configs:
+      - targets: ["localhost:9090"]
+
+    - job_name: "node-exporter"
+      static_configs:
+      - targets: ["<your-worker-node-ip>:9100"]
+        labels:
+          instance: "<your-worker-node-hostname>"
+
+    - job_name: "kubernetes-nodes"
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+EOF
+```
+
+#### Prometheus Deployment
+
+Deploy Prometheus pinned to the worker node with 30-day data retention. An init container sets the correct ownership on the data volume (Prometheus runs as UID 65534):
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/prometheus-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus
+  template:
+    metadata:
+      labels:
+        app: prometheus
+    spec:
+      serviceAccountName: prometheus
+      nodeSelector:
+        kubernetes.io/hostname: <your-worker-node-hostname>
+      initContainers:
+      - name: set-ownership
+        image: busybox
+        command: ["sh", "-c", "chown -R 65534:65534 /prometheus"]
+        volumeMounts:
+        - name: data
+          mountPath: /prometheus
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        args:
+        - "--config.file=/etc/prometheus/prometheus.yml"
+        - "--storage.tsdb.path=/prometheus"
+        - "--storage.tsdb.retention.time=30d"
+        - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+        - "--web.console.templates=/usr/share/prometheus/consoles"
+        ports:
+        - containerPort: 9090
+          name: http
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+        - name: data
+          mountPath: /prometheus
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 15
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: config
+        configMap:
+          name: prometheus-config
+      - name: data
+        hostPath:
+          path: /var/lib/prometheus/data
+          type: DirectoryOrCreate
+EOF
+```
+
+#### Prometheus Service
+
+Expose Prometheus via NodePort 30090:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/prometheus-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus
+  namespace: monitoring
+  labels:
+    app: prometheus
+spec:
+  type: NodePort
+  selector:
+    app: prometheus
+  ports:
+  - name: http
+    port: 9090
+    targetPort: 9090
+    nodePort: 30090
+EOF
+```
+
+Apply the Prometheus resources:
+
+```
+kubectl apply -f /opt/monitoring-k8s-yaml/prometheus-config.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/prometheus-deployment.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/prometheus-service.yaml
+```
+
+Verify that Prometheus is running:
+
+```
+kubectl get pods -n monitoring -l app=prometheus
+```
+
+Access the Prometheus web UI at `http://<your-worker-node-ip>:30090`.
+
+#### Grafana Provisioning
+
+Grafana is pre-configured with three ConfigMaps: a datasource pointing to Prometheus, a dashboard provider, and the "Node Exporter Full" dashboard JSON (Grafana dashboard ID 1860) which provides CPU usage, RAM usage, storage usage per disk, and storage remaining per partition.
+
+* Datasource ConfigMap:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/grafana-datasource.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasource-config
+  namespace: monitoring
+data:
+  datasource.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus.monitoring.svc.cluster.local:9090
+      isDefault: true
+      editable: true
+      uid: prometheus
+EOF
+```
+
+* Dashboard provider ConfigMap:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/grafana-dashboard-provider.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider-config
+  namespace: monitoring
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+    - name: default
+      orgId: 1
+      folder: ""
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards
+        foldersFromFilesStructure: false
+EOF
+```
+
+* Dashboard JSON ConfigMap (created from file):
+
+Download the Node Exporter Full dashboard JSON:
+
+```
+curl -s -L "https://grafana.com/api/dashboards/1860/revisions/37/download" \
+  -o /opt/monitoring-k8s-yaml/node-exporter-full-raw.json
+```
+
+The downloaded JSON contains `__inputs` and `DS_PROMETHEUS` placeholder references that must be replaced with the actual datasource UID (`prometheus`). Run the following Python script to fix them:
+
+```
+python3 << 'PYEOF'
+import json
+
+with open("/opt/monitoring-k8s-yaml/node-exporter-full-raw.json") as f:
+    d = json.load(f)
+
+d.pop("__inputs", None)
+d.pop("__elements", None)
+d.pop("__requires", None)
+
+if "templating" in d and "list" in d["templating"]:
+    for var in d["templating"]["list"]:
+        if var.get("type") == "datasource":
+            var["query"] = "prometheus"
+        if "datasource" in var:
+            if isinstance(var["datasource"], dict):
+                var["datasource"] = {"type": "prometheus", "uid": "prometheus"}
+            elif isinstance(var["datasource"], str) and "DS_PROMETHEUS" in var["datasource"]:
+                var["datasource"] = {"type": "prometheus", "uid": "prometheus"}
+
+def fix_ds(obj):
+    if isinstance(obj, dict):
+        if "datasource" in obj:
+            ds = obj["datasource"]
+            if isinstance(ds, str) and "DS_PROMETHEUS" in ds:
+                obj["datasource"] = {"type": "prometheus", "uid": "prometheus"}
+            elif isinstance(ds, dict) and ds.get("uid", "").startswith("${"):
+                obj["datasource"] = {"type": "prometheus", "uid": "prometheus"}
+        for v in obj.values():
+            fix_ds(v)
+    elif isinstance(obj, list):
+        for item in obj:
+            fix_ds(item)
+
+fix_ds(d)
+d["uid"] = "node-exporter-full"
+d["id"] = None
+
+with open("/opt/monitoring-k8s-yaml/node-exporter-full.json", "w") as f:
+    json.dump(d, f, separators=(",", ":"))
+
+print("Dashboard JSON fixed successfully.")
+PYEOF
+```
+
+Create the ConfigMap from the fixed JSON:
+
+```
+kubectl create configmap grafana-dashboards \
+  --from-file=node-exporter-full.json=/opt/monitoring-k8s-yaml/node-exporter-full.json \
+  -n monitoring
+```
+
+#### Grafana Credentials
+
+Create a Kubernetes Secret with the Grafana admin credentials. Replace the base64 values with your own username and password (use `echo -n '<your-value>' | base64`):
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/grafana-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin-creds
+  namespace: monitoring
+type: Opaque
+data:
+  admin-user: <your-base64-encoded-username>
+  admin-password: <your-base64-encoded-password>
+EOF
+```
+
+#### Grafana Deployment
+
+Deploy Grafana pinned to the worker node. An init container sets the correct ownership (Grafana runs as UID 472):
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/grafana-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana
+  template:
+    metadata:
+      labels:
+        app: grafana
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: <your-worker-node-hostname>
+      initContainers:
+      - name: set-ownership
+        image: busybox
+        command: ["sh", "-c", "chown -R 472:472 /var/lib/grafana"]
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/grafana
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-creds
+              key: admin-user
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-creds
+              key: admin-password
+        - name: GF_USERS_ALLOW_SIGN_UP
+          value: "false"
+        ports:
+        - containerPort: 3000
+          name: http
+        volumeMounts:
+        - name: datasource-config
+          mountPath: /etc/grafana/provisioning/datasources
+        - name: dashboard-provider-config
+          mountPath: /etc/grafana/provisioning/dashboards
+        - name: dashboards
+          mountPath: /var/lib/grafana/dashboards
+        - name: data
+          mountPath: /var/lib/grafana
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+      volumes:
+      - name: datasource-config
+        configMap:
+          name: grafana-datasource-config
+      - name: dashboard-provider-config
+        configMap:
+          name: grafana-dashboard-provider-config
+      - name: dashboards
+        configMap:
+          name: grafana-dashboards
+      - name: data
+        hostPath:
+          path: /var/lib/grafana/data
+          type: DirectoryOrCreate
+EOF
+```
+
+#### Grafana Service
+
+Expose Grafana via NodePort 30030:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/grafana-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana
+  namespace: monitoring
+  labels:
+    app: grafana
+spec:
+  type: NodePort
+  selector:
+    app: grafana
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    nodePort: 30030
+EOF
+```
+
+Apply the Grafana resources:
+
+```
+kubectl apply -f /opt/monitoring-k8s-yaml/grafana-datasource.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/grafana-dashboard-provider.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/grafana-secret.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/grafana-deployment.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/grafana-service.yaml
+```
+
+Access Grafana at `http://<your-worker-node-ip>:30030` and sign in with the credentials from the Secret. The "Node Exporter Full" dashboard should appear pre-configured under Dashboards.
+
+### Control Plane Monitoring Stack
+
+The control plane gets its own independent Prometheus and Grafana installation in namespace `monitoring-cp`. The key differences from the worker stack are: a separate namespace, distinct resource names to avoid collisions, tolerations for the control-plane taint, and a `nodeSelector` pinning pods to the control plane node.
+
+#### Namespace and RBAC
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-namespace-rbac.yaml
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: monitoring-cp
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: prometheus-cp
+  namespace: monitoring-cp
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: prometheus-cp
+rules:
+- apiGroups: [""]
+  resources:
+  - nodes
+  - nodes/proxy
+  - nodes/metrics
+  - services
+  - endpoints
+  - pods
+  verbs: ["get", "list", "watch"]
+- apiGroups: [""]
+  resources:
+  - configmaps
+  verbs: ["get"]
+- nonResourceURLs: ["/metrics"]
+  verbs: ["get"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: prometheus-cp
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: prometheus-cp
+subjects:
+- kind: ServiceAccount
+  name: prometheus-cp
+  namespace: monitoring-cp
+EOF
+```
+
+```
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-namespace-rbac.yaml
+```
+
+#### Prometheus Configuration (Control Plane)
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-prometheus-config.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: prometheus-config-cp
+  namespace: monitoring-cp
+data:
+  prometheus.yml: |
+    global:
+      scrape_interval: 15s
+      evaluation_interval: 15s
+
+    scrape_configs:
+    - job_name: "prometheus"
+      static_configs:
+      - targets: ["localhost:9090"]
+
+    - job_name: "node-exporter"
+      static_configs:
+      - targets: ["<your-control-plane-ip>:9100"]
+        labels:
+          instance: "<your-control-plane-hostname>"
+
+    - job_name: "kubernetes-nodes"
+      kubernetes_sd_configs:
+      - role: node
+      relabel_configs:
+      - action: labelmap
+        regex: __meta_kubernetes_node_label_(.+)
+EOF
+```
+
+#### Prometheus Deployment (Control Plane)
+
+The deployment includes tolerations for the control plane taint and a `nodeSelector` to ensure it runs on the control plane:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-prometheus-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: prometheus-cp
+  namespace: monitoring-cp
+  labels:
+    app: prometheus-cp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: prometheus-cp
+  template:
+    metadata:
+      labels:
+        app: prometheus-cp
+    spec:
+      serviceAccountName: prometheus-cp
+      nodeSelector:
+        kubernetes.io/hostname: <your-control-plane-hostname>
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      initContainers:
+      - name: set-ownership
+        image: busybox
+        command: ["sh", "-c", "chown -R 65534:65534 /prometheus"]
+        volumeMounts:
+        - name: data
+          mountPath: /prometheus
+      containers:
+      - name: prometheus
+        image: prom/prometheus:latest
+        args:
+        - "--config.file=/etc/prometheus/prometheus.yml"
+        - "--storage.tsdb.path=/prometheus"
+        - "--storage.tsdb.retention.time=30d"
+        - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+        - "--web.console.templates=/usr/share/prometheus/consoles"
+        ports:
+        - containerPort: 9090
+          name: http
+        volumeMounts:
+        - name: config
+          mountPath: /etc/prometheus
+        - name: data
+          mountPath: /prometheus
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "200m"
+          limits:
+            memory: "512Mi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 15
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /-/ready
+            port: 9090
+          initialDelaySeconds: 5
+          periodSeconds: 10
+      volumes:
+      - name: config
+        configMap:
+          name: prometheus-config-cp
+      - name: data
+        hostPath:
+          path: /var/lib/prometheus-cp/data
+          type: DirectoryOrCreate
+EOF
+```
+
+#### Prometheus Service (Control Plane)
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-prometheus-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: prometheus-cp
+  namespace: monitoring-cp
+  labels:
+    app: prometheus-cp
+spec:
+  type: NodePort
+  selector:
+    app: prometheus-cp
+  ports:
+  - name: http
+    port: 9090
+    targetPort: 9090
+    nodePort: 30091
+EOF
+```
+
+#### Grafana Provisioning (Control Plane)
+
+Create the datasource, dashboard provider, and dashboard ConfigMaps in the `monitoring-cp` namespace. The datasource URL points to the control plane's Prometheus instance.
+
+* Datasource ConfigMap:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-grafana-datasource.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-datasource-config-cp
+  namespace: monitoring-cp
+data:
+  datasource.yaml: |
+    apiVersion: 1
+    datasources:
+    - name: Prometheus
+      type: prometheus
+      access: proxy
+      url: http://prometheus-cp.monitoring-cp.svc.cluster.local:9090
+      isDefault: true
+      editable: true
+      uid: prometheus
+EOF
+```
+
+* Dashboard provider ConfigMap:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-grafana-dashboard-provider.yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-provider-config-cp
+  namespace: monitoring-cp
+data:
+  dashboards.yaml: |
+    apiVersion: 1
+    providers:
+    - name: default
+      orgId: 1
+      folder: ""
+      type: file
+      disableDeletion: false
+      editable: true
+      options:
+        path: /var/lib/grafana/dashboards
+        foldersFromFilesStructure: false
+EOF
+```
+
+* Dashboard JSON ConfigMap (reuses the same fixed JSON from the worker stack):
+
+```
+kubectl create configmap grafana-dashboards-cp \
+  --from-file=node-exporter-full.json=/opt/monitoring-k8s-yaml/node-exporter-full.json \
+  -n monitoring-cp
+```
+
+#### Grafana Credentials (Control Plane)
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-grafana-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: grafana-admin-creds-cp
+  namespace: monitoring-cp
+type: Opaque
+data:
+  admin-user: <your-base64-encoded-username>
+  admin-password: <your-base64-encoded-password>
+EOF
+```
+
+#### Grafana Deployment (Control Plane)
+
+Same pattern as the worker deployment but with tolerations and `nodeSelector` for the control plane, and a different hostPath (`/var/lib/grafana-cp/data`) to avoid conflicts:
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-grafana-deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: grafana-cp
+  namespace: monitoring-cp
+  labels:
+    app: grafana-cp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: grafana-cp
+  template:
+    metadata:
+      labels:
+        app: grafana-cp
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: <your-control-plane-hostname>
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      initContainers:
+      - name: set-ownership
+        image: busybox
+        command: ["sh", "-c", "chown -R 472:472 /var/lib/grafana"]
+        volumeMounts:
+        - name: data
+          mountPath: /var/lib/grafana
+      containers:
+      - name: grafana
+        image: grafana/grafana:latest
+        env:
+        - name: GF_SECURITY_ADMIN_USER
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-creds-cp
+              key: admin-user
+        - name: GF_SECURITY_ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: grafana-admin-creds-cp
+              key: admin-password
+        - name: GF_USERS_ALLOW_SIGN_UP
+          value: "false"
+        ports:
+        - containerPort: 3000
+          name: http
+        volumeMounts:
+        - name: datasource-config
+          mountPath: /etc/grafana/provisioning/datasources
+        - name: dashboard-provider-config
+          mountPath: /etc/grafana/provisioning/dashboards
+        - name: dashboards
+          mountPath: /var/lib/grafana/dashboards
+        - name: data
+          mountPath: /var/lib/grafana
+        resources:
+          requests:
+            memory: "128Mi"
+            cpu: "100m"
+          limits:
+            memory: "256Mi"
+            cpu: "250m"
+      volumes:
+      - name: datasource-config
+        configMap:
+          name: grafana-datasource-config-cp
+      - name: dashboard-provider-config
+        configMap:
+          name: grafana-dashboard-provider-config-cp
+      - name: dashboards
+        configMap:
+          name: grafana-dashboards-cp
+      - name: data
+        hostPath:
+          path: /var/lib/grafana-cp/data
+          type: DirectoryOrCreate
+EOF
+```
+
+#### Grafana Service (Control Plane)
+
+```
+cat << "EOF" | sudo tee /opt/monitoring-k8s-yaml/cp-grafana-service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: grafana-cp
+  namespace: monitoring-cp
+  labels:
+    app: grafana-cp
+spec:
+  type: NodePort
+  selector:
+    app: grafana-cp
+  ports:
+  - name: http
+    port: 3000
+    targetPort: 3000
+    nodePort: 30031
+EOF
+```
+
+Apply the ConfigMap YAMLs and all other control plane monitoring resources:
+
+```
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-namespace-rbac.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-prometheus-config.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-prometheus-deployment.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-prometheus-service.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-grafana-datasource.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-grafana-dashboard-provider.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-grafana-secret.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-grafana-deployment.yaml
+kubectl apply -f /opt/monitoring-k8s-yaml/cp-grafana-service.yaml
+```
+
+Access the control plane Grafana at `http://<your-control-plane-ip>:30031`.
+
+### Monitoring Verification
+
+| Component | URL / Command | Expected |
+|---|---|---|
+| Prometheus (worker) | `http://<your-worker-node-ip>:30090` | Prometheus UI accessible |
+| Grafana (worker) | `http://<your-worker-node-ip>:30030` | Login with configured credentials, dashboard shows worker metrics |
+| Prometheus (CP) | `http://<your-control-plane-ip>:30091` | Prometheus UI accessible |
+| Grafana (CP) | `http://<your-control-plane-ip>:30031` | Login with configured credentials, dashboard shows CP metrics |
+| node-exporter | `kubectl get pods -n monitoring -l app=node-exporter -o wide` | One pod per node, all Running |
+
+---
+
+## Deploying a RustDesk Server on Kubernetes
+
+RustDesk is an open-source remote desktop application. The server consists of two components: `hbbs` (the ID/rendezvous server) and `hbbr` (the relay server). This section deploys both on Kubernetes using the `rustdesk/rustdesk-server` container image, pinned to the control plane node with `hostNetwork` for direct port access.
+
+### Prerequisites
+
+* Firewall ports must be open on the control plane node for RustDesk:
+
+```
+sudo firewall-cmd --permanent --add-port=21115/tcp
+sudo firewall-cmd --permanent --add-port=21116/tcp
+sudo firewall-cmd --permanent --add-port=21116/udp
+sudo firewall-cmd --permanent --add-port=21117/tcp
+sudo firewall-cmd --permanent --add-port=21118/tcp
+sudo firewall-cmd --permanent --add-port=21119/tcp
+sudo firewall-cmd --reload
+```
+
+### Create the RustDesk Namespace and Storage
+
+```
+kubectl create ns rustdesk
+sudo mkdir -p /opt/rustdesk-server-data
+```
+
+### Label the Control Plane Node
+
+Label the control plane so the RustDesk pods can target it with a `nodeSelector`:
+
+```
+kubectl label node <your-control-plane-hostname> rustdesk-server=true
+```
+
+### Create the YAML Directory
+
+```
+sudo mkdir -p /opt/rustdesk-k8s-yaml
+```
+
+### hbbs Deployment (ID/Rendezvous Server)
+
+```
+cat << "EOF" | sudo tee /opt/rustdesk-k8s-yaml/rustdesk-hbbs.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rustdesk-hbbs
+  namespace: rustdesk
+  labels:
+    app: rustdesk-hbbs
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rustdesk-hbbs
+  template:
+    metadata:
+      labels:
+        app: rustdesk-hbbs
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        rustdesk-server: "true"
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: hbbs
+        image: rustdesk/rustdesk-server:latest
+        command: ["hbbs"]
+        args: ["-r", "<your-control-plane-ip>:21117"]
+        volumeMounts:
+        - name: data
+          mountPath: /root
+      volumes:
+      - name: data
+        hostPath:
+          path: /opt/rustdesk-server-data
+          type: DirectoryOrCreate
+EOF
+```
+
+### hbbr Deployment (Relay Server)
+
+```
+cat << "EOF" | sudo tee /opt/rustdesk-k8s-yaml/rustdesk-hbbr.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: rustdesk-hbbr
+  namespace: rustdesk
+  labels:
+    app: rustdesk-hbbr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: rustdesk-hbbr
+  template:
+    metadata:
+      labels:
+        app: rustdesk-hbbr
+    spec:
+      hostNetwork: true
+      nodeSelector:
+        rustdesk-server: "true"
+      tolerations:
+      - key: node-role.kubernetes.io/control-plane
+        operator: Exists
+        effect: NoSchedule
+      containers:
+      - name: hbbr
+        image: rustdesk/rustdesk-server:latest
+        command: ["hbbr"]
+        volumeMounts:
+        - name: data
+          mountPath: /root
+      volumes:
+      - name: data
+        hostPath:
+          path: /opt/rustdesk-server-data
+          type: DirectoryOrCreate
+EOF
+```
+
+### Deploy and Verify
+
+```
+kubectl apply -f /opt/rustdesk-k8s-yaml/
+```
+
+Verify both pods are running:
+
+```
+kubectl get pods -n rustdesk -o wide
+```
+
+### Retrieve the Server Public Key
+
+After `hbbs` starts for the first time, it generates an ed25519 keypair. Retrieve the public key:
+
+```
+cat /opt/rustdesk-server-data/id_ed25519.pub
+```
+
+### Configuring RustDesk Clients
+
+On each RustDesk client (whether installed via Flatpak, native package, or on another platform), configure the following in the RustDesk settings under "Network":
+
+* **ID Server:** `<your-control-plane-ip>`
+* **Relay Server:** `<your-control-plane-ip>`
+* **Key:** the contents of `id_ed25519.pub` from the step above
+
+This applies to every machine that needs to connect through your self-hosted RustDesk server, including the worker node, the control plane itself, and any external devices.
+
+---
+
+## Setting Up the Control Plane Node with KDE, Libvirt, and RustDesk
+
+These steps install KDE Plasma, libvirt with virt-manager, and the RustDesk client on the Kubernetes control plane node running Rocky Linux 9. All commands are run on the control plane node.
+
+### Enable the CRB Repository
+
+The KDE Plasma group depends on packages from EPEL, which in turn require packages from the CRB (Code Ready Builder) repository:
+
+```
+sudo dnf config-manager --set-enabled crb
+```
+
+* Verify that EPEL is installed:
+
+```
+sudo dnf install -y epel-release
+```
+
+### Install KDE Plasma Workspaces
+
+```
+sudo dnf groupinstall -y "KDE Plasma Workspaces"
+```
+
+### Protect Kubernetes Networking from NetworkManager
+
+The KDE group pulls in NetworkManager components that can interfere with CNI interfaces. Create a drop-in configuration to exclude all Kubernetes-managed interfaces:
+
+```
+sudo tee /etc/NetworkManager/conf.d/99-k8s-unmanaged.conf > /dev/null << "EOF"
+[keyfile]
+unmanaged-devices=interface-name:cni0;interface-name:flannel.*;interface-name:cali*;interface-name:veth*;interface-name:tunl0;interface-name:vxlan.calico;interface-name:kube-bridge;interface-name:kube-dummy*;interface-name:docker0
+EOF
+```
+
+### Enable SDDM and Set the Graphical Target
+
+```
+sudo systemctl enable sddm
+sudo systemctl set-default graphical.target
+```
+
+### Install Libvirt and virt-manager
+
+```
+sudo dnf install -y qemu-kvm libvirt virt-manager virt-install bridge-utils virt-top libguestfs-tools virt-viewer
+sudo systemctl enable --now libvirtd
+sudo usermod -aG libvirt <your-username>
+```
+
+VMs use libvirt's default NAT network (`virbr0`) for internet access. This avoids modifying the host's primary network interface, which would risk breaking the Kubernetes control plane.
+
+Verify the default network is active:
+
+```
+sudo virsh net-list --all
+```
+
+If the default network is not active:
+
+```
+sudo virsh net-start default
+sudo virsh net-autostart default
+```
+
+### Create VM Directories
+
+Create directories to store ISO images, VM disk images, and additional storage:
+
+```
+mkdir -p ~/isos ~/images ~/storage
+```
+
+### Install RustDesk Client via Flatpak
+
+Flatpak is already installed as a dependency of the KDE group. Add the Flathub remote and install RustDesk:
+
+```
+sudo flatpak remote-add --system --if-not-exists flathub \
+  https://flathub.org/repo/flathub.flatpakrepo
+```
+
+```
+sudo flatpak install --system --noninteractive flathub com.rustdesk.RustDesk
+```
+
+* Verify:
+
+```
+flatpak list --system | grep -i rustdesk
+```
+
+### Reboot and Verify
+
+Reboot the control plane to activate SDDM and the graphical target:
+
+```
+sudo systemctl reboot
+```
+
+After the node comes back up, verify all components:
+
+```
+systemctl is-active sddm
+systemctl get-default
+systemctl is-active kubelet
+kubectl get nodes
+sudo virsh net-list --all
+flatpak list --system | grep -i rustdesk
+ls ~/isos ~/images ~/storage
+```
+
+Expected results:
+
+| Component | Check | Expected |
+|---|---|---|
+| KDE Plasma | `rpm -q plasma-desktop sddm` | Installed |
+| SDDM | `systemctl is-active sddm` | active |
+| Default target | `systemctl get-default` | graphical.target |
+| NM isolation | `nmcli device status` (K8s interfaces) | unmanaged |
+| libvirt | `sudo virsh net-list --all` | default network active |
+| virt-manager | `rpm -q virt-manager` | Installed |
+| RustDesk client | `flatpak list --system \| grep rustdesk` | com.rustdesk.RustDesk installed |
+| kubelet | `systemctl is-active kubelet` | active |
+| Cluster | `kubectl get nodes` | Both nodes Ready |
