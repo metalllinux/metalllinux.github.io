@@ -902,3 +902,164 @@ cat << "EOF" | sudo tee -a /etc/fstab
 <your-worker-node-ip>:<your-nfs-path> <your-nfs-mount-point> nfs auto,nofail,noatime,nolock,intr,tcp,actimeo=1800 0 0
 EOF
 ```
+
+---
+
+## Setting Up the Seafile Sync Client on the Worker Node
+
+These steps set up KDE Plasma, the Seafile desktop sync client (AppImage), and RustDesk remote desktop (Flatpak) on the Kubernetes worker node running Rocky Linux 9. All commands are run on the worker node via SSH.
+
+### Prerequisites
+
+* SSH access to the worker node as a user with `sudo` privileges
+* `kubectl` access to the cluster (from the control plane or a machine with a valid kubeconfig)
+
+### Cordon the Worker Node
+
+Before installing packages and rebooting, cordon the worker node to prevent new pod scheduling. Run this from the control plane:
+
+```
+kubectl cordon <your-worker-node>
+```
+
+### Enable the CRB Repository
+
+The KDE Plasma group on Rocky Linux 9 depends on packages from EPEL, which in turn require `aspell` from the CRB (Code Ready Builder) repository. CRB is disabled by default and must be enabled first:
+
+```
+sudo dnf config-manager --set-enabled crb
+```
+
+* Verify that EPEL is also installed:
+
+```
+sudo dnf install -y epel-release
+```
+
+### Install KDE Plasma Workspaces
+
+```
+sudo dnf groupinstall -y "KDE Plasma Workspaces"
+```
+
+This installs `plasma-desktop`, `plasma-workspace`, `sddm`, `konsole`, `dolphin`, `flatpak`, and all default KDE applications.
+
+### Protect Kubernetes Networking from NetworkManager
+
+The KDE group pulls in NetworkManager components that can interfere with CNI interfaces. Create a drop-in config to exclude all Kubernetes-managed interfaces before enabling any services:
+
+```
+sudo tee /etc/NetworkManager/conf.d/99-k8s-unmanaged.conf > /dev/null << "EOF"
+[keyfile]
+unmanaged-devices=interface-name:cni0;interface-name:flannel.*;interface-name:cali*;interface-name:veth*;interface-name:tunl0;interface-name:vxlan.calico;interface-name:kube-bridge;interface-name:kube-dummy*;interface-name:docker0
+EOF
+```
+
+### Enable SDDM and Set the Graphical Target
+
+```
+sudo systemctl enable sddm
+sudo systemctl set-default graphical.target
+```
+
+### Verify KDE Installation
+
+```
+rpm -q plasma-desktop plasma-workspace sddm
+```
+
+All three packages should show as installed.
+
+### Install the Seafile Sync Client (AppImage)
+
+* Install FUSE (required for AppImages to mount themselves):
+
+```
+sudo dnf install -y fuse fuse-libs
+sudo modprobe fuse
+```
+
+* Create the `appimages` directory and download the Seafile AppImage:
+
+```
+mkdir -p ~/appimages
+curl -L -o ~/appimages/Seafile-x86_64-9.0.18.AppImage \
+  "https://sos-ch-dk-2.exo.io/seafile-downloads/Seafile-x86_64-9.0.18.AppImage"
+```
+
+* Make the AppImage executable:
+
+```
+chmod +x ~/appimages/Seafile-x86_64-9.0.18.AppImage
+```
+
+* Verify the download:
+
+```
+ls -la ~/appimages/Seafile-x86_64-9.0.18.AppImage
+```
+
+The file should be approximately 184 MB with the execute bit set.
+
+### Install RustDesk via Flatpak
+
+Flatpak is already installed as a dependency of the KDE group. Add the Flathub remote and install RustDesk:
+
+```
+sudo flatpak remote-add --system --if-not-exists flathub \
+  https://flathub.org/repo/flathub.flatpakrepo
+```
+
+```
+sudo flatpak install --system --noninteractive flathub com.rustdesk.RustDesk
+```
+
+* Verify:
+
+```
+flatpak list --system | grep -i rustdesk
+```
+
+### Reboot and Verify
+
+* Reboot the worker node to activate SDDM and the graphical target:
+
+```
+sudo systemctl reboot
+```
+
+* After the node comes back up, verify all components:
+
+```
+systemctl is-active sddm
+systemctl get-default
+systemctl is-active kubelet
+ls -la ~/appimages/Seafile-x86_64-9.0.18.AppImage
+flatpak list --system | grep -i rustdesk
+```
+
+Expected results:
+
+| Component | Check | Expected |
+|---|---|---|
+| KDE Plasma | `rpm -q plasma-desktop sddm` | plasma-desktop 5.27.12, sddm 0.20.0 |
+| SDDM | `systemctl is-active sddm` | active |
+| Default target | `systemctl get-default` | graphical.target |
+| NM isolation | `nmcli device status` (k8s interfaces) | unmanaged |
+| Seafile AppImage | `ls -la ~/appimages/Seafile-x86_64-9.0.18.AppImage` | ~184 MB, executable |
+| RustDesk | `flatpak list --system \| grep rustdesk` | com.rustdesk.RustDesk 1.4.6 |
+| kubelet | `systemctl is-active kubelet` | active |
+
+### Uncordon the Worker Node
+
+Once everything is verified, uncordon the node from the control plane:
+
+```
+kubectl uncordon <your-worker-node>
+```
+
+Confirm the node is `Ready` and schedulable:
+
+```
+kubectl get nodes
+```
