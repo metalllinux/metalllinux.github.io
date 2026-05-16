@@ -8,4 +8,10 @@ header:
   overlay_filter: 0.5
 ---
 
-Welcome to my Skateboarding section. Content coming soon.
+Welcome to my Skateboarding section. Here I document skate parks, sessions, and everything skateboarding.
+
+## Posts
+
+{% for post in site.categories.skateboarding %}
+- [{{ post.title }}]({{ post.url }}) - {{ post.date | date: "%B %-d, %Y" }}
+{% endfor %}
