@@ -35,6 +35,9 @@ collections:
   linux_journey:
     output: true
     permalink: /linux-journey/:path/
+  notes:
+    output: true
+    permalink: /notes/:path/
 
 defaults:
   - scope:
@@ -44,6 +47,17 @@ defaults:
       layout: single
       sidebar:
         nav: "linux-journey"
+      toc: true
+      toc_sticky: true
+      author_profile: false
+      render_with_liquid: false
+  - scope:
+      path: ""
+      type: "notes"
+    values:
+      layout: single
+      sidebar:
+        nav: "notes"
       toc: true
       toc_sticky: true
       author_profile: false

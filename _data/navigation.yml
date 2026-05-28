@@ -7,6 +7,8 @@ main:
     url: /contributions/
   - title: "Linux Journey"
     url: /linux-journey/
+  - title: "Notes"
+    url: /notes/
   - title: "Skateboarding"
     url: /skateboarding/
   - title: "Video Games"
@@ -77,3 +79,9 @@ linux-journey:
         url: /linux-journey/presentations/
       - title: "Project TV (TLUG, 2026-05-09)"
         url: /linux-journey/presentations/project-tv-rocky-linux-edition-tlug-2026-05-09/
+
+notes:
+  - title: "Posts"
+    children:
+      - title: "How to Give a Good Technical Presentation"
+        url: /notes/posts/how-to-give-a-good-technical-presentation/
