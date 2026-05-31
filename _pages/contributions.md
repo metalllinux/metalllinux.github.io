@@ -10,11 +10,13 @@ toc: true
 toc_sticky: true
 ---
 
-## Rocky Linux Documentation
+## Rocky Linux
+
+### Rocky Linux Documentation
 
 I am a frequent contributor to the [Rocky Linux Documentation](https://docs.rockylinux.org/) project. Below are the guides and documentation I have authored or made significant contributions to.
 
-### New Guides Authored
+#### New Guides Authored
 
 | Guide | Description | PR |
 |-------|-------------|-----|
@@ -33,7 +35,7 @@ I am a frequent contributor to the [Rocky Linux Documentation](https://docs.rock
 | [Custom Rocky Linux ISO Creation](https://docs.rockylinux.org/guides/ISOs/iso_creation/) | How to create a custom Rocky Linux ISO with kickstart | [#2538](https://github.com/rocky-linux/documentation/pull/2538) |
 | [Libvirt on Rocky Linux 9](https://docs.rockylinux.org/guides/virtualization/libvirt-rocky/) | Setting up and managing libvirt/KVM virtualisation on Rocky Linux 9 | [#2510](https://github.com/rocky-linux/documentation/pull/2510) |
 
-### Updates & Improvements
+#### Updates & Improvements
 
 | Update | PR |
 |--------|-----|
@@ -47,6 +49,10 @@ I am a frequent contributor to the [Rocky Linux Documentation](https://docs.rock
 | Updated packer documentation with URL to kickstart article | [#3104](https://github.com/rocky-linux/documentation/pull/3104) |
 
 All contributions can be viewed on the [Rocky Linux Documentation GitHub repository](https://github.com/rocky-linux/documentation).
+
+### Rocky Linux Testing
+
+I tested both [Rocky Linux 9.8](https://rockylinux.org/news/rocky-linux-9-8-ga-release) and [Rocky Linux 10.2](https://rockylinux.org/news/rocky-linux-10-2-ga-release) on my hardware, to ensure the 2011 Microsoft CA certificate works correctly with the new Rocky Linux shim package. Testing coordination and results can be found on the [Rocky Linux SHIM Testing](https://www.board.net/p/Rocky_Linux_SHIM_Testing) board.
 
 ## Repositories
 
