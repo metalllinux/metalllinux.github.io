@@ -97,10 +97,16 @@ Then install the EPEL repository:
 sudo dnf install -y epel-release
 ```
 
+Then remove `kernel-ml-headers` to avoid a conflict with the stock `kernel-headers` package that will be pulled in as a dependency of `glibc-devel`:
+
+```bash
+sudo dnf remove kernel-ml-headers
+```
+
 Then install the required build dependencies:
 
 ```bash
-sudo dnf install cmake gcc gcc-c++ dkms openssl
+sudo dnf --enablerepo=elrepo-kernel install cmake gcc gcc-c++ dkms openssl kernel-ml-devel
 ```
 
 Clone the module source and install it via DKMS:
