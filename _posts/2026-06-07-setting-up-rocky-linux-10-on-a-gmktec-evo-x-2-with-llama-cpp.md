@@ -38,3 +38,21 @@ sudo dnf install -y elrepo-release
 sudo rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 sudo dnf --enablerepo=elrepo-kernel install -y kernel-ml
 ```
+
+Once installed, list the available kernels and set `kernel-ml` as the default using `grubby`:
+
+```bash
+$ sudo grubby --info=ALL | grep -E "^kernel|^index"
+index=0
+kernel="/boot/vmlinuz-7.0.11-1.el10.elrepo.x86_64"
+index=1
+kernel="/boot/vmlinuz-6.12.0-211.16.1.el10_2.0.1.x86_64"
+index=2
+kernel="/boot/vmlinuz-0-rescue-f359b732002449e199fc129822382b6d"
+
+$ sudo grubby --set-default /boot/vmlinuz-7.0.11-1.el10.elrepo.x86_64
+The default is /boot/loader/entries/f359b732002449e199fc129822382b6d-7.0.11-1.el10.elrepo.x86_64.conf with index 0 and kernel /boot/vmlinuz-7.0.11-1.el10.elrepo.x86_64
+
+$ sudo grubby --default-kernel
+/boot/vmlinuz-7.0.11-1.el10.elrepo.x86_64
+```
