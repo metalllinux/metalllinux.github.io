@@ -69,6 +69,12 @@ $ sudo grubby --default-kernel
 /boot/vmlinuz-7.0.11-1.el10.elrepo.x86_64
 ```
 
+Then reboot for the new kernel to take effect:
+
+```bash
+sudo reboot
+```
+
 ## Thermal power
 
 With the kernel in place, the next step was to configure the thermal power limits for the EVO-X-2's AMD processor using `ryzenadj`. The following command sets the burst power limit to 100W and the thermal target to 88°C:
