@@ -114,6 +114,7 @@ Clone the module source and install it via DKMS:
 ```bash
 git clone https://github.com/amkillam/ryzen_smu
 cd ryzen_smu/ && sudo make dkms-install
+cd .. && rm -Rf ./ryzen_smu/
 ```
 
 ### Building RyzenAdj
