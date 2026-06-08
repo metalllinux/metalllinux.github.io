@@ -85,7 +85,13 @@ sudo ryzenadj --fast-limit=100000 --tctl-temp=88
 
 ### Building ryzen_smu
 
-`ryzenadj` depends on the `ryzen_smu` kernel module. To build it, first install the EPEL repository:
+`ryzenadj` depends on the `ryzen_smu` kernel module. To build it, first install `git`:
+
+```bash
+sudo dnf install -y git
+```
+
+Then install the EPEL repository:
 
 ```bash
 sudo dnf install -y epel-release
