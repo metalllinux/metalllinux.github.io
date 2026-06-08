@@ -82,3 +82,24 @@ With the kernel in place, the next step was to configure the thermal power limit
 ```bash
 sudo ryzenadj --fast-limit=100000 --tctl-temp=88
 ```
+
+### Building ryzen_smu
+
+`ryzenadj` depends on the `ryzen_smu` kernel module. To build it, first install the EPEL repository:
+
+```bash
+sudo dnf install -y epel-release
+```
+
+Then install the required build dependencies:
+
+```bash
+sudo dnf install cmake gcc gcc-c++ dkms openssl
+```
+
+Clone the module source and install it via DKMS:
+
+```bash
+git clone https://github.com/amkillam/ryzen_smu
+cd ryzen_smu/ && sudo make dkms-install
+```
