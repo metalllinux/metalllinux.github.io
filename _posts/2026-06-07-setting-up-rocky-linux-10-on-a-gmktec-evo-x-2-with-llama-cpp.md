@@ -77,7 +77,7 @@ sudo reboot
 
 ## Thermal power
 
-With the kernel in place, the next step was to configure the thermal power limits for the EVO-X-2's AMD processor using `ryzenadj`. The following command sets the burst power limit to 100W and the thermal target to 88°C:
+With the kernel in place, the next step was to configure the thermal power limits for the EVO-X-2's AMD processor using [RyzenAdj](https://github.com/FlyGoat/RyzenAdj). The following command sets the burst power limit to 100W and the thermal target to 88°C:
 
 ```bash
 $ sudo ryzenadj --fast-limit=100000 --tctl-temp=88
