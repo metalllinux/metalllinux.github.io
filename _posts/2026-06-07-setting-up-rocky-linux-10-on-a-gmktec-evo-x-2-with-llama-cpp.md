@@ -124,3 +124,16 @@ With `ryzen_smu` in place, the next step is to build `ryzenadj`. First install t
 ```bash
 sudo dnf install pciutils-devel
 ```
+
+Then clone, build, and symlink `ryzenadj`:
+
+```bash
+git clone https://github.com/FlyGoat/RyzenAdj.git
+cd RyzenAdj
+rm -r win32
+mkdir build && cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
+if [ -d ~/.local/bin ]; then ln -s $(readlink -f ryzenadj) ~/.local/bin/ryzenadj && echo "symlinked to ~/.local/bin/ryzenadj"; fi
+if [ -d ~/.bin ]; then ln -s $(readlink -f ryzenadj) ~/.bin/ryzenadj && echo "symlinked to ~/.bin/ryzenadj"; fi
+```
