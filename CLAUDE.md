@@ -51,6 +51,10 @@ Two custom collections alongside standard `_posts` and `_pages`:
 - Front matter requires: `title`, `date`, `categories`, `tags`, `excerpt`
 - `categories` drives which section page lists the post (e.g. `categories: ai` → AI Journey, `categories: skateboarding` → Skateboarding)
 - Do **not** add `layout`, `author_profile`, or `show_date` to post front matter — these are injected automatically by the `defaults` block in `_config.yml`
+- Technical how-to posts should use `##` for major sections and `###` for subsections
+- Terminal commands should be in fenced `bash` code blocks; where output is relevant, show it in the same block with `$` prefixing the command
+- When documenting a multi-step process, present steps sequentially with a brief explanatory sentence before each code block
+- Use Markdown tables for structured reference data (e.g. firmware version info)
 
 ### Static Pages (`_pages/`)
 - Use `layout: single` with `author_profile: true`
@@ -87,7 +91,15 @@ The site is live at `https://metalinux.dev`.
 
 ## Git Workflow Notes
 
-The repo is synced across machines via Syncthing, which means the remote can be ahead of the local branch (Syncthing-created `SFConflict` files are a sign of this). If a push is rejected as non-fast-forward:
+The repo is synced across machines via Syncthing, which means the remote can be ahead of the local branch (Syncthing-created `SFConflict` files are a sign of this).
+
+**Always run `git status` before editing.** If the local branch is behind the remote, pull first:
+
+```bash
+git pull --rebase origin main
+```
+
+If a push is rejected as non-fast-forward:
 
 ```bash
 git stash -u          # stash all changes including untracked files
@@ -97,6 +109,8 @@ git stash drop        # drop the stash — remote has the authoritative versions
 ```
 
 Do not pop the stash after pulling if the stashed files now exist as tracked files (pulled from remote); drop it instead to avoid conflicts.
+
+**SFConflict files** — Syncthing creates these when two machines edit the same file simultaneously (e.g. `foo (SFConflict Howard Van Der Wal 2026-06-08-...).md`). They are untracked noise and should never be committed. Ignore them; the canonical version is whatever is tracked by git.
 
 ## AI Usage Policy
 
