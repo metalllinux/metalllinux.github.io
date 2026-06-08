@@ -138,6 +138,12 @@ if [ -d ~/.local/bin ]; then ln -s $(readlink -f ryzenadj) ~/.local/bin/ryzenadj
 if [ -d ~/.bin ]; then ln -s $(readlink -f ryzenadj) ~/.bin/ryzenadj && echo "symlinked to ~/.bin/ryzenadj"; fi
 ```
 
+Clean up the build directory:
+
+```bash
+cd ~ && rm -Rf ./RyzenAdj
+```
+
 Then reboot:
 
 ```bash
