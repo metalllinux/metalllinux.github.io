@@ -4,10 +4,6 @@ category: "rocky-linux"
 tags: ["rocky-linux", "pxe", "boot", "rocky", "linux", "dnsmasq", "tftp", "httpd", "uefi"]
 ---
 
-# How to Setup a PXE Server on Rocky Linux 9.x
-
-Jun 8, 2026
-
 ## Introduction
 
 Using PXE to bootstrap nodes with an image is commonplace in many business environments and has made both deploying and managing an image across a fleet of nodes at scale trivial.
