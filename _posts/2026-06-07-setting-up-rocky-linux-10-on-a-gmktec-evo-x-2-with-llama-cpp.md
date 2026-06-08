@@ -12,6 +12,14 @@ I have been wanting to set up a dedicated local AI inference machine for a while
 
 ## Installing Rocky Linux
 
+For reference, the firmware on the machine at the time of installation was as follows:
+
+| Field | Value |
+|---|---|
+| BIOS Version | EVO-X2 1.11 |
+| EC Firmware Version | 1.08 |
+| BIOS Build Date and Time | 10/17/2025 17:33:08 |
+
 The first task was simply getting Rocky Linux onto the machine. I downloaded the Rocky Linux 10.2 DVD ISO and set about creating a bootable USB stick using a Verbatim 64GB USB3 drive. What followed was a considerably longer exercise in troubleshooting than I anticipated.
 
 The EVO-X-2 was simply unable to read the Verbatim 64GB USB3 memory stick. I verified the drive had been written correctly using multiple tools, but the machine would not recognise it as bootable in any case:
