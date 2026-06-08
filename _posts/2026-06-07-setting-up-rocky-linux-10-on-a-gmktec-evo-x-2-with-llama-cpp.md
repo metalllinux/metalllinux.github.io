@@ -115,3 +115,11 @@ Clone the module source and install it via DKMS:
 git clone https://github.com/amkillam/ryzen_smu
 cd ryzen_smu/ && sudo make dkms-install
 ```
+
+### Building RyzenAdj
+
+With `ryzen_smu` in place, the next step is to build `ryzenadj`. First install the required dependency:
+
+```bash
+sudo dnf install pciutils-devel
+```
