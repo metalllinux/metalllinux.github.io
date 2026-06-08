@@ -1,226 +1,193 @@
 ---
 title: "How to Setup a PXE Server on Rocky Linux 9.x"
 category: "rocky-linux"
-tags: ["rocky-linux", "pxe", "boot", "rocky", "linux"]
+tags: ["rocky-linux", "pxe", "boot", "rocky", "linux", "dnsmasq", "tftp", "httpd", "uefi"]
 ---
 
 # How to Setup a PXE Server on Rocky Linux 9.x
 
-[dnsmasq](https://kb.ciq.com/articles?tag=dnsmasq)[how-to](https://kb.ciq.com/articles?tag=how-to)[iso](https://kb.ciq.com/articles?tag=iso)[kickstart](https://kb.ciq.com/articles?tag=kickstart)[linux](https://kb.ciq.com/articles?tag=linux)[PXE](https://kb.ciq.com/articles?tag=pxe)[rocky](https://kb.ciq.com/articles?tag=rocky)[tftp](https://kb.ciq.com/articles?tag=tftp)[uefi](https://kb.ciq.com/articles?tag=uefi)
-
-Sr. Customer Support Engineer
-
-Jan 30, 2025
+Jun 8, 2026
 
 ## Introduction
 
 Using PXE to bootstrap nodes with an image is commonplace in many business environments and has made both deploying and managing an image across a fleet of nodes at scale trivial.
 
-This article will go through the setup process of deploying a PXE server on Rocky Linux 9.5 and then bootstrap a fresh node with a Rocky Linux 9.5 image. The article will focus on a UEFI boot use case, as opposed to a legacy BIOS boot.
+This article walks through deploying a PXE server on Rocky Linux 9.x to network-boot a UEFI client and install Rocky Linux 10.2. The setup uses `dnsmasq` in **proxy DHCP mode** — which works alongside an existing router DHCP server without conflict — `httpd` to serve the DVD installer tree over HTTP, and `tftp-server` to transfer the bootloader and kernel to PXE clients. Boot files are extracted directly from the Rocky Linux 10.2 DVD ISO; no external image generation tool is required.
+
+This guide focuses on UEFI boot only.
 
 ## Prerequisites
 
-- A node with Rocky Linux 9.5 installed on it. This will be the PXE server.
-    
-- A node that has PXE support available. This will be the PXE client.
-    
-- A Rocky Linux 9.5 DVD ISO.
-    
+- A node running Rocky Linux 9.x. This will be the PXE server.
+- A Rocky Linux 10.2 DVD ISO on the server (e.g. at `/home/howard/isos/Rocky-10.2-x86_64-dvd1.iso`). Adjust the path to match your environment.
+- A UEFI-capable client on the same subnet as the PXE server.
+- An existing DHCP server on the network (e.g. a router). Proxy DHCP mode means `dnsmasq` will not conflict with it.
+- `sudo` access on the PXE server.
 
 ## Instructions
 
 ### PXE Server Setup
 
-To set up the PXE Server please follow the steps below:
-
 - Update all packages:
 
-```
+```bash
 sudo dnf update -y
 ```
 
-- Install `dnsmasq` to provide a DNS and DHCP server support:
+- Install the required packages — `dnsmasq` (proxy DHCP + TFTP), `tftp-server`, and `httpd` (to serve the installer tree over HTTP):
 
 ```bash
-sudo dnf install -y dnsmasq
+sudo dnf install -y dnsmasq tftp-server httpd
 ```
 
-- Set up your `dnsmasq.conf` configuration with the appropriate subnet, netmask, broadcast-address, and more:
+- Set SELinux to permissive mode to avoid file-context conflicts with the TFTP and HTTP services:
+
+```bash
+sudo setenforce 0
+sudo sed -i 's/^SELINUX=.*/SELINUX=permissive/' /etc/selinux/config
+```
+
+- Create the required directory structure:
+
+```bash
+sudo mkdir -p /var/lib/tftpboot/rocky10/EFI/BOOT
+sudo mkdir -p /var/lib/tftpboot/EFI/BOOT
+sudo mkdir -p /var/www/html/rocky10-dvd
+sudo mkdir -p /mnt/dvd
+sudo mkdir -p /tmp/efiboot
+```
+
+- Mount the Rocky Linux 10.2 DVD ISO:
+
+```bash
+sudo mount -o loop /home/howard/isos/Rocky-10.2-x86_64-dvd1.iso /mnt/dvd
+```
+
+- Copy the full DVD contents to the HTTP root. This directory provides both the Anaconda stage2 installer image and the package repositories (`BaseOS` and `AppStream`) over HTTP:
+
+```bash
+sudo cp -a /mnt/dvd/. /var/www/html/rocky10-dvd/
+```
+
+- Copy the PXE kernel and initial RAM disk from the ISO:
+
+```bash
+sudo cp /mnt/dvd/images/pxeboot/vmlinuz /var/lib/tftpboot/rocky10/
+sudo cp /mnt/dvd/images/pxeboot/initrd.img /var/lib/tftpboot/rocky10/
+```
+
+- Mount the EFI boot image embedded in the ISO and copy the UEFI bootloader files:
+
+```bash
+sudo mount -o loop /mnt/dvd/images/efiboot.img /tmp/efiboot
+sudo cp -a /tmp/efiboot/EFI/BOOT/. /var/lib/tftpboot/rocky10/EFI/BOOT/
+sudo umount /tmp/efiboot
+```
+
+- Unmount the ISO (all required files have now been copied):
+
+```bash
+sudo umount /mnt/dvd
+```
+
+- Write the GRUB PXE boot menu.
+
+**Important:** `grubx64.efi`, once loaded via TFTP, searches for `grub.cfg` at the **root of the TFTP server** — not relative to the subdirectory it was served from. GRUB walks through the following search sequence:
+
+```
+(tftp)/grub.cfg-<MAC-address>
+(tftp)/grub.cfg-<IP-in-hex>
+...
+(tftp)/grub.cfg                 ← generic fallback
+(tftp)/EFI/BOOT/grub.cfg        ← also checked
+```
+
+The `grub.cfg` must therefore be placed at `/var/lib/tftpboot/grub.cfg` **and** `/var/lib/tftpboot/EFI/BOOT/grub.cfg`. Placing it only in the `rocky10/EFI/BOOT/` subdirectory where `grubx64.efi` lives will cause GRUB to drop to an interactive shell instead of showing the boot menu.
+
+```bash
+cat << "EOF" | sudo tee /var/lib/tftpboot/grub.cfg
+set default=0
+set timeout=60
+
+menuentry 'Rocky Linux 10.2 Install (PXE Boot)' {
+    linuxefi /rocky10/vmlinuz inst.stage2=http://<server-ip>/rocky10-dvd inst.repo=http://<server-ip>/rocky10-dvd inst.text quiet
+    initrdefi /rocky10/initrd.img
+}
+EOF
+
+sudo cp /var/lib/tftpboot/grub.cfg /var/lib/tftpboot/EFI/BOOT/grub.cfg
+sudo cp /var/lib/tftpboot/grub.cfg /var/lib/tftpboot/rocky10/EFI/BOOT/grub.cfg
+```
+
+Replace `<server-ip>` with the IP address of the PXE server. The `inst.text` kernel argument launches the Anaconda installer in text mode rather than the graphical interface — remove it to use the GUI.
+
+- Configure `dnsmasq` in proxy DHCP mode. The `dhcp-range=<subnet>,proxy` directive tells `dnsmasq` to respond to PXE DHCP requests without assigning IP addresses, leaving that to the existing router:
 
 ```bash
 cat << "EOF" | sudo tee /etc/dnsmasq.conf
-interface=<your_ethernet_interface>,lo
-#bind-interfaces
-domain=<name_here-anything_is_okay>
-# DHCP range-leases
-dhcp-range=<your_ethernet_interface>,<start_of_dhcp_range>,<end_of_dhcp_range>,255.255.240.0,1h
-# PXE
-dhcp-boot=pxelinux.0,PXEserver,<your_rocky_linux_node_address>
-# Gateway
-dhcp-option=3,<your_gateway_address>
-# DNS
-dhcp-option=6,<your_dns_server_address>
-server=<your_rocky_linux_node_address>
-# Broadcast Address
-dhcp-option=28,<your_broadcast_address>
-# NTP Server
-dhcp-option=42,0.0.0.0
+# PXE Server - Proxy DHCP mode (works alongside existing router DHCP)
+interface=enp2s0
+bind-interfaces
+log-dhcp
 
-pxe-prompt="Press F8 for menu.", 60
-pxe-service=x86PC, "Install Rocky Linux 9.5 from your PXE server <your_rocky_linux_node_address>", pxelinux
+# Proxy DHCP: do not assign IPs, only respond to PXE boot requests
+dhcp-range=192.168.1.0,proxy
+
+# Tell UEFI clients which bootloader to fetch from TFTP
+pxe-service=x86-64_EFI,"Rocky Linux 10.2 PXE",rocky10/EFI/BOOT/grubx64.efi
+
+# TFTP server
 enable-tftp
 tftp-root=/var/lib/tftpboot
 EOF
 ```
 
-Example: *Please supplement the addresses with those from your own environment*
+Replace `enp2s0` with the name of your network interface (use `ip a` to find it) and `192.168.1.0` with your subnet address if different.
+
+- Enable and start `httpd`, `tftp`, and `dnsmasq`:
 
 ```bash
-cat << "EOF" | sudo tee /etc/dnsmasq.conf
-interface=enp8s0,lo
-#bind-interfaces
-domain=test
-# DHCP range-leases
-dhcp-range=enp8s0,10.25.96.4,10.25.96.5,255.255.240.0,1h
-# PXE
-dhcp-boot=pxelinux.0,pxeserver,10.25.96.3
-# Gateway
-dhcp-option=3,10.25.96.1
-# DNS
-dhcp-option=6,10.25.96.1
-server=10.25.96.3
-# Broadcast Address
-dhcp-option=28,10.25.96.255
-# NTP Server
-dhcp-option=42,0.0.0.0
-
-pxe-prompt="Press F8 for menu.", 60
-pxe-service=x86PC, "Install Rocky 9.5 from network server 10.25.96.3", pxelinux
-enable-tftp
-tftp-root=/var/lib/tftpboot
-EOF
+sudo systemctl enable --now httpd tftp dnsmasq
 ```
 
-*The PXE server has been assigned the address of `10.25.96.3` in the above configuration.*
-
-- Install the `syslinux` package:
+- Allow the required traffic through the firewall:
 
 ```bash
-sudo dnf install -y syslinux
-```
-
-- Install the `tftp-server` package:
-
-```bash
-sudo dnf install -y tftp-server
-```
-
-- Copy the contents of the `syslinux` directory to `/var/lib/tftpboot`:
-
-```bash
-sudo cp -r /usr/share/syslinux/* /var/lib/tftpboot
-```
-
-- Create a directory called `pxelinux.cfg`:
-
-```bash
-sudo mkdir /var/lib/tftpboot/pxelinux.cfg
-```
-
-- Generate the PXE BOOT menu:
-
-```bash
-cat << "EOF" | sudo tee /var/lib/tftpboot/pxelinux.cfg/default
-default menu.c32
-prompt 0
-timeout 300
-ONTIMEOUT local
-
-menu title # Rocky Linux 9.5 Boot Menu #
-
-label 1
-menu label ^1) Install Rocky Linux 9.5 x64 using a Remote Repository
-  kernel rocky95/vmlinuz
-  append initrd=rocky95/initrd.img inst.zram=1 inst.repo=https://dl.rockylinux.org/pub/rocky/9.5/BaseOS/x86_64/os/
-EOF
-```
-
-**NOTE** The PXE BOOT menu can be further expanded to include `kickstart` file configurations and other customizations. An example entry using a `kickstart` file is below:
-
-```bash
-label 2
-menu label ^2) Install Rocky Linux 9.5 x64 using a Remote Repository
-  kernel rocky95/vmlinuz 
-  append initrd=rocky95/initrd.img inst.debug ip=dhcp inst.ks=nfs:<your_rocky_linux_node_ip>:</path/to/your/kickstarter_cfg_file> inst.repo=nfs:<your_rocky_linux_node_ip>:</path/to/your/iso> inst.zram=1
-```
-
-- Create a directory called `rocky95`:
-
-```bash
-sudo mkdir /var/lib/tftpboot/rocky95
-```
-
-- Mount the Rocky Linux 9.5 DVD ISO image:
-
-```bash
-sudo mount -o loop </path/to/iso> </iso/mount_point>
-```
-
-- For this example we mounted the Rocky Linux 9.5 ISO at `/mnt`:
-
-```bash
-sudo mount -o loop ~/isos/Rocky-9.5-x86_64-dvd.iso /mnt
-```
-
-- Copy the required `initrd.img` and `vmlinuz` files to `/var/lib/tftpboot/rocky95`:
-
-```bash
-sudo cp /mnt/images/pxeboot/vmlinuz /var/lib/tftpboot/rocky95
-sudo cp /mnt/images/pxeboot/initrd.img /var/lib/tftpboot/rocky95
-```
-
-- Start and enable the `dnsmasq` and `tftp` services at boot:
-
-```bash
-sudo systemctl enable --now dnsmasq
-sudo systemctl enable --now tftp
-```
-
-- Allow `dhcp`, `dns`, `proxydhcp` and `tftp` traffic through your firewall:
-
-```bash
+sudo firewall-cmd --add-service=tftp --permanent
+sudo firewall-cmd --add-service=http --permanent
 sudo firewall-cmd --add-service=dhcp --permanent
-sudo firewall-cmd --add-service=dns --permanent
-sudo firewall-cmd --add-port=69/udp --permanent
 sudo firewall-cmd --add-port=4011/udp --permanent
 sudo firewall-cmd --reload
 ```
 
+The ports opened are:
+
+- `tftp` — UDP 69 (TFTP file transfer for bootloader, kernel, and initrd)
+- `http` — TCP 80 (HTTP installer tree served by `httpd`)
+- `dhcp` — UDP 67 (proxy DHCP, to receive PXE DHCP DISCOVER broadcasts)
+- `4011/udp` — proxy DHCP response port
+
 ### PXE Client Setup
 
-To set up the PXE Client please follow the steps below to enable the available PXE option from the client machine's BIOS settings. In this example, the following needed to be enabled:
+Enable PXE network boot on the client machine from its UEFI firmware settings. The exact menu path varies by manufacturer, but generally involves:
 
-- Navigate to `Advanced` --> `Onboard Devices Configuration` --> `Realtek LAN Controller` and set this option to `Enabled`.
-    
-- Navigate to `Advanced` --> `Onboard Devices Configuration` --> `Realtek LAN Controller` --> `Realtek PXE Option ROM` and configured this option as `Enabled`.
-    
-- Navigate to `Advanced` --> `Network Stack Configuration` --> `Network Stack` and also set this option as `Enabled`.
-    
-- Finally went to `Advanced` --> `Network Stack Configuration` --> `Ipv4 PXE Support` and changed this to `Enabled`.
-    
-- Restart your PXE client machine and it should connect to your PXE server.
-    
-- Press `F8` at the prompt:
-    
+- Enabling the onboard NIC / LAN controller.
+- Enabling the **PXE Option ROM** or **Network Stack** for the NIC.
+- Enabling **IPv4 PXE Support**.
+- Setting the boot order so that **Network Boot** is listed before the local drive.
 
-<img width="880" height="133" src="../_resources/pxe_server_boot_1_0f8c9b44da6f4044a1c2dd5adbeb8b5d.webp"/>
+Restart the client. The boot sequence will be:
 
-- Press the `Enter` key at the next screen and proceed to the Rocky Linux 9.5 Boot Menu. Select `option 1`:
-
-<img width="880" height="417" src="../_resources/pxe_server_boot_2_4bdcbeb5eaec44cbaea97794e0a3beb4.webp"/>
-
-Your PXE client will now boot up and download the `initrd.img` and `vmlinuz` files, as well as the files from the remote repository. The Anaconda installer will then appear and you can continue the installation as normal. Of course, if you submit a `kickstart` configuration file, the installation part of the process can be skipped.
+1. The UEFI firmware sends a DHCP DISCOVER with a PXE option.
+2. The router assigns an IP address; `dnsmasq` (proxy DHCP) responds with the path to `grubx64.efi`.
+3. The client fetches `grubx64.efi` from the TFTP server and GRUB starts.
+4. GRUB searches the TFTP root for `grub.cfg` and displays the boot menu.
+5. Select **Rocky Linux 10.2 Install (PXE Boot)** or wait 60 seconds for the auto-select timeout.
+6. The kernel and initrd are fetched via TFTP; Anaconda then retrieves `install.img` over HTTP from `http://<server-ip>/rocky10-dvd`.
+7. The installer launches — in text mode if `inst.text` is present in the kernel arguments.
 
 ## Conclusion
 
-This guide was built in the hope of helping bring up a simple PXE server. It touched on configurations for `dnsmasq`, `tftp`, setting up the PXE server boot menu, and more. PXE is an amazing technology and has truly revolutionised large scale deployments.
+This guide walked through setting up a PXE server on Rocky Linux 9.x to serve Rocky Linux 10.2 to UEFI clients over the network. The setup uses `dnsmasq` in proxy DHCP mode, `httpd` to serve the full DVD installer tree, and boot files extracted directly from the DVD ISO. The proxy DHCP approach makes this safe to deploy on networks that already have a router acting as DHCP server.
+
+The most important thing to get right is `grub.cfg` placement: it must live at the TFTP root (and `/EFI/BOOT/` at the TFTP root), not in the subdirectory where `grubx64.efi` is served from. Getting this wrong causes GRUB to silently drop to an interactive shell with no indication of what went wrong.
