@@ -153,3 +153,190 @@ Then reboot:
 ```bash
 sudo reboot
 ```
+
+## PyTorch Benchmarking Setup
+
+With RyzenAdj in place and the APU power limits dialled in, the next step was to get a PyTorch benchmarking suite running to measure GPU throughput. What followed was a series of full hard power-off events that required some investigation to understand.
+
+### The hard shutdown problem
+
+The system started dying during benchmark runs — not locking up, not crashing to a kernel panic, but fully powering off with no warning and nothing in the logs. It happened repeatedly: kick off a benchmark, machine cuts out.
+
+Setting up thermal monitoring at five-second intervals showed exactly what was happening:
+
+```
+19:00:07  Tctl=71°C   pwr=92W    ← normal inference
+19:00:12  Tctl=91°C   pwr=165W   ← torch.compile spike
+19:00:22  Tctl=93°C   pwr=164W   ← approaching TjMax (100°C)
+19:00:27  Tctl=61°C   pwr=30W    ← thermal shutdown
+```
+
+`torch.compile` triggers Triton/Inductor kernel compilation, which simultaneously pegs all 32 CPU cores and the GPU. On a UMA APU where the CPU and GPU share one thermal envelope inside a mini PC chassis, that produces a 165W power spike — well past the 120W PPT Fast limit and far beyond what the cooler can handle. The firmware thermal protection cuts power entirely. No graceful shutdown, just off.
+
+Normal LLM inference is completely stable: 73–75W, 76–80°C, runs all day. The problem is specifically mixed CPU+GPU burst workloads. `torch.compile` is the most consistent trigger, but anything that simultaneously saturates the CPU and GPU can cause the same outcome on this hardware.
+
+### Setting up thermal monitoring
+
+Before running any benchmarks, set up continuous thermal monitoring. Install `lm-sensors`:
+
+```bash
+sudo dnf install -y lm_sensors
+sudo sensors-detect --auto
+```
+
+Then create a monitoring script that logs temperature and package power at five-second intervals:
+
+```bash
+cat > ~/thermal-monitor.sh << 'EOF'
+#!/usr/bin/env bash
+LOG="${1:-thermal.log}"
+echo "Logging to $LOG — Ctrl+C to stop"
+while true; do
+    TCTL=$(sensors 2>/dev/null | awk '/^Tctl:/ {gsub(/[+°C]/,"",$2); print $2}')
+    PWR_RAW=$(cat /sys/class/hwmon/hwmon*/power1_average 2>/dev/null | sort -n | tail -1)
+    if [ -n "$PWR_RAW" ]; then
+        PWR_W=$(awk "BEGIN {printf \"%.0f\", $PWR_RAW / 1000000}")W
+    else
+        PWR_W=N/A
+    fi
+    printf '%s  Tctl=%-6s pwr=%s\n' "$(date '+%H:%M:%S')" "${TCTL}°C" "$PWR_W" | tee -a "$LOG"
+    sleep 5
+done
+EOF
+chmod +x ~/thermal-monitor.sh
+```
+
+Run it in a separate terminal before starting any benchmark:
+
+```bash
+~/thermal-monitor.sh benchmark-run-1.log
+```
+
+### Installing PyTorch with Vulkan
+
+Unlike ROCm, PyTorch's Vulkan backend on desktop Linux has no prebuilt pip wheel. The Vulkan backend exists in the codebase at [github.com/pytorch/pytorch](https://github.com/pytorch/pytorch) and is functional, but desktop Linux support is not tested in CI and there is no official package distribution for it — a source build is the only path.
+
+Install the Vulkan runtime, headers, and Mesa RADV driver (which provides Vulkan support for the AMD integrated GPU):
+
+```bash
+sudo dnf install -y vulkan-loader vulkan-headers vulkan-tools mesa-vulkan-drivers
+```
+
+Verify the Vulkan ICD is detected:
+
+```bash
+$ vulkaninfo --summary
+Instance Version:  1.3.x
+GPU id : 0 (AMD Radeon Graphics)
+        apiVersion = 1.3.x
+        driverVersion = x.x.x
+```
+
+The PyTorch Vulkan build requires `glslc` (the GLSL shader compiler) from the [LunarG Vulkan SDK](https://vulkan.lunarg.com/sdk/home#linux). Download and extract it:
+
+```bash
+mkdir ~/VulkanSDK && cd ~/VulkanSDK
+wget https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
+tar xf vulkan_sdk.tar.gz
+```
+
+Source the environment setup script before building — substitute `<version>` with the extracted directory name:
+
+```bash
+source ~/VulkanSDK/<version>/setup-env.sh
+```
+
+Install build dependencies:
+
+```bash
+sudo dnf install -y python3-pip python3-devel cmake ninja-build git
+```
+
+Clone the PyTorch repository and initialise submodules:
+
+```bash
+git clone https://github.com/pytorch/pytorch
+cd pytorch
+git submodule sync
+git submodule update --init --recursive
+pip3 install -r requirements.txt
+```
+
+Build PyTorch with `USE_VULKAN=1`. This will take a significant amount of time — expect upwards of an hour on this hardware:
+
+```bash
+USE_VULKAN=1 USE_CUDA=0 pip3 install --no-build-isolation -v -e .
+```
+
+Verify that the Vulkan backend is available once the build completes:
+
+```bash
+$ python3 -c "import torch; print(torch.is_vulkan_available())"
+True
+```
+
+### Running benchmarks safely
+
+The Vulkan backend does not support `torch.compile` at all — Triton/Inductor is not part of the Vulkan codepath. That said, third-party benchmarking scripts may still attempt to call it, so it is worth disabling explicitly before running anything unfamiliar:
+
+```bash
+export TORCHDYNAMO_DISABLE=1
+python3 benchmark.py
+```
+
+A safe baseline benchmark that measures GPU matrix multiply throughput without triggering the CPU+GPU burst. Note that the Vulkan backend has no explicit synchronise API — operations are completed lazily, and `.cpu()` is used here to force each iteration to completion before timing the next:
+
+```python
+import os
+import time
+import torch
+
+os.environ["TORCHDYNAMO_DISABLE"] = "1"
+
+def run_benchmark(size: int = 2048, iterations: int = 50, dtype=torch.float32):
+    if torch.is_vulkan_available():
+        device = "vulkan"
+    else:
+        print("Vulkan not available, falling back to CPU")
+        device = "cpu"
+
+    print(f"Device: {device}")
+    print(f"Matrix size: {size}x{size}, dtype: {dtype}, iterations: {iterations}")
+
+    a = torch.randn(size, size, dtype=dtype)
+    b = torch.randn(size, size, dtype=dtype)
+
+    if device == "vulkan":
+        a = a.vulkan()
+        b = b.vulkan()
+
+    def sync(t):
+        # Pull result back to CPU to force Vulkan pipeline completion
+        return t.cpu() if device == "vulkan" else t
+
+    # Warm-up
+    for _ in range(5):
+        sync(torch.matmul(a, b))
+
+    start = time.perf_counter()
+    for _ in range(iterations):
+        sync(torch.matmul(a, b))
+    elapsed = time.perf_counter() - start
+
+    tflops = (2 * size ** 3 * iterations) / elapsed / 1e12
+    print(f"Elapsed: {elapsed:.2f}s — {tflops:.4f} TFLOPS")
+
+if __name__ == "__main__":
+    run_benchmark()
+```
+
+Save this as `~/benchmark.py` and run it with the thermal monitor active in a separate terminal:
+
+```bash
+$ python3 ~/benchmark.py
+Device: vulkan
+Matrix size: 2048x2048, dtype: torch.float32, iterations: 50
+Elapsed: ...
+```
+
+Note that the TFLOPS figure here includes the overhead of the `.cpu()` synchronisation call on each iteration — on a UMA APU where CPU and GPU share the same physical memory the transfer cost is minimal, but it is worth bearing in mind when comparing figures against other backends. With RyzenAdj configured at 100W fast limit and 88°C thermal target, the benchmark runs comfortably within the thermal envelope. Any reading consistently approaching 90°C is worth stopping to investigate.
