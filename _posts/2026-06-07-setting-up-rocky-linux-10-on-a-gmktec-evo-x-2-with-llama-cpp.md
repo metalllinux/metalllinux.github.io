@@ -322,7 +322,7 @@ if __name__ == "__main__":
     run_benchmark()
 ```
 
-Save this as `~/benchmark.py` and run it with the thermal monitor active in a separate terminal:
+Save this as `~/benchmark.py` and run it:
 
 ```bash
 $ python3 ~/benchmark.py
