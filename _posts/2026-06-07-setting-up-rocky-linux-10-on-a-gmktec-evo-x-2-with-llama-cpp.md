@@ -156,24 +156,7 @@ sudo reboot
 
 ## PyTorch Benchmarking Setup
 
-With RyzenAdj in place and the APU power limits dialled in, the next step was to get a PyTorch benchmarking suite running to measure GPU throughput. What followed was a series of full hard power-off events that required some investigation to understand.
-
-### The hard shutdown problem
-
-The system started dying during benchmark runs — not locking up, not crashing to a kernel panic, but fully powering off with no warning and nothing in the logs. It happened repeatedly: kick off a benchmark, machine cuts out.
-
-Setting up thermal monitoring at five-second intervals showed exactly what was happening:
-
-```
-19:00:07  Tctl=71°C   pwr=92W    ← normal inference
-19:00:12  Tctl=91°C   pwr=165W   ← torch.compile spike
-19:00:22  Tctl=93°C   pwr=164W   ← approaching TjMax (100°C)
-19:00:27  Tctl=61°C   pwr=30W    ← thermal shutdown
-```
-
-`torch.compile` triggers Triton/Inductor kernel compilation, which simultaneously pegs all 32 CPU cores and the GPU. On a UMA APU where the CPU and GPU share one thermal envelope inside a mini PC chassis, that produces a 165W power spike — well past the 120W PPT Fast limit and far beyond what the cooler can handle. The firmware thermal protection cuts power entirely. No graceful shutdown, just off.
-
-Normal LLM inference is completely stable: 73–75W, 76–80°C, runs all day. The problem is specifically mixed CPU+GPU burst workloads. `torch.compile` is the most consistent trigger, but anything that simultaneously saturates the CPU and GPU can cause the same outcome on this hardware.
+With RyzenAdj in place and the APU power limits dialled in, the next step was to get a PyTorch benchmarking suite running to measure GPU throughput.
 
 ### Setting up thermal monitoring
 
