@@ -148,7 +148,44 @@ Clean up the build directory:
 cd ~ && rm -Rf ./RyzenAdj
 ```
 
-Then reboot:
+### Persisting power limits at boot
+
+The `ryzenadj` command sets limits for the current session only — they reset on reboot. To apply them automatically at every boot, create a systemd service unit:
+
+```bash
+sudo tee /etc/systemd/system/ryzenadj.service << 'EOF'
+[Unit]
+Description=Set RyzenAdj APU power limits
+After=systemd-modules-load.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/ryzenadj --fast-limit=100000 --tctl-temp=88
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+Reload systemd and enable the service:
+
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable --now ryzenadj.service
+```
+
+Verify it ran successfully:
+
+```bash
+$ sudo systemctl status ryzenadj.service
+● ryzenadj.service - Set RyzenAdj APU power limits
+     Loaded: loaded (/etc/systemd/system/ryzenadj.service; enabled; preset: disabled)
+     Active: active (exited) since ...
+    Process: ... ExecStart=/usr/bin/ryzenadj --fast-limit=100000 --tctl-temp=88 (code=exited, status=0/SUCCESS)
+```
+
+Then reboot to confirm the limits come up automatically:
 
 ```bash
 sudo reboot
