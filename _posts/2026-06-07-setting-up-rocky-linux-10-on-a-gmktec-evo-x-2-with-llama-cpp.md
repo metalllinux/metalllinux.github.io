@@ -235,7 +235,13 @@ source ~/VulkanSDK/<version>/setup-env.sh
 Install build dependencies:
 
 ```bash
-sudo dnf install -y python3-pip python3-devel cmake ninja-build git
+sudo dnf install -y python3-pip python3-devel cmake git
+```
+
+`ninja-build` is not available in the Rocky Linux 10 or EPEL repositories. Install it via pip instead, which is what the PyTorch build system expects anyway:
+
+```bash
+pip3 install ninja
 ```
 
 Clone the PyTorch repository and initialise submodules:
