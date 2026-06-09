@@ -241,7 +241,7 @@ sudo dnf install -y python3-pip python3-devel cmake git
 `ninja-build` is not available in the Rocky Linux 10 or EPEL repositories. Install it via pip instead, which is what the PyTorch build system expects anyway:
 
 ```bash
-pip3 install ninja
+python3 -m pip install ninja
 ```
 
 Clone the PyTorch repository and initialise submodules:
@@ -251,13 +251,13 @@ git clone https://github.com/pytorch/pytorch
 cd pytorch
 git submodule sync
 git submodule update --init --recursive
-pip3 install -r requirements.txt
+python3 -m pip install -r requirements.txt
 ```
 
 Build PyTorch with `USE_VULKAN=1`. This will take a significant amount of time — expect upwards of an hour on this hardware:
 
 ```bash
-USE_VULKAN=1 USE_CUDA=0 pip3 install --no-build-isolation -v -e .
+USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation -v -e .
 ```
 
 Verify that the Vulkan backend is available once the build completes:
