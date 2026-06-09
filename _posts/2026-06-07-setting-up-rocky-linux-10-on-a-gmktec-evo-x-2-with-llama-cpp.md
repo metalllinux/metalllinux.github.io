@@ -196,42 +196,7 @@ sudo reboot
 
 With RyzenAdj in place and the APU power limits dialled in, the next step was to get a PyTorch benchmarking suite running to measure GPU throughput.
 
-### Setting up thermal monitoring
-
-Before running any benchmarks, set up continuous thermal monitoring. Install `lm-sensors`:
-
-```bash
-sudo dnf install -y lm_sensors
-sudo sensors-detect --auto
-```
-
-Then create a monitoring script that logs temperature and package power at five-second intervals:
-
-```bash
-cat > ~/thermal-monitor.sh << 'EOF'
-#!/usr/bin/env bash
-LOG="${1:-thermal.log}"
-echo "Logging to $LOG — Ctrl+C to stop"
-while true; do
-    TCTL=$(sensors 2>/dev/null | awk '/^Tctl:/ {gsub(/[+°C]/,"",$2); print $2}')
-    PWR_RAW=$(cat /sys/class/hwmon/hwmon*/power1_average 2>/dev/null | sort -n | tail -1)
-    if [ -n "$PWR_RAW" ]; then
-        PWR_W=$(awk "BEGIN {printf \"%.0f\", $PWR_RAW / 1000000}")W
-    else
-        PWR_W=N/A
-    fi
-    printf '%s  Tctl=%-6s pwr=%s\n' "$(date '+%H:%M:%S')" "${TCTL}°C" "$PWR_W" | tee -a "$LOG"
-    sleep 5
-done
-EOF
-chmod +x ~/thermal-monitor.sh
-```
-
-Run it in a separate terminal before starting any benchmark:
-
-```bash
-~/thermal-monitor.sh benchmark-run-1.log
-```
+**Note:** `lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2. Running `sensors-detect --auto` against the AMD RYZEN AI MAX+ 395 finds no supported sensors and reports "Sorry, no sensors were detected." Thermal monitoring via `lm-sensors` is not an option on this hardware.
 
 ### Installing PyTorch with Vulkan
 
