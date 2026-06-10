@@ -112,6 +112,28 @@ Do not pop the stash after pulling if the stashed files now exist as tracked fil
 
 **SFConflict files** — Syncthing creates these when two machines edit the same file simultaneously (e.g. `foo (SFConflict Howard Van Der Wal 2026-06-08-...).md`). They are untracked noise and should never be committed. Ignore them; the canonical version is whatever is tracked by git.
 
+## EVO-X-2 / Rocky Linux 10 Known Gotchas
+
+This section documents issues discovered while writing the EVO-X-2 setup guide, to avoid repeating them in future posts or sessions.
+
+### pip
+`pip3` is not reliably available on Rocky Linux 10 even after installing `python3-pip`. Always use `python3 -m pip` instead.
+
+### ninja-build
+`ninja-build` does not exist in the Rocky Linux 10 or EPEL repositories. Install via pip: `python3 -m pip install ninja`.
+
+### SELinux and binary placement
+When a binary is built in the home directory and moved to `/usr/bin/` with `sudo mv`, it retains the source SELinux context (e.g. `user_home_t`) rather than the expected `bin_t`. Systemd will refuse to exec it with `status=203/EXEC`. Always run `sudo restorecon -v /usr/bin/<binary>` immediately after the `sudo mv`.
+
+### lm-sensors
+`lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2. Running `sensors-detect --auto` against the AMD RYZEN AI MAX+ 395 finds no supported sensors. Do not include `lm-sensors` as a thermal monitoring solution in any EVO-X-2 guide.
+
+### Nix on Rocky Linux 10
+The Nix multi-user (daemon) install requires SELinux to be disabled and will fail on Rocky Linux with SELinux in enforcing mode. Always use the single-user install: `curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon`. The `nix-env --expr` long flag is not recognised; use the short form `-E` (e.g. `nix-env -iE '...'`).
+
+### PyTorch Vulkan on Rocky Linux 10
+There are no prebuilt PyTorch pip wheels with Vulkan support. A source build is required (`USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation .`). The LunarG Vulkan SDK must be installed first to provide `glslc`. The initial build should use `-e` (editable mode) to verify it works, then reinstall without `-e` before deleting the source directory.
+
 ## AI Usage Policy
 
 This repository follows an AI contribution policy inspired by the Fedora AI-Assisted Contribution Policy. AI tools (specifically Claude) are used for content creation, formatting, and site development. All AI-generated content is human-reviewed before publication.
