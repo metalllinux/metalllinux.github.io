@@ -324,7 +324,7 @@ Save this as `~/benchmark.py` and run it:
 $ python3 ~/benchmark.py
 Device: vulkan
 Matrix size: 2048x2048, dtype: torch.float32, iterations: 50
-Elapsed: ...
+Elapsed: 0.70s — 1.2304 TFLOPS
 ```
 
 Note that the TFLOPS figure here includes the overhead of the `.cpu()` synchronisation call on each iteration — on a UMA APU where CPU and GPU share the same physical memory the transfer cost is minimal, but it is worth bearing in mind when comparing figures against other backends. With RyzenAdj configured at 100W fast limit and 88°C thermal target, the benchmark runs comfortably within the thermal envelope. Any reading consistently approaching 90°C is worth stopping to investigate.
