@@ -357,3 +357,56 @@ Breaking down what this result means:
 2. **The PyTorch Vulkan backend is experimental.** It has none of the hand-tuned BLAS kernels that ROCm uses. Every matmul goes through a general GLSL compute shader with no architecture-specific optimisation.
 
 1.2304 TFLOPS is not a reflection of what the GPU can do — it is a reflection of what this benchmark methodology measures through this particular backend. What it does confirm is that Vulkan GPU compute is working, tensors are being placed on the GPU, and operations are completing correctly. With RyzenAdj configured at 100W fast limit and 88°C thermal target, the benchmark runs comfortably within the thermal envelope.
+
+## llama.cpp with Vulkan
+
+With the benchmarking setup confirmed, the next step is to install [llama.cpp](https://github.com/ggml-org/llama.cpp) with Vulkan support. Rather than building from source manually, [Nix](https://github.com/NixOS/nix) handles the build and all dependencies cleanly.
+
+### Installing Nix
+
+The standard Nix multi-user installation requires SELinux to be disabled, which conflicts with Rocky Linux's default enforcing configuration. The single-user installation avoids this:
+
+```bash
+curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon
+```
+
+Source the Nix environment into the current shell, or open a new terminal:
+
+```bash
+. ~/.nix-profile/etc/profile.d/nix.sh
+```
+
+Add the nixpkgs channel and update it:
+
+```bash
+nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
+nix-channel --update
+```
+
+Verify the install:
+
+```bash
+$ nix --version
+nix (Nix) 2.34.7
+```
+
+If the llama.cpp build later fails with a sandbox error, disable Nix sandboxing in the user config:
+
+```bash
+mkdir -p ~/.config/nix
+echo 'sandbox = false' >> ~/.config/nix/nix.conf
+```
+
+### Installing llama.cpp with Vulkan
+
+The `llama-cpp` package in nixpkgs has Vulkan support disabled by default. Install it with `vulkanSupport = true`:
+
+```bash
+nix-env --install --expr 'let pkgs = import <nixpkgs> {}; in pkgs.llama-cpp.override { vulkanSupport = true; }'
+```
+
+Verify the install:
+
+```bash
+$ llama-cli --version
+```
