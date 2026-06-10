@@ -260,6 +260,19 @@ Build PyTorch with `USE_VULKAN=1`. This will take a significant amount of time â
 USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation -v -e .
 ```
 
+The `-e` flag installs in editable mode, meaning the installed package is a symlink back to the source directory. Once the build is confirmed working, reinstall without it to do a proper install that copies everything into site-packages:
+
+```bash
+cd ~/pytorch
+USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation .
+```
+
+Then clean up the source and SDK directories:
+
+```bash
+cd ~ && rm -rf ~/pytorch ~/VulkanSDK
+```
+
 Verify that the Vulkan backend is available once the build completes:
 
 ```bash
