@@ -402,7 +402,7 @@ echo 'sandbox = false' >> ~/.config/nix/nix.conf
 The `llama-cpp` package in nixpkgs has Vulkan support disabled by default. Install it with `vulkanSupport = true`:
 
 ```bash
-nix-env --install --expr 'let pkgs = import <nixpkgs> {}; in pkgs.llama-cpp.override { vulkanSupport = true; }'
+nix-env -iE 'let pkgs = import <nixpkgs> {}; in pkgs.llama-cpp.override { vulkanSupport = true; }'
 ```
 
 Verify the install:
