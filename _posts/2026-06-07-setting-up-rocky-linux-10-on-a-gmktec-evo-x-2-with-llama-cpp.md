@@ -295,12 +295,8 @@ def run_benchmark(size: int = 2048, iterations: int = 50, dtype=torch.float32):
     print(f"Device: {device}")
     print(f"Matrix size: {size}x{size}, dtype: {dtype}, iterations: {iterations}")
 
-    a = torch.randn(size, size, dtype=dtype)
-    b = torch.randn(size, size, dtype=dtype)
-
-    if device == "vulkan":
-        a = a.vulkan()
-        b = b.vulkan()
+    a = torch.randn(size, size, dtype=dtype).to(device)
+    b = torch.randn(size, size, dtype=dtype).to(device)
 
     def sync(t):
         # Pull result back to CPU to force Vulkan pipeline completion
