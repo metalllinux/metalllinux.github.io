@@ -83,6 +83,24 @@ To:
 
 In virt-manager, this can be corrected before starting the installation by enabling **Customise configuration before install** on the final step of the New VM wizard, navigating to the SATA CD-ROM device, and updating the source path to point to the `.iso` file directly.
 
+## Storage Pool Configuration in virt-manager
+
+A broader way to avoid this class of problem entirely is to ensure that the virt-manager storage pool for ISO images is pointed at the directory that actually contains the `.iso` files, not a parent directory that contains per-torrent subdirectories.
+
+Rocky Linux torrents (and many others) place the ISO inside a named subdirectory rather than directly in the download root:
+
+```
+~/torrents/
+├── Rocky-9.8-x86_64-dvd/
+│   └── Rocky-9.8-x86_64-dvd.iso   ← the actual ISO
+└── Rocky-10.2-x86_64-dvd1/
+    └── Rocky-10.2-x86_64-dvd1.iso  ← the actual ISO
+```
+
+If the storage pool is set to `~/torrents/`, browsing it in virt-manager will show the subdirectories, and selecting one of them produces a `type="dir"` disk entry. If the pool is instead configured to point directly at the subdirectory containing the ISO (e.g. `~/torrents/Rocky-9.8-x86_64-dvd/`), the ISO file is visible and selectable directly, producing the correct `type="file"` entry.
+
+To add or update a storage pool in virt-manager, go to **Edit → Connection Details → Storage**, click the **+** button to add a new pool of type **dir**, and set the target path to the directory that directly contains the `.iso` files. This is especially worth doing if torrenting ISOs, where the download structure routinely adds an extra directory layer.
+
 ## Summary
 
 | Component | Change in Rocky Linux 10 |
