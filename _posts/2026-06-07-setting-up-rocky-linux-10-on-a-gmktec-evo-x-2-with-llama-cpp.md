@@ -340,4 +340,20 @@ Matrix size: 2048x2048, dtype: torch.float32, iterations: 50
 Elapsed: 0.70s — 1.2304 TFLOPS
 ```
 
-Note that the TFLOPS figure here includes the overhead of the `.cpu()` synchronisation call on each iteration — on a UMA APU where CPU and GPU share the same physical memory the transfer cost is minimal, but it is worth bearing in mind when comparing figures against other backends. With RyzenAdj configured at 100W fast limit and 88°C thermal target, the benchmark runs comfortably within the thermal envelope. Any reading consistently approaching 90°C is worth stopping to investigate.
+Breaking down what this result means:
+
+**TFLOPS** (Tera Floating Point Operations Per Second) is how many trillion floating point arithmetic operations the system completed each second.
+
+**How the number is calculated:** a 2048×2048 matrix multiply costs approximately 2×2048³ floating point operations. The benchmark ran 50 of those in 0.70 seconds:
+
+```
+(2 × 2048³ × 50) / 0.70s / 1,000,000,000,000 = 1.2304 TFLOPS
+```
+
+**What it means in context:** the AMD Ryzen AI MAX+ 395's integrated GPU (Radeon 8060S, 40 RDNA3.5 compute units) has a theoretical FP32 peak of roughly 14–15 TFLOPS. The benchmark returns about 8% of that, which sounds low but is expected for two reasons:
+
+1. **The `.cpu()` sync call is inside the timing loop.** Every iteration forces a GPU→CPU round-trip to synchronise results. That host-device latency is baked into the 0.70s elapsed figure — it is measuring GPU compute plus synchronisation overhead per iteration, not pure GPU throughput.
+
+2. **The PyTorch Vulkan backend is experimental.** It has none of the hand-tuned BLAS kernels that ROCm uses. Every matmul goes through a general GLSL compute shader with no architecture-specific optimisation.
+
+1.2304 TFLOPS is not a reflection of what the GPU can do — it is a reflection of what this benchmark methodology measures through this particular backend. What it does confirm is that Vulkan GPU compute is working, tensors are being placed on the GPU, and operations are completing correctly. With RyzenAdj configured at 100W fast limit and 88°C thermal target, the benchmark runs comfortably within the thermal envelope.
