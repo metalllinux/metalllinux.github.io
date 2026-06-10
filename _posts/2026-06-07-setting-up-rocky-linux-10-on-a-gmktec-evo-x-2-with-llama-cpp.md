@@ -410,3 +410,179 @@ Verify the install:
 ```bash
 $ llama-cli --version
 ```
+
+## Running the API server
+
+llama.cpp ships with `llama-server`, a standalone binary that exposes an OpenAI-compatible HTTP API. Starting it with `--host 0.0.0.0` makes the running model accessible over the network from any machine on the local network, rather than localhost only.
+
+### Downloading a model
+
+llama.cpp works with models in [GGUF format](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md). A broad library is available on [Hugging Face](https://huggingface.co/models?library=gguf). The `huggingface-cli` tool, provided by the `huggingface_hub` package, is the most reliable way to download them:
+
+```bash
+python3 -m pip install huggingface_hub
+```
+
+Create a directory for models and download a model. [Qwen2.5-Coder-14B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct-GGUF) in Q4\_K\_M quantisation is a practical choice for a coding assistant on this hardware — approximately 9 GB, fits entirely within the EVO-X-2's unified memory alongside the model weights, and performs well on tool-calling tasks:
+
+```bash
+mkdir -p ~/models
+huggingface-cli download Qwen/Qwen2.5-Coder-14B-Instruct-GGUF \
+  Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
+  --local-dir ~/models/
+```
+
+### Starting llama-server
+
+With the model in place, start the server. The `--n-gpu-layers 99` flag offloads all model layers to the Vulkan GPU — without it, inference runs on CPU only. The `--alias` sets the model identifier returned by the `/v1/models` endpoint, which the OpenCode client uses to reference the model:
+
+```bash
+llama-server \
+  --model ~/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
+  --alias Qwen2.5-Coder-14B \
+  --host 0.0.0.0 \
+  --port 8080 \
+  --n-gpu-layers 99 \
+  --ctx-size 16384
+```
+
+Verify the server is healthy:
+
+```bash
+$ curl http://localhost:8080/health
+{"status":"ok"}
+```
+
+Confirm the model is loaded and the alias is set correctly:
+
+```bash
+$ curl -s http://localhost:8080/v1/models | python3 -m json.tool
+{
+    "object": "list",
+    "data": [
+        {
+            "id": "Qwen2.5-Coder-14B",
+            ...
+        }
+    ]
+}
+```
+
+### Opening the firewall
+
+Rocky Linux uses `firewalld` by default. Open port 8080 to allow inbound connections from other machines on the network:
+
+```bash
+sudo firewall-cmd --permanent --add-port=8080/tcp
+sudo firewall-cmd --reload
+```
+
+Verify the rule is active:
+
+```bash
+$ sudo firewall-cmd --list-ports
+8080/tcp
+```
+
+### Persisting llama-server at boot
+
+The Nix-installed binary lives in `~/.nix-profile/bin/` and runs most cleanly as a user-level systemd service. User services avoid the SELinux context issue that affects system services started from binaries in home directories — there is no need to move the binary or run `restorecon`.
+
+Enable linger so the user service starts at boot without requiring an interactive login session:
+
+```bash
+loginctl enable-linger $USER
+```
+
+Create the user service directory and unit file. Substitute the correct username in the paths if different:
+
+```bash
+mkdir -p ~/.config/systemd/user
+
+tee ~/.config/systemd/user/llama-server.service << 'EOF'
+[Unit]
+Description=llama.cpp API server
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+ExecStart=/home/howard/.nix-profile/bin/llama-server \
+    --model /home/howard/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
+    --alias Qwen2.5-Coder-14B \
+    --host 0.0.0.0 \
+    --port 8080 \
+    --n-gpu-layers 99 \
+    --ctx-size 16384
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=default.target
+EOF
+```
+
+Reload the user daemon and enable the service:
+
+```bash
+systemctl --user daemon-reload
+systemctl --user enable --now llama-server.service
+```
+
+Verify it is running:
+
+```bash
+$ systemctl --user status llama-server.service
+● llama-server.service - llama.cpp API server
+     Loaded: loaded (/home/howard/.config/systemd/user/llama-server.service; enabled; preset: disabled)
+     Active: active (running) since ...
+```
+
+Then reboot to confirm the service comes up automatically:
+
+```bash
+sudo reboot
+```
+
+## Accessing llama-server with OpenCode
+
+The following steps are performed on the client machine — the Rocky Linux 10 laptop running OpenCode. The EVO-X-2's local network IP address is used throughout; substitute the actual address.
+
+### Verifying remote connectivity
+
+Before configuring OpenCode, confirm the server is reachable from the client:
+
+```bash
+$ curl http://192.168.1.100:8080/health
+{"status":"ok"}
+```
+
+### Configuring OpenCode
+
+OpenCode treats llama-server as a custom OpenAI-compatible provider. The global config lives at `~/.config/opencode/opencode.json`. Add the following, substituting the EVO-X-2's IP address. The model ID in the `models` map must match the `--alias` value used when starting llama-server, and the `context` limit must match `--ctx-size`:
+
+```json
+{
+  "$schema": "https://opencode.ai/config.json",
+  "provider": {
+    "evo-x2": {
+      "npm": "@ai-sdk/openai-compatible",
+      "name": "EVO-X2 (llama.cpp)",
+      "options": {
+        "baseURL": "http://192.168.1.100:8080/v1"
+      },
+      "models": {
+        "Qwen2.5-Coder-14B": {
+          "name": "Qwen2.5-Coder-14B (EVO-X2)",
+          "limit": {
+            "context": 16384,
+            "output": 8192
+          }
+        }
+      }
+    }
+  }
+}
+```
+
+The provider ID (`evo-x2`) is arbitrary — it appears as the provider label in the model picker. Run `/models` within OpenCode to select the `Qwen2.5-Coder-14B (EVO-X2)` entry and switch to inferencing on the EVO-X-2.
