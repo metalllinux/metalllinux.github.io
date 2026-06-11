@@ -423,6 +423,16 @@ llama.cpp works with models in [GGUF format](https://github.com/ggml-org/ggml/bl
 python3 -m pip install huggingface_hub
 ```
 
+pip may report a dependency conflict warning after installation:
+
+```
+ERROR: pip's dependency resolver does not currently take into account all the packages
+that are installed. This behaviour is the source of the following dependency conflicts.
+spin 0.18 requires click!=8.3.0,<8.4,>=8, but you have click 8.4.1 which is incompatible.
+```
+
+This is a false alarm. `huggingface_hub` upgrades `click` to 8.4.x; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end of the output confirms the install completed correctly and `huggingface-cli` is ready to use.
+
 Create a directory for models and download a model. [Qwen2.5-Coder-14B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct-GGUF) in Q4\_K\_M quantisation is a practical choice for a coding assistant on this hardware — approximately 9 GB, fits entirely within the EVO-X-2's unified memory alongside the model weights, and performs well on tool-calling tasks:
 
 ```bash
