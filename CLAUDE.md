@@ -131,6 +131,9 @@ When a binary is built in the home directory and moved to `/usr/bin/` with `sudo
 ### Nix on Rocky Linux 10
 The Nix multi-user (daemon) install requires SELinux to be disabled and will fail on Rocky Linux with SELinux in enforcing mode. Always use the single-user install: `curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon`. The `nix-env --expr` long flag is not recognised; use the short form `-E` (e.g. `nix-env -iE '...'`).
 
+### llama-cpp Nix override regression
+`pkgs.llama-cpp.override { vulkanSupport = true; }` fails in some nixpkgs-unstable channel snapshots with "attempt to call something which is not a function but a set". The package takes a self-referential `llama-cpp,` argument for `passthru.tests`, which in affected snapshots causes `.override` to resolve to the derivation itself rather than the override function. Use `callPackage` directly instead: `nix-env -iE 'let pkgs = import <nixpkgs> {}; in pkgs.callPackage <nixpkgs/pkgs/by-name/ll/llama-cpp/package.nix> { vulkanSupport = true; }'`.
+
 ### PyTorch Vulkan on Rocky Linux 10
 There are no prebuilt PyTorch pip wheels with Vulkan support. A source build is required (`USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation .`). The LunarG Vulkan SDK must be installed first to provide `glslc`. The initial build should use `-e` (editable mode) to verify it works, then reinstall without `-e` before deleting the source directory.
 

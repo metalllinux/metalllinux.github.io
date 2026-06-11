@@ -399,10 +399,10 @@ echo 'sandbox = false' >> ~/.config/nix/nix.conf
 
 ### Installing llama.cpp with Vulkan
 
-The `llama-cpp` package in nixpkgs has Vulkan support disabled by default. Install it with `vulkanSupport = true`:
+The `llama-cpp` package in nixpkgs has Vulkan support disabled by default. The package takes a self-referential `llama-cpp` argument (used in its `passthru.tests`), which in some channel snapshots causes `.override` to resolve back to the derivation itself rather than the override function. Using `callPackage` directly with the package path bypasses this entirely and passes `vulkanSupport = true` as a plain function argument:
 
 ```bash
-nix-env -iE 'let pkgs = import <nixpkgs> {}; in pkgs.llama-cpp.override { vulkanSupport = true; }'
+nix-env -iE 'let pkgs = import <nixpkgs> {}; in pkgs.callPackage <nixpkgs/pkgs/by-name/ll/llama-cpp/package.nix> { vulkanSupport = true; }'
 ```
 
 Verify the install:
