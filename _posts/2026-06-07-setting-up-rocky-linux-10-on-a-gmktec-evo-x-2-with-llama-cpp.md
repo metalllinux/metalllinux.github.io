@@ -399,10 +399,10 @@ echo 'sandbox = false' >> ~/.config/nix/nix.conf
 
 ### Installing llama.cpp with Vulkan
 
-The `llama-cpp` package in nixpkgs has Vulkan support disabled by default. The expression passed to `nix-env -iE` must be a **function** — `nix-env` always calls it with the default pkgs set. Writing it as `let pkgs = import <nixpkgs> {}; in DERIVATION` produces a derivation directly, which `nix-env` then attempts to call as a function and fails. The correct form is a lambda:
+The `llama-cpp` package in nixpkgs has Vulkan support disabled by default. The expression passed to `nix-env -iE` must be a **function** — `nix-env` always calls it with its default expression (`~/.nix-defexpr`), which evaluates to `{ nixpkgs = <packages>; }`, not the nixpkgs package set directly. The `_` discards that argument and imports nixpkgs explicitly, avoiding any dependency on the channel structure:
 
 ```bash
-nix-env -iE 'pkgs: pkgs.llama-cpp.override { vulkanSupport = true; }'
+nix-env -iE '_: (import <nixpkgs> {}).llama-cpp.override { vulkanSupport = true; }'
 ```
 
 Verify the install:

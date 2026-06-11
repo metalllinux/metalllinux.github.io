@@ -131,8 +131,11 @@ When a binary is built in the home directory and moved to `/usr/bin/` with `sudo
 ### Nix on Rocky Linux 10
 The Nix multi-user (daemon) install requires SELinux to be disabled and will fail on Rocky Linux with SELinux in enforcing mode. Always use the single-user install: `curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon`. The `nix-env --expr` long flag is not recognised; use the short form `-E` (e.g. `nix-env -iE '...'`).
 
-### nix-env -iE expression must be a lambda
-`nix-env -iE` always calls the expression as a function, passing the default pkgs set as the argument. Writing `'let pkgs = import <nixpkgs> {}; in DERIVATION'` evaluates to a derivation, which `nix-env` then tries to call as a function, producing "attempt to call something which is not a function but a set". The expression must be a lambda: `nix-env -iE 'pkgs: pkgs.llama-cpp.override { vulkanSupport = true; }'`.
+### nix-env -iE expression must be a lambda, and pkgs is not nixpkgs directly
+`nix-env -iE` always calls the expression as a function, passing `~/.nix-defexpr` as the argument — this evaluates to `{ nixpkgs = <packages>; }`, not the nixpkgs package set directly. Two failure modes:
+1. `'let pkgs = import <nixpkgs> {}; in DERIVATION'` — evaluates to a derivation, `nix-env` tries to call it as a function → "attempt to call something which is not a function but a set"
+2. `'pkgs: pkgs.llama-cpp.override { ... }'` — `pkgs.llama-cpp` doesn't exist at the top level of the default expression → "attribute 'llama-cpp' missing"
+Correct form: `nix-env -iE '_: (import <nixpkgs> {}).llama-cpp.override { vulkanSupport = true; }'` — the `_` discards the default expression argument and nixpkgs is imported directly.
 
 ### PyTorch Vulkan on Rocky Linux 10
 There are no prebuilt PyTorch pip wheels with Vulkan support. A source build is required (`USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation .`). The LunarG Vulkan SDK must be installed first to provide `glslc`. The initial build should use `-e` (editable mode) to verify it works, then reinstall without `-e` before deleting the source directory.
