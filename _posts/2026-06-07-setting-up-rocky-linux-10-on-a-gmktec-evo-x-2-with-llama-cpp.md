@@ -506,10 +506,10 @@ spin 0.18 requires click!=8.3.0,<8.4,>=8, but you have click 8.4.1 which is inco
 
 This is a false alarm. `huggingface_hub` upgrades `click` to 8.4.x; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end of the output confirms the install completed correctly and `huggingface-cli` is ready to use.
 
-Download a model to the NVMe drive. [Qwen2.5-Coder-14B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct-GGUF) in Q4\_K\_M quantisation is a practical choice for a coding assistant on this hardware — approximately 9 GB, fits entirely within the EVO-X-2's unified memory alongside the model weights, and performs well on tool-calling tasks:
+Download a model to the NVMe drive. [Qwen2.5-Coder-14B-Instruct](https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF) in Q4\_K\_M quantisation is a practical choice for a coding assistant on this hardware — approximately 9 GB, fits entirely within the EVO-X-2's unified memory alongside the model weights, and performs well on tool-calling tasks. The [bartowski](https://huggingface.co/bartowski) organisation on Hugging Face is the go-to source for llama.cpp GGUF quantisations, providing multiple quantisation levels as single-file GGUFs across a broad range of models:
 
 ```bash
-huggingface-cli download Qwen/Qwen2.5-Coder-14B-Instruct-GGUF \
+huggingface-cli download bartowski/Qwen2.5-Coder-14B-Instruct-GGUF \
   Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
   --local-dir /mnt/data/models/
 ```
