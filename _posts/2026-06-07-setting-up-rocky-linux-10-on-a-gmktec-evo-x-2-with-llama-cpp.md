@@ -411,6 +411,73 @@ Verify the install:
 $ llama-cli --version
 ```
 
+## Secondary NVMe storage
+
+The EVO-X-2 has two M.2 slots. A second NVMe drive dedicated to model storage keeps the OS drive uncluttered and gives model I/O its own bandwidth — relevant when a 14B Q4 model is 9 GB and larger models exceed 50 GB.
+
+### Formatting the drive
+
+The secondary drive appears as `/dev/nvme1n1`. Verify it is visible before proceeding:
+
+```bash
+$ lsblk /dev/nvme1n1
+```
+
+XFS is the right choice for model storage for two reasons. First, it is the default filesystem on Rocky Linux — the kernel module, tooling, and `xfsprogs` are all first-class on this platform. Second, XFS was designed for high-throughput large file workloads, which is exactly what llama-server produces: sequential reads of multi-gigabyte files with no random access pattern. Its extent-based allocation avoids the fragmentation that accumulates with repeated large file writes and reads, and its allocation group architecture handles parallel metadata operations cleanly.
+
+Format the drive:
+
+```bash
+sudo mkfs.xfs -f /dev/nvme1n1
+```
+
+### Mounting the drive
+
+Create the mount point:
+
+```bash
+sudo mkdir -p /mnt/data
+```
+
+Retrieve the filesystem UUID — fstab entries should reference UUID rather than the device path, since NVMe device names can change across reboots if drives are added or removed:
+
+```bash
+$ sudo blkid /dev/nvme1n1
+/dev/nvme1n1: UUID="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx" BLOCK_SIZE="512" TYPE="xfs"
+```
+
+Add the entry to `/etc/fstab`, substituting the UUID from the `blkid` output:
+
+```bash
+sudo tee -a /etc/fstab << 'EOF'
+UUID=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx  /mnt/data  xfs  noatime,allocsize=64m,nofail  0 2
+EOF
+```
+
+The mount options chosen:
+
+- **`noatime`** — disables updating the file access timestamp on reads. Without it, every model load generates a metadata write to the NVMe alongside the actual read. On a drive used almost exclusively for large sequential reads this is pure overhead — write amplification with no benefit.
+- **`allocsize=64m`** — sets the speculative preallocation size for new file extents to 64 MB. When writing large files such as multi-gigabyte GGUF downloads, XFS preallocates disk space in larger contiguous chunks, reducing fragmentation and the number of extent tree updates committed during the write. The result is a less fragmented file that reads back faster.
+- **`nofail`** — the system boots normally if the drive is absent or fails to mount. Without this, a missing secondary drive drops Rocky Linux into emergency mode on boot.
+
+Verify the fstab entry mounts correctly:
+
+```bash
+sudo mount -a
+$ df -h /mnt/data
+Filesystem      Size  Used Avail Use% Mounted on
+/dev/nvme1n1    1.9T   18G  1.9T   1% /mnt/data
+```
+
+### Setting up the models directory
+
+Give the current user ownership of the mount so models can be downloaded without `sudo`:
+
+```bash
+sudo chown $USER:$USER /mnt/data
+mkdir -p /mnt/data/models
+```
+
 ## Running the API server
 
 llama.cpp ships with `llama-server`, a standalone binary that exposes an OpenAI-compatible HTTP API. Starting it with `--host 0.0.0.0` makes the running model accessible over the network from any machine on the local network, rather than localhost only.
@@ -433,13 +500,12 @@ spin 0.18 requires click!=8.3.0,<8.4,>=8, but you have click 8.4.1 which is inco
 
 This is a false alarm. `huggingface_hub` upgrades `click` to 8.4.x; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end of the output confirms the install completed correctly and `huggingface-cli` is ready to use.
 
-Create a directory for models and download a model. [Qwen2.5-Coder-14B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct-GGUF) in Q4\_K\_M quantisation is a practical choice for a coding assistant on this hardware — approximately 9 GB, fits entirely within the EVO-X-2's unified memory alongside the model weights, and performs well on tool-calling tasks:
+Download a model to the NVMe drive. [Qwen2.5-Coder-14B-Instruct](https://huggingface.co/Qwen/Qwen2.5-Coder-14B-Instruct-GGUF) in Q4\_K\_M quantisation is a practical choice for a coding assistant on this hardware — approximately 9 GB, fits entirely within the EVO-X-2's unified memory alongside the model weights, and performs well on tool-calling tasks:
 
 ```bash
-mkdir -p ~/models
 huggingface-cli download Qwen/Qwen2.5-Coder-14B-Instruct-GGUF \
   Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
-  --local-dir ~/models/
+  --local-dir /mnt/data/models/
 ```
 
 ### Starting llama-server
@@ -448,7 +514,7 @@ With the model in place, start the server. The `--n-gpu-layers 99` flag offloads
 
 ```bash
 llama-server \
-  --model ~/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
+  --model /mnt/data/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
   --alias Qwen2.5-Coder-14B \
   --host 0.0.0.0 \
   --port 8080 \
@@ -518,7 +584,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 ExecStart=/home/howard/.nix-profile/bin/llama-server \
-    --model /home/howard/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
+    --model /mnt/data/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
     --alias Qwen2.5-Coder-14B \
     --host 0.0.0.0 \
     --port 8080 \
