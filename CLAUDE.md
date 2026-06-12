@@ -193,6 +193,39 @@ A `UD-Q4_K_M` variant (Unsloth Dynamic 2.0, 49.3 GiB) is also available and benc
 ### Qwen3-Coder-Next tokenizer warning
 The log line `control-looking token: 128247 '</s>' was not control-type` is a harmless tokenizer metadata quirk where the EOS token is not classified as control-type. llama.cpp flags it as a warning but it has no effect on inference quality or output. Do not document this as requiring action.
 
+### Nix llama-cpp binary cache ignores vulkanSupport override
+`nix-env -iE '_: (import <nixpkgs> {}).llama-cpp.override { vulkanSupport = true; }'` installs a binary from the Hydra cache that has no Vulkan support. Confirmed by `ldd ~/.nix-profile/bin/llama-server | grep -i vulkan` returning nothing, and `llama-server --list-devices` returning an empty list even with `VK_ICD_FILENAMES` set. Do not use Nix to install llama-cpp on this system. Build from source instead.
+
+### llama.cpp build from source on Rocky Linux 10 (Vulkan + Zen 5)
+Required additional packages beyond what ryzenadj installs: `sudo dnf install -y vulkan-loader-devel glslang`. The correct cmake flags for this hardware are:
+```bash
+cmake -B build \
+  -DGGML_VULKAN=ON \
+  -DGGML_NATIVE=OFF \
+  -DCMAKE_C_FLAGS='-march=znver5' \
+  -DCMAKE_CXX_FLAGS='-march=znver5' \
+  -DGGML_AVX512=ON -DGGML_AVX512_VBMI=ON -DGGML_AVX512_VNNI=ON -DGGML_AVX512_BF16=ON \
+  -DGGML_LTO=ON \
+  -DCMAKE_BUILD_TYPE=Release
+```
+ROCm/HIP flags (`-DGGML_HIP=ON`, `-DAMDGPU_TARGETS=gfx1151`, `-DGGML_HIP_ROCWMMA_FATTN=ON`, `-DGGML_CUDA_FA_ALL_QUANTS=ON`) are not applicable to Vulkan builds and must be omitted. Install with `sudo cmake --install build --prefix /usr/local && sudo restorecon -Rv /usr/local/bin/`.
+
+### amdgpu_top is not in EPEL or Rocky Linux repos
+`amdgpu_top` is not available in BaseOS, AppStream, or EPEL for Rocky Linux 10. Do not use Nix for this. Install the RPM directly from GitHub releases:
+```bash
+sudo dnf install -y https://github.com/Umio-Yasuno/amdgpu_top/releases/download/v0.11.5/amdgpu_top-0.11.5-1.x86_64.rpm
+```
+Check the [releases page](https://github.com/Umio-Yasuno/amdgpu_top/releases) for the current version when writing new content.
+
+### Persistent journal on Rocky Linux 10
+Rocky Linux 10 does not enable the persistent journal by default. `journalctl --user` reports `No journal files were found` until the following is run:
+```bash
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+sudo systemctl restart systemd-journald
+```
+A fresh login session is required after restarting journald — the user journal socket is only created for new sessions.
+
 ### Blog post code block style for command output
 When a command produces output that is JSON, use two separate fenced code blocks: `bash` for the command line, `json` for the output. Do not combine them in a single block.
 

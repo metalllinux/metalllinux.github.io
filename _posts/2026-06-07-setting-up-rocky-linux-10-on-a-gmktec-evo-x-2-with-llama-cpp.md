@@ -416,8 +416,24 @@ git clone https://github.com/ggml-org/llama.cpp
 cd llama.cpp
 cmake -B build \
   -DGGML_VULKAN=ON \
+  -DGGML_NATIVE=OFF \
+  -DCMAKE_C_FLAGS='-march=znver5' \
+  -DCMAKE_CXX_FLAGS='-march=znver5' \
+  -DGGML_AVX512=ON \
+  -DGGML_AVX512_VBMI=ON \
+  -DGGML_AVX512_VNNI=ON \
+  -DGGML_AVX512_BF16=ON \
+  -DGGML_LTO=ON \
   -DCMAKE_BUILD_TYPE=Release
 ```
+
+Flag explanations:
+
+- **`-DGGML_NATIVE=OFF` with `-march=znver5`** — disables GCC's auto-detection of CPU features and targets Zen 5 explicitly. Rocky Linux 10 ships GCC 14 which supports `znver5`. Using an explicit target is cleaner than auto-detection and avoids any edge cases with feature probing.
+- **`-DGGML_AVX512=ON` / `VBMI` / `VNNI` / `BF16`** — enables AVX-512 SIMD extensions for CPU-side tensor operations (prompt processing, KV cache operations). The Ryzen AI MAX+ 395 supports all four. These flags apply regardless of GPU backend — Vulkan handles the GPU path; AVX-512 accelerates the CPU path.
+- **`-DGGML_LTO=ON`** — enables link-time optimisation, allowing the linker to inline and optimise across translation unit boundaries.
+
+The following flags from ROCm/HIP builds are **not applicable** with Vulkan and must be omitted: `-DGGML_HIP=ON`, `-DAMDGPU_TARGETS=gfx1151`, `-DGGML_HIP_ROCWMMA_FATTN=ON`, `-DGGML_CUDA_FA_ALL_QUANTS=ON`.
 
 Build using all available CPU cores:
 
@@ -814,10 +830,10 @@ The provider ID (`evo-x2`) is arbitrary — it appears as the provider label in 
 
 ### amdgpu_top
 
-`amdgpu_top` provides a detailed TUI showing compute utilisation, memory bandwidth, power consumption, and per-process GPU activity. Install it via Nix:
+`amdgpu_top` provides a detailed TUI showing compute utilisation, memory bandwidth, power consumption, and per-process GPU activity. It is not available in EPEL or the Rocky Linux AppStream and BaseOS repositories. Install the RPM directly from the [GitHub releases page](https://github.com/Umio-Yasuno/amdgpu_top/releases):
 
 ```bash
-nix-env -iA nixpkgs.amdgpu_top
+sudo dnf install -y https://github.com/Umio-Yasuno/amdgpu_top/releases/download/v0.11.5/amdgpu_top-0.11.5-1.x86_64.rpm
 ```
 
 Then run:
