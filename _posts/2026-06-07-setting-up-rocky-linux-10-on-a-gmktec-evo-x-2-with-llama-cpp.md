@@ -480,11 +480,12 @@ Available devices:
   VULKAN0: AMD Radeon 8060S Graphics (RADV GFX1151) (94673 MiB)
 ```
 
-Install the binaries and restore the SELinux context:
+Install the binaries and restore the SELinux context, then update the dynamic linker cache so shared libraries installed to `/usr/local/lib/` are discoverable:
 
 ```bash
 sudo cmake --install build --prefix /usr/local
 sudo restorecon -Rv /usr/local/bin/
+sudo ldconfig
 ```
 
 Clean up the build directory:
