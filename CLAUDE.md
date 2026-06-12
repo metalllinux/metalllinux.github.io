@@ -197,16 +197,7 @@ The log line `control-looking token: 128247 '</s>' was not control-type` is a ha
 `nix-env -iE '_: (import <nixpkgs> {}).llama-cpp.override { vulkanSupport = true; }'` installs a binary from the Hydra cache that has no Vulkan support. Confirmed by `ldd ~/.nix-profile/bin/llama-server | grep -i vulkan` returning nothing, and `llama-server --list-devices` returning an empty list even with `VK_ICD_FILENAMES` set. Do not use Nix to install llama-cpp on this system. Build from source instead.
 
 ### llama.cpp build from source on Rocky Linux 10 (Vulkan + Zen 5)
-Required additional packages beyond what ryzenadj installs: `sudo dnf install -y vulkan-loader-devel`. `glslc` is not in Rocky Linux 10 BaseOS, AppStream, or EPEL — `shaderc` (the Fedora package that provides it) returns `No match for argument: shaderc`. Install `glslc` from the LunarG Vulkan SDK instead:
-```bash
-mkdir ~/VulkanSDK && cd ~/VulkanSDK
-curl -LO https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
-tar xf vulkan_sdk.tar.gz
-sudo install -m 755 $(find ~/VulkanSDK -name glslc -type f) /usr/local/bin/glslc
-sudo restorecon -v /usr/local/bin/glslc
-cd ~ && rm -rf ~/VulkanSDK
-```
-cmake 4.x `FindVulkan` treats `glslc` as a required Vulkan component and fails with `Could NOT find Vulkan (missing: glslc)` without it. The correct cmake flags for this hardware are:
+Required additional packages beyond what ryzenadj installs: `sudo dnf install -y vulkan-loader-devel`. Both `glslc` (`shaderc`) and `SPIRV-Headers` (`spirv-headers-devel`) are absent from Rocky Linux 10 BaseOS, AppStream, and EPEL. The LunarG Vulkan SDK provides both. Download it, source `setup-env.sh` (which sets `$VULKAN_SDK`), and pass `-DCMAKE_PREFIX_PATH=$VULKAN_SDK` to cmake. Clean up with `rm -rf ~/VulkanSDK` after the build — the SDK is only needed at build time. The correct cmake flags for this hardware are:
 ```bash
 cmake -B build \
   -DGGML_VULKAN=ON \

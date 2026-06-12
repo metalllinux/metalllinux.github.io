@@ -399,34 +399,34 @@ With the benchmarking setup confirmed, the next step is to build [llama.cpp](htt
 
 ### Build dependencies
 
-The build tools from the ryzenadj steps are already in place. Two additional packages are needed:
+The build tools from the ryzenadj steps are already in place. One additional system package is needed:
 
 ```bash
 sudo dnf install -y vulkan-loader-devel
 ```
 
-The llama.cpp cmake requires `glslc` to compile the Vulkan GLSL shaders to SPIR-V at build time. `glslc` is not available in Rocky Linux 10's BaseOS, AppStream, or EPEL repositories — `shaderc` (the package that provides it on Fedora) is absent. Install `glslc` from the LunarG Vulkan SDK, copying just the binary before cleaning up:
+The llama.cpp Vulkan build also requires `glslc` and `SPIRV-Headers`. Neither is available in Rocky Linux 10's BaseOS, AppStream, or EPEL repositories — `shaderc` (the Fedora package providing `glslc`) and `spirv-headers-devel` are both absent. The LunarG Vulkan SDK provides both. Download and extract it, then source the environment script to make the SDK visible to cmake:
 
 ```bash
 mkdir ~/VulkanSDK && cd ~/VulkanSDK
 curl -LO https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
 tar xf vulkan_sdk.tar.gz
-sudo install -m 755 $(find ~/VulkanSDK -name glslc -type f) /usr/local/bin/glslc
-sudo restorecon -v /usr/local/bin/glslc
-cd ~ && rm -rf ~/VulkanSDK
+source ~/VulkanSDK/*/setup-env.sh
 ```
 
 Verify `glslc` is on the path:
 
 ```bash
 $ glslc --version
+shaderc v2026.2 v2026.2
 ```
 
 ### Building llama.cpp
 
-Clone the repository and configure the build with Vulkan enabled:
+Clone the repository and configure the build, passing `$VULKAN_SDK` (set by `setup-env.sh`) as `CMAKE_PREFIX_PATH` so cmake can locate `SPIRV-Headers` and other SDK components:
 
 ```bash
+cd ~
 git clone https://github.com/ggml-org/llama.cpp
 cd llama.cpp
 cmake -B build \
@@ -439,6 +439,7 @@ cmake -B build \
   -DGGML_AVX512_VNNI=ON \
   -DGGML_AVX512_BF16=ON \
   -DGGML_LTO=ON \
+  -DCMAKE_PREFIX_PATH=$VULKAN_SDK \
   -DCMAKE_BUILD_TYPE=Release
 ```
 
@@ -473,10 +474,10 @@ sudo cmake --install build --prefix /usr/local
 sudo restorecon -Rv /usr/local/bin/
 ```
 
-Clean up the build directory:
+Clean up the build directory and the Vulkan SDK — the SDK is only needed at build time; the installed binaries link against the system `libvulkan.so` at runtime:
 
 ```bash
-cd ~ && rm -rf llama.cpp
+cd ~ && rm -rf llama.cpp VulkanSDK
 ```
 
 ## Secondary NVMe storage
