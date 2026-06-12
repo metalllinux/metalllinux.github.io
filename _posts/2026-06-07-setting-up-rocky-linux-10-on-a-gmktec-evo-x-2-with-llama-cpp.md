@@ -480,11 +480,17 @@ Available devices:
   VULKAN0: AMD Radeon 8060S Graphics (RADV GFX1151) (94673 MiB)
 ```
 
-Install the binaries and restore the SELinux context, then update the dynamic linker cache so shared libraries installed to `/usr/local/lib/` are discoverable:
+Install the binaries and restore the SELinux context:
 
 ```bash
 sudo cmake --install build --prefix /usr/local
 sudo restorecon -Rv /usr/local/bin/
+```
+
+The cmake install places shared libraries under `/usr/local/lib64/`, which is not in Rocky Linux's default ldconfig search paths. Add it and update the cache:
+
+```bash
+echo "/usr/local/lib64" | sudo tee /etc/ld.so.conf.d/usrlocal.conf
 sudo ldconfig
 ```
 
