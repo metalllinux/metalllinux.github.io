@@ -843,8 +843,23 @@ As noted earlier, `lm-sensors` does not detect any hardware monitoring chips on 
 $ sudo ryzenadj --info
 ```
 
-Alternatively, read directly from the k10temp hwmon driver:
+Alternatively, read directly from the hwmon sysfs interface:
 
 ```bash
 watch -n 1 'paste /sys/class/hwmon/hwmon*/name /sys/class/hwmon/hwmon*/temp1_input'
 ```
+
+Running this during inference produces output similar to the following:
+
+```
+acpitz  r8169_0_c100:00 amdgpu  k10temp 75000   64000   54000   79250
+```
+
+The format is all sensor names followed by all temperatures in millidegrees Celsius — divide by 1000 for °C. The four sensors present on the EVO-X-2 are:
+
+| Sensor | Example (millideg) | °C | Description |
+|---|---|---|---|
+| `acpitz` | 75000 | 75.0 | ACPI thermal zone |
+| `r8169_0_c100:00` | 64000 | 64.0 | Realtek NIC |
+| `amdgpu` | 54000 | 54.0 | GPU die temperature |
+| `k10temp` | 79250 | 79.25 | AMD CPU Tctl — the value ryzenadj limits to 88°C |
