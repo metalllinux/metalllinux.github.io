@@ -697,7 +697,7 @@ The following steps are performed on the client machine — the Rocky Linux 10 l
 Before configuring OpenCode, confirm the server is reachable from the client:
 
 ```bash
-$ curl http://192.168.1.100:8080/health
+$ curl http://192.168.1.106:8080/health
 {"status":"ok"}
 ```
 
@@ -713,7 +713,7 @@ OpenCode treats llama-server as a custom OpenAI-compatible provider. The global 
       "npm": "@ai-sdk/openai-compatible",
       "name": "EVO-X2 (llama.cpp)",
       "options": {
-        "baseURL": "http://192.168.1.100:8080/v1"
+        "baseURL": "http://192.168.1.106:8080/v1"
       },
       "models": {
         "Qwen3-Coder-Next": {
