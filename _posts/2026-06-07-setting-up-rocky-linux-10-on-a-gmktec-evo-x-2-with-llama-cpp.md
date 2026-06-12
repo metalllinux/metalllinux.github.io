@@ -800,3 +800,51 @@ OpenCode treats llama-server as a custom OpenAI-compatible provider. The global 
 ```
 
 The provider ID (`evo-x2`) is arbitrary — it appears as the provider label in the model picker. Run `/models` within OpenCode to select the `Qwen3-Coder-Next (EVO-X2)` entry and switch to inferencing on the EVO-X-2.
+
+## Monitoring GPU usage
+
+### amdgpu_top
+
+`amdgpu_top` provides a detailed TUI showing compute utilisation, memory bandwidth, power consumption, and per-process GPU activity. Install it via Nix:
+
+```bash
+nix-env -iA nixpkgs.amdgpu_top
+```
+
+Then run:
+
+```bash
+amdgpu_top
+```
+
+### Confirming GPU layer offload
+
+When llama-server starts, confirm that GPU offloading is active by tailing the service log:
+
+```bash
+$ journalctl --user -u llama-server.service -f
+```
+
+Look for the following line during startup:
+
+```
+llm_load_tensors: offloaded 95/95 layers to GPU
+```
+
+If the count shows 0 layers offloaded, `--n-gpu-layers 99` is not taking effect via Vulkan.
+
+### Temperature
+
+As noted earlier, `lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2. Two alternatives work on this hardware.
+
+`ryzenadj` is already installed from earlier in this guide. Its `--info` flag prints live thermal data including the tctl temperature:
+
+```bash
+$ sudo ryzenadj --info
+```
+
+Alternatively, read directly from the k10temp hwmon driver:
+
+```bash
+watch -n 1 'paste /sys/class/hwmon/hwmon*/name /sys/class/hwmon/hwmon*/temp1_input'
+```
