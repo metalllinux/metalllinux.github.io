@@ -633,6 +633,7 @@ Wants=network-online.target
 
 [Service]
 Type=simple
+LimitMEMLOCK=infinity
 ExecStart=/home/howard/.nix-profile/bin/llama-server \
     --model /mnt/data/models/Qwen3-Coder-Next/Qwen3-Coder-Next-Q4_K_M.gguf \
     --alias Qwen3-Coder-Next \
@@ -669,6 +670,17 @@ $ systemctl --user status llama-server.service
      Loaded: loaded (/home/howard/.config/systemd/user/llama-server.service; enabled; preset: disabled)
      Active: active (running) since ...
 ```
+
+Two warnings may appear in the journal output — neither is fatal, but one requires attention:
+
+- **`failed to mlock ... Try increasing RLIMIT_MEMLOCK`** — the `--mlock` flag could not pin the model in RAM because the user's memory lock limit was too low. The `LimitMEMLOCK=infinity` line in the unit file above resolves this. If the service was created before that line was added, restart it after reloading the daemon:
+
+  ```bash
+  systemctl --user daemon-reload
+  systemctl --user restart llama-server.service
+  ```
+
+- **`control-looking token: 128247 '</s>' was not control-type`** — a tokenizer metadata quirk in Qwen3-Coder-Next where the EOS token is not classified as control-type despite its appearance. llama.cpp flags it as a warning but it has no effect on inference quality or output. No action needed.
 
 Then reboot to confirm the service comes up automatically:
 
