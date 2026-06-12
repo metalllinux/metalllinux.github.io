@@ -826,6 +826,16 @@ amdgpu_top
 
 ### Confirming GPU layer offload
 
+Rocky Linux 10 does not enable the persistent journal by default. Without it, `journalctl --user` reports `No journal files were found`. Enable it first:
+
+```bash
+sudo mkdir -p /var/log/journal
+sudo systemd-tmpfiles --create --prefix /var/log/journal
+sudo systemctl restart systemd-journald
+```
+
+Then log out and back in — the user journal socket is only created for new login sessions after journald restarts.
+
 When llama-server starts, confirm that GPU offloading is active by tailing the service log:
 
 ```bash
