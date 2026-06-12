@@ -767,7 +767,7 @@ The following steps are performed on the client machine — the Rocky Linux 10 l
 Before configuring OpenCode, confirm the server is reachable from the client:
 
 ```bash
-$ curl http://192.168.1.106:8080/health
+$ curl http://<YOUR_SERVER_IP>:8080/health
 {"status":"ok"}
 ```
 
