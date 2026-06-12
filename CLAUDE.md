@@ -142,14 +142,59 @@ The Nix multi-user (daemon) install requires SELinux to be disabled and will fai
 2. `'pkgs: pkgs.llama-cpp.override { ... }'` — `pkgs.llama-cpp` doesn't exist at the top level of the default expression → "attribute 'llama-cpp' missing"
 Correct form: `nix-env -iE '_: (import <nixpkgs> {}).llama-cpp.override { vulkanSupport = true; }'` — the `_` discards the default expression argument and nixpkgs is imported directly.
 
-### huggingface_hub pip dependency conflict
-`python3 -m pip install huggingface_hub` upgrades `click` to 8.4.x, which conflicts with `spin 0.18` (a NumPy build tool). pip reports this as an `ERROR:` line but the install succeeds — the `Successfully installed` line confirms it. The conflict is irrelevant to `huggingface-cli` usage and can be ignored.
+### huggingface_hub pip dependency conflict and CLI rename
+`python3 -m pip install -U huggingface_hub` upgrades `click` to 8.4.x, which conflicts with `spin 0.18` (a NumPy build tool). pip reports this as an `ERROR:` line but the install succeeds — the `Successfully installed` line confirms it. The conflict is irrelevant and can be ignored.
+
+`huggingface-cli` was deprecated in `huggingface_hub` 1.19.0 and replaced by `hf`. Always install with `-U` to get the current version and use `hf download` / `hf auth login` in all commands and article examples. Never use `huggingface-cli` in new content.
 
 ### LVM volume group blocking mkfs on secondary NVMe
 If a secondary NVMe drive was previously used in a Linux system, Rocky Linux will auto-activate any LVM volume groups it finds at boot. This holds the device open and causes `sudo mkfs.xfs -f /dev/nvme1n1` to fail with `Device or resource busy`. Fix: deactivate the old VG first with `sudo vgchange -an <vgname>` (the VG name is shown in `lsblk` output, e.g. `rl-root` → VG name `rl`), then rerun `mkfs.xfs`.
 
 ### PyTorch Vulkan on Rocky Linux 10
 There are no prebuilt PyTorch pip wheels with Vulkan support. A source build is required (`USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation .`). The LunarG Vulkan SDK must be installed first to provide `glslc`. The initial build should use `-e` (editable mode) to verify it works, then reinstall without `-e` before deleting the source directory.
+
+### EVO-X-2 BIOS settings for local AI inference
+Two BIOS changes are required before installing the OS on the EVO-X-2 for local inference use:
+- **GFX Configuration → iGPU Configuration**: set to `[UMA_SPECIFIED]`
+- **GFX Configuration → UMA Frame buffer Size**: set to `[1G]` (minimum on BIOS 1.11; BIOS 1.12 raised the minimum to 2G)
+- **CPU Configuration → IOMMU(AMD-Vi)**: set to `[Disabled]`
+
+The default 64 GB UMA carveout wastes half the unified memory pool. Disabling IOMMU in BIOS makes the `amd_iommu=off` kernel parameter redundant (though including it is harmless).
+
+### EVO-X-2 kernel parameters for GTT and unified memory
+After installing the mainline kernel, set these parameters via `grubby` — they must be active at boot; runtime changes have no effect:
+```
+amd_iommu=off amdgpu.gttsize=126976 ttm.pages_limit=29360128 ttm.page_pool_size=29360128 amdgpu.no_system_mem_limit=1
+```
+The `ttm.pages_limit` and `ttm.page_pool_size` values must match the GTT size. Without them the TTM subsystem silently caps usable GPU memory to roughly half the configured GTT — GPU compute only sees ~62 GiB even with 124 GiB configured, with no error reported.
+
+### mlock with user-level systemd services
+`LimitMEMLOCK=infinity` in a user service unit (`~/.config/systemd/user/`) is not sufficient. The user systemd manager (`systemd --user`, running as `user@1000.service`) inherits its own memlock ceiling from the system and a user service cannot exceed what its manager was given. The correct fix is a system-level override:
+```bash
+sudo mkdir -p /etc/systemd/system/user@1000.service.d/
+sudo tee /etc/systemd/system/user@1000.service.d/limits.conf << 'EOF'
+[Service]
+LimitMEMLOCK=infinity
+EOF
+sudo systemctl daemon-reload
+sudo reboot
+```
+A **reboot is required**. `sudo systemctl daemon-reload` updates the config on disk but does not restart the running `user@1000.service` process. The new limits only take effect when the user manager itself restarts at next boot. After rebooting, verify with `systemctl show user@1000.service | grep LimitMEMLOCK`.
+
+### Qwen3-Coder-Next GGUF: correct repo and file structure
+The model is at `unsloth/Qwen3-Coder-Next-GGUF`, not `bartowski/Qwen3-Coder-Next-GGUF` (which does not exist). The `Q4_K_M` quantisation is a **single 48.5 GiB file** (`Qwen3-Coder-Next-Q4_K_M.gguf`) at the repo root — not a multi-shard download. Download with:
+```bash
+hf download unsloth/Qwen3-Coder-Next-GGUF \
+  Qwen3-Coder-Next-Q4_K_M.gguf \
+  --local-dir /mnt/data/models/Qwen3-Coder-Next/
+```
+A `UD-Q4_K_M` variant (Unsloth Dynamic 2.0, 49.3 GiB) is also available and benchmarks as higher accuracy at the same bit-width.
+
+### Qwen3-Coder-Next tokenizer warning
+The log line `control-looking token: 128247 '</s>' was not control-type` is a harmless tokenizer metadata quirk where the EOS token is not classified as control-type. llama.cpp flags it as a warning but it has no effect on inference quality or output. Do not document this as requiring action.
+
+### Blog post code block style for command output
+When a command produces output that is JSON, use two separate fenced code blocks: `bash` for the command line, `json` for the output. Do not combine them in a single block.
 
 ## AI Usage Policy
 
