@@ -673,9 +673,22 @@ $ systemctl --user status llama-server.service
 
 Two warnings may appear in the journal output — neither is fatal, but one requires attention:
 
-- **`failed to mlock ... Try increasing RLIMIT_MEMLOCK`** — the `--mlock` flag could not pin the model in RAM because the user's memory lock limit was too low. The `LimitMEMLOCK=infinity` line in the unit file above resolves this. If the service was created before that line was added, restart it after reloading the daemon:
+- **`failed to mlock ... Try increasing RLIMIT_MEMLOCK`** — the `--mlock` flag could not pin the model in RAM because the memlock limit was too low. `LimitMEMLOCK=infinity` in the user service unit alone is not sufficient: the user systemd manager (`systemd --user`) inherits its own memlock ceiling from the system, and a user service cannot exceed what its manager was given. The fix is a system-level override that raises the limit for the entire user@1000 manager, which then applies to all services it spawns. Find your UID first:
 
   ```bash
+  $ id -u
+  1000
+  ```
+
+  Create the override, substituting the UID if different from 1000:
+
+  ```bash
+  sudo mkdir -p /etc/systemd/system/user@1000.service.d/
+  sudo tee /etc/systemd/system/user@1000.service.d/limits.conf << 'EOF'
+  [Service]
+  LimitMEMLOCK=infinity
+  EOF
+  sudo systemctl daemon-reload
   systemctl --user daemon-reload
   systemctl --user restart llama-server.service
   ```
