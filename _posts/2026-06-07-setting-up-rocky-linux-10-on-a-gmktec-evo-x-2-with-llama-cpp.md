@@ -689,8 +689,19 @@ Two warnings may appear in the journal output — neither is fatal, but one requ
   LimitMEMLOCK=infinity
   EOF
   sudo systemctl daemon-reload
-  systemctl --user daemon-reload
-  systemctl --user restart llama-server.service
+  ```
+
+  A reboot is required. Reloading the system daemon updates the config on disk but does not restart the running `user@1000.service` process — it was started before the override existed and still holds the old limits. All child processes, including llama-server, inherit those old limits until the user manager itself restarts at next boot:
+
+  ```bash
+  sudo reboot
+  ```
+
+  After coming back up, confirm the limit was applied to the user manager before starting the service:
+
+  ```bash
+  $ systemctl show user@1000.service | grep LimitMEMLOCK
+  LimitMEMLOCK=infinity
   ```
 
 - **`control-looking token: 128247 '</s>' was not control-type`** — a tokenizer metadata quirk in Qwen3-Coder-Next where the EOS token is not classified as control-type despite its appearance. llama.cpp flags it as a warning but it has no effect on inference quality or output. No action needed.
