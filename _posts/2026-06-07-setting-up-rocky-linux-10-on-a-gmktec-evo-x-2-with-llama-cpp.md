@@ -474,11 +474,11 @@ Verify that Vulkan device detection is working before installing:
 
 ```bash
 $ ./build/bin/llama-server --list-devices
-GGML_VULKAN: Found 1 Vulkan devices:
-GGML_VULKAN: Vulkan0: AMD Radeon 8060S Graphics (RADV GFX1151) | uma: 1 | fp16: 1 | warp size: 64
 Available devices:
-  VULKAN0: AMD Radeon 8060S Graphics (RADV GFX1151) (94673 MiB)
+  Vulkan0: Radeon 8060S Graphics (RADV GFX1151) (128000 MiB, 127838 MiB free)
 ```
+
+The 128000 MiB figure (125 GiB) confirms the full unified memory pool is correctly exposed — the kernel GTT parameters and BIOS UMA configuration from earlier in this guide are working as intended.
 
 Install the binaries and restore the SELinux context:
 
