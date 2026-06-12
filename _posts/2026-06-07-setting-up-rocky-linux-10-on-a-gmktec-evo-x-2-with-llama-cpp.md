@@ -783,7 +783,7 @@ OpenCode treats llama-server as a custom OpenAI-compatible provider. The global 
       "npm": "@ai-sdk/openai-compatible",
       "name": "EVO-X2 (llama.cpp)",
       "options": {
-        "baseURL": "http://192.168.1.106:8080/v1"
+        "baseURL": "http://<YOUR_SERVER_IP>:8080/v1"
       },
       "models": {
         "Qwen3-Coder-Next": {
