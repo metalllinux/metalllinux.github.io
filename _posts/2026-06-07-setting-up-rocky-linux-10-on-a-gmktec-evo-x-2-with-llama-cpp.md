@@ -97,6 +97,13 @@ What each parameter does:
 - **`ttm.pages_limit=29360128`** and **`ttm.page_pool_size=29360128`** — must match the GTT size. Without these, the TTM subsystem silently caps usable GPU memory to roughly half the configured GTT regardless of what the kernel reports — GPU compute only sees ~62 GiB even with 124 GiB configured.
 - **`amdgpu.no_system_mem_limit=1`** — disables the SVM resident memory cap.
 
+Verify the parameters were saved to the default kernel entry before rebooting:
+
+```bash
+$ sudo grubby --info=DEFAULT | grep args
+args="ro ... amd_iommu=off amdgpu.gttsize=126976 ttm.pages_limit=29360128 ttm.page_pool_size=29360128 amdgpu.no_system_mem_limit=1"
+```
+
 Reboot for the parameters to take effect:
 
 ```bash
