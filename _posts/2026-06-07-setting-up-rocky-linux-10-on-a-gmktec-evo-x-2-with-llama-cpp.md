@@ -583,12 +583,58 @@ Confirm the model is loaded and the alias is set correctly:
 
 ```bash
 $ curl -s http://localhost:8080/v1/models | python3 -m json.tool
+```
+
+```json
 {
+    "models": [
+        {
+            "name": "Qwen3-Coder-Next",
+            "model": "Qwen3-Coder-Next",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+                ""
+            ],
+            "capabilities": [
+                "completion"
+            ],
+            "parameters": "",
+            "details": {
+                "parent_model": "",
+                "format": "gguf",
+                "family": "",
+                "families": [
+                    ""
+                ],
+                "parameter_size": "",
+                "quantization_level": ""
+            }
+        }
+    ],
     "object": "list",
     "data": [
         {
             "id": "Qwen3-Coder-Next",
-            ...
+            "aliases": [
+                "Qwen3-Coder-Next"
+            ],
+            "tags": [],
+            "object": "model",
+            "created": 1781247411,
+            "owned_by": "llamacpp",
+            "meta": {
+                "vocab_type": 2,
+                "n_vocab": 151936,
+                "n_ctx": 65536,
+                "n_ctx_train": 262144,
+                "n_embd": 2048,
+                "n_params": 79674391296,
+                "size": 48522331136
+            }
         }
     ]
 }
