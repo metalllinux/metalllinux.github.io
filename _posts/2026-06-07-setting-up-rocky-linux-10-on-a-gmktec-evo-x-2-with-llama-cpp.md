@@ -402,10 +402,10 @@ With the benchmarking setup confirmed, the next step is to build [llama.cpp](htt
 The build tools from the ryzenadj steps are already in place. Two additional packages are needed:
 
 ```bash
-sudo dnf install -y vulkan-loader-devel glslang
+sudo dnf install -y vulkan-loader-devel shaderc
 ```
 
-`glslang` provides `glslangValidator`, which the llama.cpp build system uses to compile the Vulkan GLSL shaders to SPIR-V at build time.
+`shaderc` provides `glslc`, which the llama.cpp cmake requires to compile the Vulkan GLSL shaders to SPIR-V at build time. The `FindVulkan` module in cmake 4.x treats `glslc` as a required Vulkan component — the build fails with `Could NOT find Vulkan (missing: glslc)` if only `glslangValidator` (from the `glslang` package) is installed.
 
 ### Building llama.cpp
 
