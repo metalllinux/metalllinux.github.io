@@ -518,31 +518,31 @@ llama.cpp ships with `llama-server`, a standalone binary that exposes an OpenAI-
 
 ### Downloading a model
 
-llama.cpp works with models in [GGUF format](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md). A broad library is available on [Hugging Face](https://huggingface.co/models?library=gguf). The `huggingface-cli` tool, provided by the `huggingface_hub` package, is the most reliable way to download them:
+llama.cpp works with models in [GGUF format](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md). A broad library is available on [Hugging Face](https://huggingface.co/models?library=gguf). The `hf` CLI tool, provided by the `huggingface_hub` package, is the most reliable way to download them. Install or upgrade to the latest version:
 
 ```bash
-python3 -m pip install huggingface_hub
+python3 -m pip install -U huggingface_hub
 ```
 
-pip may report a dependency conflict warning after installation:
+pip may report a dependency conflict warning after installation — this is a false alarm. `huggingface_hub` upgrades `click`; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end confirms `hf` is ready to use.
 
-```
-ERROR: pip's dependency resolver does not currently take into account all the packages
-that are installed. This behaviour is the source of the following dependency conflicts.
-spin 0.18 requires click!=8.3.0,<8.4,>=8, but you have click 8.4.1 which is incompatible.
-```
+**Note:** `huggingface-cli` was deprecated in `huggingface_hub` 1.19.0 and replaced with `hf`. If you see a warning saying `huggingface-cli` is no longer supported, upgrade the package as above and use `hf` in its place.
 
-This is a false alarm. `huggingface_hub` upgrades `click` to 8.4.x; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end of the output confirms the install completed correctly and `huggingface-cli` is ready to use.
-
-Download a model to the NVMe drive. [Qwen3-Coder-Next](https://huggingface.co/bartowski/Qwen3-Coder-Next-GGUF) in Q4\_K\_M quantisation is the model this guide targets — an 80B Mixture-of-Experts architecture with 3B active parameters per token, purpose-built for coding agents. At Q4\_K\_M quantisation it weighs approximately 46 GiB across four GGUF shards, fitting comfortably in the EVO-X-2's 128 GB unified memory pool with room for a 65K token context window. The [bartowski](https://huggingface.co/bartowski) organisation on Hugging Face is the go-to source for llama.cpp GGUF quantisations, providing multiple quantisation levels across a broad range of models:
+Log in to your Hugging Face account before downloading. This avoids the stricter anonymous rate limits that HuggingFace applies to large downloads — worthwhile given this model is approximately 46 GiB:
 
 ```bash
-huggingface-cli download bartowski/Qwen3-Coder-Next-GGUF \
+hf auth login
+```
+
+Download a model to the NVMe drive. [Qwen3-Coder-Next](https://huggingface.co/bartowski/Qwen3-Coder-Next-GGUF) in Q4\_K\_M quantisation is the model this guide targets — an 80B parameter Mixture-of-Experts model built for coding agents. The MoE architecture means only around 3B parameters are active per token rather than the full 80B, which is what makes the hardware viable: the GPU streams only the active expert weights each token, not the entire model. At Q4\_K\_M quantisation the download comes to approximately 46 GiB split across four GGUF shards, well within the EVO-X-2's 128 GB pool and leaving headroom for a 65K context window. The [bartowski](https://huggingface.co/bartowski) organisation on Hugging Face is the go-to source for llama.cpp GGUF quantisations, providing multiple quantisation levels across a broad range of models:
+
+```bash
+hf download bartowski/Qwen3-Coder-Next-GGUF \
   --include "Qwen3-Coder-Next-Q4_K_M*.gguf" \
   --local-dir /mnt/data/models/Qwen3-Coder-Next/
 ```
 
-The model is split across four shards. `huggingface-cli` downloads all matching files to the specified directory. `llama-server` expects the path to the first shard — it discovers and loads the remainder automatically.
+The model is split across four shards. `hf` downloads all matching files to the specified directory. `llama-server` expects the path to the first shard — it discovers and loads the remainder automatically.
 
 ### Starting llama-server
 
