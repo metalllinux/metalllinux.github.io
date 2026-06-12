@@ -395,55 +395,57 @@ Breaking down what this result means:
 
 ## llama.cpp with Vulkan
 
-With the benchmarking setup confirmed, the next step is to install [llama.cpp](https://github.com/ggml-org/llama.cpp) with Vulkan support. Rather than building from source manually, [Nix](https://github.com/NixOS/nix) handles the build and all dependencies cleanly.
+With the benchmarking setup confirmed, the next step is to build [llama.cpp](https://github.com/ggml-org/llama.cpp) from source with Vulkan support. The Nix binary cache serves a pre-built llama-cpp binary without Vulkan enabled — `ldd` on the installed binary confirms no Vulkan libraries are linked, and `llama-server --list-devices` returns an empty list regardless of the `vulkanSupport` override. A source build is required.
 
-### Installing Nix
+### Build dependencies
 
-The standard Nix multi-user installation requires SELinux to be disabled, which conflicts with Rocky Linux's default enforcing configuration. The single-user installation avoids this:
+The build tools from the ryzenadj steps are already in place. Two additional packages are needed:
 
 ```bash
-curl --proto '=https' --tlsv1.2 -L https://nixos.org/nix/install | sh -s -- --no-daemon
+sudo dnf install -y vulkan-loader-devel glslang
 ```
 
-Source the Nix environment into the current shell, or open a new terminal:
+`glslang` provides `glslangValidator`, which the llama.cpp build system uses to compile the Vulkan GLSL shaders to SPIR-V at build time.
+
+### Building llama.cpp
+
+Clone the repository and configure the build with Vulkan enabled:
 
 ```bash
-. ~/.nix-profile/etc/profile.d/nix.sh
+git clone https://github.com/ggml-org/llama.cpp
+cd llama.cpp
+cmake -B build \
+  -DGGML_VULKAN=ON \
+  -DCMAKE_BUILD_TYPE=Release
 ```
 
-Add the nixpkgs channel and update it:
+Build using all available CPU cores:
 
 ```bash
-nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixpkgs
-nix-channel --update
+cmake --build build --config Release --parallel $(nproc)
 ```
 
-Verify the install:
+Verify that Vulkan device detection is working before installing:
 
 ```bash
-$ nix --version
-nix (Nix) 2.34.7
+$ ./build/bin/llama-server --list-devices
+GGML_VULKAN: Found 1 Vulkan devices:
+GGML_VULKAN: Vulkan0: AMD Radeon 8060S Graphics (RADV GFX1151) | uma: 1 | fp16: 1 | warp size: 64
+Available devices:
+  VULKAN0: AMD Radeon 8060S Graphics (RADV GFX1151) (94673 MiB)
 ```
 
-If the llama.cpp build later fails with a sandbox error, disable Nix sandboxing in the user config:
+Install the binaries and restore the SELinux context:
 
 ```bash
-mkdir -p ~/.config/nix
-echo 'sandbox = false' >> ~/.config/nix/nix.conf
+sudo cmake --install build --prefix /usr/local
+sudo restorecon -Rv /usr/local/bin/
 ```
 
-### Installing llama.cpp with Vulkan
-
-The `llama-cpp` package in nixpkgs has Vulkan support disabled by default. The expression passed to `nix-env -iE` must be a **function** — `nix-env` always calls it with its default expression (`~/.nix-defexpr`), which evaluates to `{ nixpkgs = <packages>; }`, not the nixpkgs package set directly. The `_` discards that argument and imports nixpkgs explicitly, avoiding any dependency on the channel structure:
+Clean up the build directory:
 
 ```bash
-nix-env -iE '_: (import <nixpkgs> {}).llama-cpp.override { vulkanSupport = true; }'
-```
-
-Verify the install:
-
-```bash
-$ llama-cli --version
+cd ~ && rm -rf llama.cpp
 ```
 
 ## Secondary NVMe storage
@@ -687,7 +689,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 LimitMEMLOCK=infinity
-ExecStart=/home/howard/.nix-profile/bin/llama-server \
+ExecStart=/usr/local/bin/llama-server \
     --model /mnt/data/models/Qwen3-Coder-Next/Qwen3-Coder-Next-Q4_K_M.gguf \
     --alias Qwen3-Coder-Next \
     --host 0.0.0.0 \
