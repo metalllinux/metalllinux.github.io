@@ -22,6 +22,12 @@ For reference, the firmware on the machine at the time of installation was as fo
 
 In the BIOS I also set **Power Mode Select** to **Performance Mode**.
 
+Two additional BIOS changes are required before installing the OS.
+
+Under **GFX Configuration**, set **iGPU Configuration** to **[UMA_SPECIFIED]** and **UMA Frame buffer Size** to **[1G]**. The default carves out 64 GB as dedicated VRAM the OS cannot see or use for anything else. On a unified memory system the GPU accesses system RAM at the same bandwidth through GTT (Graphics Translation Table), so the carveout is wasted capacity. Setting the frame buffer to 1 GB leaves the full remaining pool available for both system and GPU workloads, including model weights. Note: BIOS 1.12 raised the minimum to 2 GB; BIOS 1.11 still allows 1 GB.
+
+Under **CPU Configuration**, set **IOMMU(AMD-Vi)** to **[Disabled]**. Disabling IOMMU at the hardware level produces a measurable improvement in inference throughput — testing showed a 3.7% improvement in generation speed (38.0 → 39.4 tok/s). Disabling it here makes the `amd_iommu=off` kernel parameter redundant, though including it is harmless.
+
 The first task was simply getting Rocky Linux onto the machine. I downloaded the Rocky Linux 10.2 DVD ISO and set about creating a bootable USB stick using a Verbatim 64GB USB3 drive. What followed was a considerably longer exercise in troubleshooting than I anticipated.
 
 The EVO-X-2 was simply unable to read the Verbatim 64GB USB3 memory stick. I verified the drive had been written correctly using multiple tools, but the machine would not recognise it as bootable in any case:
@@ -70,6 +76,28 @@ $ sudo grubby --default-kernel
 ```
 
 Then reboot for the new kernel to take effect:
+
+```bash
+sudo reboot
+```
+
+### Kernel parameters for unified memory and IOMMU
+
+With the mainline kernel in place, set additional kernel parameters to maximise the GTT memory pool and disable IOMMU. These must be applied at boot via `grubby` — runtime changes have no effect:
+
+```bash
+sudo grubby --update-kernel=DEFAULT \
+  --args="amd_iommu=off amdgpu.gttsize=126976 ttm.pages_limit=29360128 ttm.page_pool_size=29360128 amdgpu.no_system_mem_limit=1"
+```
+
+What each parameter does:
+
+- **`amd_iommu=off`** — fully disables IOMMU. This produced a 3.7% improvement in generation speed in testing (38.0 → 39.4 tok/s). GTT was also bumped from 112 GiB to 124 GiB in the same change.
+- **`amdgpu.gttsize=126976`** — sets GTT to 124 GiB (126976 MiB), making that memory available for GPU workloads.
+- **`ttm.pages_limit=29360128`** and **`ttm.page_pool_size=29360128`** — must match the GTT size. Without these, the TTM subsystem silently caps usable GPU memory to roughly half the configured GTT regardless of what the kernel reports — GPU compute only sees ~62 GiB even with 124 GiB configured.
+- **`amdgpu.no_system_mem_limit=1`** — disables the SVM resident memory cap.
+
+Reboot for the parameters to take effect:
 
 ```bash
 sudo reboot
@@ -506,27 +534,45 @@ spin 0.18 requires click!=8.3.0,<8.4,>=8, but you have click 8.4.1 which is inco
 
 This is a false alarm. `huggingface_hub` upgrades `click` to 8.4.x; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end of the output confirms the install completed correctly and `huggingface-cli` is ready to use.
 
-Download a model to the NVMe drive. [Qwen2.5-Coder-14B-Instruct](https://huggingface.co/bartowski/Qwen2.5-Coder-14B-Instruct-GGUF) in Q4\_K\_M quantisation is a practical choice for a coding assistant on this hardware — approximately 9 GB, fits entirely within the EVO-X-2's unified memory alongside the model weights, and performs well on tool-calling tasks. The [bartowski](https://huggingface.co/bartowski) organisation on Hugging Face is the go-to source for llama.cpp GGUF quantisations, providing multiple quantisation levels as single-file GGUFs across a broad range of models:
+Download a model to the NVMe drive. [Qwen3-Coder-Next](https://huggingface.co/bartowski/Qwen3-Coder-Next-GGUF) in Q4\_K\_M quantisation is the model this guide targets — an 80B Mixture-of-Experts architecture with 3B active parameters per token, purpose-built for coding agents. At Q4\_K\_M quantisation it weighs approximately 46 GiB across four GGUF shards, fitting comfortably in the EVO-X-2's 128 GB unified memory pool with room for a 65K token context window. The [bartowski](https://huggingface.co/bartowski) organisation on Hugging Face is the go-to source for llama.cpp GGUF quantisations, providing multiple quantisation levels across a broad range of models:
 
 ```bash
-huggingface-cli download bartowski/Qwen2.5-Coder-14B-Instruct-GGUF \
-  Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
-  --local-dir /mnt/data/models/
+huggingface-cli download bartowski/Qwen3-Coder-Next-GGUF \
+  --include "Qwen3-Coder-Next-Q4_K_M*.gguf" \
+  --local-dir /mnt/data/models/Qwen3-Coder-Next/
 ```
+
+The model is split across four shards. `huggingface-cli` downloads all matching files to the specified directory. `llama-server` expects the path to the first shard — it discovers and loads the remainder automatically.
 
 ### Starting llama-server
 
-With the model in place, start the server. The `--n-gpu-layers 99` flag offloads all model layers to the Vulkan GPU — without it, inference runs on CPU only. The `--alias` sets the model identifier returned by the `/v1/models` endpoint, which the OpenCode client uses to reference the model:
+With the model in place, start the server. The `--n-gpu-layers 99` flag offloads all model layers to the Vulkan GPU — without it, inference runs on CPU only. The `--alias` sets the model identifier returned by the `/v1/models` endpoint, which the OpenCode client uses to reference the model. Point `--model` at the first shard — llama.cpp discovers and loads the rest automatically:
 
 ```bash
 llama-server \
-  --model /mnt/data/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
-  --alias Qwen2.5-Coder-14B \
+  --model /mnt/data/models/Qwen3-Coder-Next/Qwen3-Coder-Next-Q4_K_M-00001-of-00004.gguf \
+  --alias Qwen3-Coder-Next \
   --host 0.0.0.0 \
   --port 8080 \
   --n-gpu-layers 99 \
-  --ctx-size 16384
+  -fa on \
+  --parallel 1 \
+  -t 32 -tb 32 \
+  -ub 2048 \
+  -ctk q8_0 -ctv q8_0 \
+  --mlock \
+  -c 65536
 ```
+
+Flag explanations:
+
+- **`-fa on`** — enables flash attention, reducing KV cache memory and speeding up attention computation.
+- **`--parallel 1`** — single request slot; all available memory is dedicated to one user rather than split across parallel slots.
+- **`-t 32 -tb 32`** — uses all 32 CPU cores for both inference and batch processing.
+- **`-ub 2048`** — sets the micro-batch size to 2048, improving GPU utilisation during prompt processing.
+- **`-ctk q8_0 -ctv q8_0`** — quantises the KV cache to Q8_0, approximately halving its memory footprint compared to f16 with minimal quality loss.
+- **`--mlock`** — pins the model weights in RAM, preventing the OS from paging them out.
+- **`-c 65536`** — 65K token context window.
 
 Verify the server is healthy:
 
@@ -543,7 +589,7 @@ $ curl -s http://localhost:8080/v1/models | python3 -m json.tool
     "object": "list",
     "data": [
         {
-            "id": "Qwen2.5-Coder-14B",
+            "id": "Qwen3-Coder-Next",
             ...
         }
     ]
@@ -590,12 +636,18 @@ Wants=network-online.target
 [Service]
 Type=simple
 ExecStart=/home/howard/.nix-profile/bin/llama-server \
-    --model /mnt/data/models/Qwen2.5-Coder-14B-Instruct-Q4_K_M.gguf \
-    --alias Qwen2.5-Coder-14B \
+    --model /mnt/data/models/Qwen3-Coder-Next/Qwen3-Coder-Next-Q4_K_M-00001-of-00004.gguf \
+    --alias Qwen3-Coder-Next \
     --host 0.0.0.0 \
     --port 8080 \
     --n-gpu-layers 99 \
-    --ctx-size 16384
+    -fa on \
+    --parallel 1 \
+    -t 32 -tb 32 \
+    -ub 2048 \
+    -ctk q8_0 -ctv q8_0 \
+    --mlock \
+    -c 65536
 Restart=on-failure
 RestartSec=5
 
@@ -654,11 +706,11 @@ OpenCode treats llama-server as a custom OpenAI-compatible provider. The global 
         "baseURL": "http://192.168.1.100:8080/v1"
       },
       "models": {
-        "Qwen2.5-Coder-14B": {
-          "name": "Qwen2.5-Coder-14B (EVO-X2)",
+        "Qwen3-Coder-Next": {
+          "name": "Qwen3-Coder-Next (EVO-X2)",
           "limit": {
-            "context": 16384,
-            "output": 8192
+            "context": 65536,
+            "output": 32768
           }
         }
       }
@@ -667,4 +719,4 @@ OpenCode treats llama-server as a custom OpenAI-compatible provider. The global 
 }
 ```
 
-The provider ID (`evo-x2`) is arbitrary — it appears as the provider label in the model picker. Run `/models` within OpenCode to select the `Qwen2.5-Coder-14B (EVO-X2)` entry and switch to inferencing on the EVO-X-2.
+The provider ID (`evo-x2`) is arbitrary — it appears as the provider label in the model picker. Run `/models` within OpenCode to select the `Qwen3-Coder-Next (EVO-X2)` entry and switch to inferencing on the EVO-X-2.
