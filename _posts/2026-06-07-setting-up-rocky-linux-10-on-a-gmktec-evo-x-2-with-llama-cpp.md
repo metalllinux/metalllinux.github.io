@@ -402,10 +402,25 @@ With the benchmarking setup confirmed, the next step is to build [llama.cpp](htt
 The build tools from the ryzenadj steps are already in place. Two additional packages are needed:
 
 ```bash
-sudo dnf install -y vulkan-loader-devel shaderc
+sudo dnf install -y vulkan-loader-devel
 ```
 
-`shaderc` provides `glslc`, which the llama.cpp cmake requires to compile the Vulkan GLSL shaders to SPIR-V at build time. The `FindVulkan` module in cmake 4.x treats `glslc` as a required Vulkan component — the build fails with `Could NOT find Vulkan (missing: glslc)` if only `glslangValidator` (from the `glslang` package) is installed.
+The llama.cpp cmake requires `glslc` to compile the Vulkan GLSL shaders to SPIR-V at build time. `glslc` is not available in Rocky Linux 10's BaseOS, AppStream, or EPEL repositories — `shaderc` (the package that provides it on Fedora) is absent. Install `glslc` from the LunarG Vulkan SDK, copying just the binary before cleaning up:
+
+```bash
+mkdir ~/VulkanSDK && cd ~/VulkanSDK
+curl -LO https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
+tar xf vulkan_sdk.tar.gz
+sudo install -m 755 $(find ~/VulkanSDK -name glslc -type f) /usr/local/bin/glslc
+sudo restorecon -v /usr/local/bin/glslc
+cd ~ && rm -rf ~/VulkanSDK
+```
+
+Verify `glslc` is on the path:
+
+```bash
+$ glslc --version
+```
 
 ### Building llama.cpp
 
