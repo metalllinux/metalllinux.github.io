@@ -494,6 +494,12 @@ echo "/usr/local/lib64" | sudo tee /etc/ld.so.conf.d/usrlocal.conf
 sudo ldconfig
 ```
 
+If your shell previously resolved `llama-server` to a different path (for example from an earlier Nix install), clear the cached lookup:
+
+```bash
+hash -r
+```
+
 Clean up the build directory:
 
 ```bash

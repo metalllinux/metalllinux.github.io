@@ -226,6 +226,9 @@ sudo systemctl restart systemd-journald
 ```
 A fresh login session is required after restarting journald — the user journal socket is only created for new sessions.
 
+### Shell command hash cache after switching llama-server binary
+After uninstalling the Nix llama-cpp (`nix-env -e llama-cpp`) and installing the source-built binary to `/usr/local/bin/`, the shell retains the old Nix path in its hash table. Running `llama-server` fails with `-bash: /home/howard/.nix-profile/bin/llama-server: No such file or directory`. Fix: `hash -r` to clear the cache. The new path is then picked up immediately without opening a new shell.
+
 ### Blog post code block style for command output
 When a command produces output that is JSON, use two separate fenced code blocks: `bash` for the command line, `json` for the output. Do not combine them in a single block.
 
