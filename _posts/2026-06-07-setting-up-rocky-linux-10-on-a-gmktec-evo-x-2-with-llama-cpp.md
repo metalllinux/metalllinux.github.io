@@ -415,7 +415,7 @@ This is what I understood from the results:
 
 **What it means in context:** the AMD Ryzen AI MAX+ 395's integrated GPU (consisting of a Radeon 8060S, 40 RDNA3.5 compute units) has a theoretical FP32 peak of roughly 14–15 TFLOPS. The benchmark returned about 8% of that, which sounds low but was expected for two reasons:
 
-1. **The `.cpu()` sync call is inside the timing loop.** Every iteration forces a GPU→CPU round-trip to synchronise results. That host-device latency is baked into the 0.70s elapsed figure - it is measuring GPU compute plus synchronisation overhead per iteration, not pure GPU throughput.
+1. **The `.cpu()` sync call is inside the timing loop.** Every iteration forces a GPU→CPU round-trip to synchronise results. That host-device latency is baked into the 0.70s elapsed figure and is measuring GPU compute plus synchronisation overhead per iteration, not pure GPU throughput.
 
 2. **The PyTorch Vulkan backend is experimental.** It has none of the hand-tuned BLAS kernels that ROCm uses. Every matmul goes through a general GLSL compute shader with no architecture-specific optimisation.
 
