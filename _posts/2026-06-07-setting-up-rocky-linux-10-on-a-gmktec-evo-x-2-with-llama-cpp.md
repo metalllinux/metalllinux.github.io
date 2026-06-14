@@ -446,7 +446,7 @@ sudo restorecon -v /usr/local/bin/glslc
 cd ~ && rm -rf ~/VulkanSDK
 ```
 
-I installed `SPIRV-Headers` from source - it is header-only and installs in seconds:
+I installed `SPIRV-Headers` from source - it is the header-only and installs in seconds:
 
 ```bash
 git clone https://github.com/KhronosGroup/SPIRV-Headers.git
