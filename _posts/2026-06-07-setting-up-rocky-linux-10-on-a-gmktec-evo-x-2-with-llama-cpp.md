@@ -289,7 +289,7 @@ wget https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
 tar xf vulkan_sdk.tar.gz
 ```
 
-I sourced the environment setup script before building - substituting `<version>` with the extracted directory name:
+I sourced the environment setup script before building, substituting `<version>` with the extracted directory name:
 
 ```bash
 source ~/VulkanSDK/<version>/setup-env.sh
