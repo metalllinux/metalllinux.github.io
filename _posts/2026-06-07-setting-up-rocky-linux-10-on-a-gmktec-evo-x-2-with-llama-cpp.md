@@ -93,21 +93,21 @@ With the mainline kernel in place, I set additional kernel parameters to maximis
 
 ```bash
 sudo grubby --update-kernel=DEFAULT \
-  --args="amd_iommu=off amdgpu.gttsize=126976 ttm.pages_limit=29360128 ttm.page_pool_size=29360128 amdgpu.no_system_mem_limit=1"
+  --args="amd_iommu=off amdgpu.gttsize=90112 ttm.pages_limit=23068672 ttm.page_pool_size=23068672 amdgpu.no_system_mem_limit=1"
 ```
 
 What each parameter does:
 
 - **`amd_iommu=off`** - fully disables IOMMU. This produced an improvement in generation speed and GTT was also bumped from 112 GiB to 124 GiB in the same change.
-- **`amdgpu.gttsize=126976`** - sets GTT to 124 GiB (126976 MiB), making that memory available for GPU workloads.
-- **`ttm.pages_limit=29360128`** and **`ttm.page_pool_size=29360128`** - must match the GTT size. Without these, the TTM subsystem silently caps usable GPU memory to roughly half the configured GTT regardless of what the kernel reports - GPU compute only sees ~62 GiB even with 124 GiB configured.
+- **`amdgpu.gttsize=90112`** - sets GTT to 88 GiB (90112 MiB), making that memory available for GPU workloads.
+- **`ttm.pages_limit=23068672`** and **`ttm.page_pool_size=23068672`** - must match the GTT size. Without these, the TTM subsystem silently caps usable GPU memory to roughly half the configured GTT regardless of what the kernel reports - GPU compute only sees ~44 GiB even with 88 GiB configured.
 - **`amdgpu.no_system_mem_limit=1`** - disables the SVM resident memory cap.
 
 I verified the parameters were saved to the default kernel entry before rebooting:
 
 ```bash
 $ sudo grubby --info=DEFAULT | grep args
-args="ro ... amd_iommu=off amdgpu.gttsize=126976 ttm.pages_limit=29360128 ttm.page_pool_size=29360128 amdgpu.no_system_mem_limit=1"
+args="ro ... amd_iommu=off amdgpu.gttsize=90112 ttm.pages_limit=23068672 ttm.page_pool_size=23068672 amdgpu.no_system_mem_limit=1"
 ```
 
 I then rebooted for the parameters to take effect:
@@ -192,7 +192,7 @@ cd ~ && rm -Rf ./RyzenAdj
 
 ### Persisting power limits at boot
 
-The `ryzenadj` command sets limits for the current session only - they reset on reboot. To apply them automatically at every boot, I created a systemd service unit:
+The `ryzenadj` command sets limits for the current session only and which reset upon a reboot. To apply them automatically at every boot, I created a systemd service unit:
 
 ```bash
 sudo tee /etc/systemd/system/ryzenadj.service << 'EOF'
@@ -233,11 +233,33 @@ I then rebooted to confirm the limits came up automatically:
 sudo reboot
 ```
 
+After coming back up, I verified the service had started automatically:
+
+```bash
+$ sudo systemctl status ryzenadj.service
+● ryzenadj.service - Set RyzenAdj APU power limits
+     Loaded: loaded (/etc/systemd/system/ryzenadj.service; enabled; preset: disabled)
+     Active: active (exited) since ...
+```
+
+I then confirmed the limits were in effect by running `ryzenadj --info` and checking the `fast_limit` and `tctl_temp` values in the output:
+
+```bash
+$ sudo ryzenadj --info
+...
+stapm_limit:           100.000 W
+...
+fast_limit:            100.000 W
+...
+tctl_temp:              88.000 °C
+...
+```
+
 ## PyTorch Benchmarking Setup
 
 With RyzenAdj in place and the APU power limits dialled in, the next step was to get a PyTorch benchmarking suite running to measure GPU throughput.
 
-**Note:** `lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2. Running `sensors-detect --auto` against the AMD RYZEN AI MAX+ 395 finds no supported sensors and reports "Sorry, no sensors were detected." Thermal monitoring via `lm-sensors` is not an option on this hardware.
+Note: `lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2. Running `sensors-detect --auto` against the AMD RYZEN AI MAX+ 395 finds no supported sensors and reports "Sorry, no sensors were detected." Thermal monitoring via `lm-sensors` is not an option on this hardware.
 
 ### Installing PyTorch with Vulkan
 
@@ -481,10 +503,10 @@ I verified that Vulkan device detection was working before installing:
 ```bash
 $ ./build/bin/llama-server --list-devices
 Available devices:
-  Vulkan0: Radeon 8060S Graphics (RADV GFX1151) (128000 MiB, 127838 MiB free)
+  Vulkan0: Radeon 8060S Graphics (RADV GFX1151) (91136 MiB, 90974 MiB free)
 ```
 
-The 128000 MiB figure (125 GiB) confirmed the full unified memory pool was correctly exposed - the kernel GTT parameters and BIOS UMA configuration from earlier in this guide had worked as intended.
+The 91136 MiB figure (~89 GiB) confirmed the full unified memory pool was correctly exposed - the kernel GTT parameters and BIOS UMA configuration from earlier in this guide had worked as intended.
 
 I installed the binaries and restored the SELinux context:
 
@@ -599,7 +621,7 @@ python3 -m pip install -U huggingface_hub
 
 pip reported a dependency conflict warning after installation - this was a false alarm. `huggingface_hub` upgrades `click`; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end confirmed `hf` was ready to use.
 
-**Note:** `huggingface-cli` was deprecated in `huggingface_hub` 1.19.0 and replaced with `hf`. If you see a warning saying `huggingface-cli` is no longer supported, upgrade the package as above and use `hf` in its place.
+Note: `huggingface-cli` was deprecated in `huggingface_hub` 1.19.0 and replaced with `hf`. If you see a warning saying `huggingface-cli` is no longer supported, upgrade the package as above and use `hf` in its place.
 
 I logged in to my Hugging Face account before downloading, to avoid the stricter anonymous rate limits that HuggingFace applies to large downloads - worthwhile given this model is approximately 46 GiB:
 
@@ -607,7 +629,7 @@ I logged in to my Hugging Face account before downloading, to avoid the stricter
 hf auth login
 ```
 
-I downloaded the model to the NVMe drive. [Qwen3-Coder-Next](https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF) in Q4\_K\_M quantisation is the model this guide targets - an 80B parameter Mixture-of-Experts model built for coding agents. The MoE architecture means only around 3B parameters are active per token rather than the full 80B, which is what makes the hardware viable: the GPU streams only the active expert weights each token, not the entire model. The Q4\_K\_M quantisation is a single 48.5 GiB file, well within the EVO-X-2's 128 GB pool and leaving headroom for a 65K context window. [Unsloth](https://huggingface.co/unsloth) also provide a `UD-Q4_K_M` variant (49.3 GiB) using their Dynamic 2.0 quantisation, which they benchmark as higher accuracy at the same bit-width - either will work on this hardware:
+I downloaded the model to the NVMe drive. [Qwen3-Coder-Next](https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF) in Q4\_K\_M quantisation is the model this guide targets - an 80B parameter Mixture-of-Experts model built for coding agents. The MoE architecture means only around 3B parameters are active per token rather than the full 80B, which is what makes the hardware viable: the GPU streams only the active expert weights each token, not the entire model. The Q4\_K\_M quantisation is a single 48.5 GiB file, well within the EVO-X-2's 96 GB pool and leaving headroom for a 65K context window. [Unsloth](https://huggingface.co/unsloth) also provide a `UD-Q4_K_M` variant (49.3 GiB) using their Dynamic 2.0 quantisation, which they benchmark as higher accuracy at the same bit-width - either will work on this hardware:
 
 ```bash
 hf download unsloth/Qwen3-Coder-Next-GGUF \
