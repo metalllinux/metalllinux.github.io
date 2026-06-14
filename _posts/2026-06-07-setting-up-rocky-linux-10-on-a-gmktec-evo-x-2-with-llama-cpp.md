@@ -486,7 +486,7 @@ cmake -B build \
 
 Flag explanations:
 
-- **`-DGGML_NATIVE=OFF` with `-march=znver5`** - disables GCC's auto-detection of CPU features and targets Zen 5 explicitly. Rocky Linux 10 ships GCC 14 which supports `znver5`. Using an explicit target is cleaner than auto-detection and avoids any edge cases with feature probing.
+- **`-DGGML_NATIVE=OFF` with `-march=znver5`** - disables GCC's auto-detection of CPU features and targets Zen 5 explicitly. Rocky Linux 10 ships GCC 14 which supports `znver5`. Using an explicit target is cleaner than auto-detection.
 - **`-DGGML_AVX512=ON` / `VBMI` / `VNNI` / `BF16`** - enables AVX-512 SIMD extensions for CPU-side tensor operations (prompt processing, KV cache operations). The Ryzen AI MAX+ 395 supports all four. These flags apply regardless of GPU backend - Vulkan handles the GPU path; AVX-512 accelerates the CPU path.
 - **`-DGGML_LTO=ON`** - enables link-time optimisation, allowing the linker to inline and optimise across translation unit boundaries.
 
