@@ -295,7 +295,7 @@ I sourced the environment setup script before building, substituting `<version>`
 source ~/VulkanSDK/<version>/setup-env.sh
 ```
 
-I installed build dependencies:
+I installed the build dependencies:
 
 ```bash
 sudo dnf install -y python3-pip python3-devel cmake git
