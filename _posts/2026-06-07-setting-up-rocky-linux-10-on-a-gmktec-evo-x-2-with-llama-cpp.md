@@ -548,7 +548,9 @@ $ lsblk /dev/nvme1n1
 
 XFS was the right choice for model storage for two reasons.
 
-First, it is the default filesystem on Rocky Linux - the kernel module, tooling, and `xfsprogs` are all first-class on this platform. Second, XFS was designed for high-throughput large file workloads, which is exactly what llama-server produces: sequential reads of multi-gigabyte files with no random access pattern. Its extent-based allocation avoids the fragmentation that accumulates with repeated large file writes and reads, and its allocation group architecture handles parallel metadata operations cleanly.
+First, it is the default filesystem on Rocky Linux - the kernel module, tooling, and `xfsprogs` are all first-class on this platform.
+
+Second, XFS was designed for high-throughput large file workloads, which is exactly what llama-server produces: sequential reads of multi-gigabyte files with no random access pattern. Its extent-based allocation avoids the fragmentation that accumulates with repeated large file writes and reads, and its allocation group architecture handles parallel metadata operations cleanly.
 
 The drive had been previously used in another Linux system - `lsblk` showed existing LVM volumes beneath it (e.g. `rl-root`, `rl-swap`, `rl-home`). Rocky Linux had auto-activated these LVM volume groups at boot, which held the device open and caused `mkfs.xfs` to fail with `Device or resource busy`. I deactivated the old volume group first - substituting the actual VG name shown in the `lsblk` output:
 
