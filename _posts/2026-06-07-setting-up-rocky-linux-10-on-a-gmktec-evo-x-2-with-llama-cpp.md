@@ -98,7 +98,7 @@ sudo grubby --update-kernel=DEFAULT \
 
 What each parameter does:
 
-- **`amd_iommu=off`** - fully disables IOMMU. This produced a 3.7% improvement in generation speed in testing (38.0 → 39.4 tok/s). GTT was also bumped from 112 GiB to 124 GiB in the same change.
+- **`amd_iommu=off`** - fully disables IOMMU. This produced an improvement in generation speed and GTT was also bumped from 112 GiB to 124 GiB in the same change.
 - **`amdgpu.gttsize=126976`** - sets GTT to 124 GiB (126976 MiB), making that memory available for GPU workloads.
 - **`ttm.pages_limit=29360128`** and **`ttm.page_pool_size=29360128`** - must match the GTT size. Without these, the TTM subsystem silently caps usable GPU memory to roughly half the configured GTT regardless of what the kernel reports - GPU compute only sees ~62 GiB even with 124 GiB configured.
 - **`amdgpu.no_system_mem_limit=1`** - disables the SVM resident memory cap.
