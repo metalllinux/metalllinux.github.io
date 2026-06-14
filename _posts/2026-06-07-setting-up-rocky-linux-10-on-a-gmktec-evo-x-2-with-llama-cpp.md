@@ -536,7 +536,7 @@ cd ~ && rm -rf llama.cpp
 
 ## Secondary NVMe storage
 
-The EVO-X-2 has two M.2 slots. A second NVMe drive dedicated to model storage kept the OS drive uncluttered and gave model I/O its own bandwidth - relevant when a 14B Q4 model is 9 GB and larger models exceed 50 GB.
+The EVO-X-2 has has two PCIe 4.0 M.2 2280 SSD slots. A second NVMe drive dedicated to model storage kept the OS drive uncluttered and gave model I/O its own bandwidth - relevant when a 14B Q4 model is 9 GB and larger models exceed 50 GB.
 
 ### Formatting the drive
 
