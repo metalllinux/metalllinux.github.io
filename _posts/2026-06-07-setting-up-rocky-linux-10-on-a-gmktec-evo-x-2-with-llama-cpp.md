@@ -490,7 +490,7 @@ Flag explanations:
 - **`-DGGML_AVX512=ON` / `VBMI` / `VNNI` / `BF16`** - enables AVX-512 SIMD extensions for CPU-side tensor operations (prompt processing, KV cache operations). The Ryzen AI MAX+ 395 supports all four. These flags apply regardless of GPU backend - Vulkan handles the GPU path; AVX-512 accelerates the CPU path.
 - **`-DGGML_LTO=ON`** - enables link-time optimisation, allowing the linker to inline and optimise across translation unit boundaries.
 
-The following flags from ROCm/HIP builds are **not applicable** with Vulkan and must be omitted: `-DGGML_HIP=ON`, `-DAMDGPU_TARGETS=gfx1151`, `-DGGML_HIP_ROCWMMA_FATTN=ON`, `-DGGML_CUDA_FA_ALL_QUANTS=ON`.
+As a note, the following flags from ROCm/HIP builds are **not applicable** with Vulkan and must be omitted: `-DGGML_HIP=ON`, `-DAMDGPU_TARGETS=gfx1151`, `-DGGML_HIP_ROCWMMA_FATTN=ON`, `-DGGML_CUDA_FA_ALL_QUANTS=ON`.
 
 I built using all available CPU cores:
 
