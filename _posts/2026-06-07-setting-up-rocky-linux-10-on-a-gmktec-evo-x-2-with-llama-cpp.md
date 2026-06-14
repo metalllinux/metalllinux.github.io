@@ -259,7 +259,7 @@ tctl_temp:              88.000 °C
 
 With RyzenAdj in place and the APU power limits dialled in, the next step was to get a PyTorch benchmarking suite running to measure GPU throughput.
 
-Note: `lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2. Running `sensors-detect --auto` as `root` or a user with `sudo` privileges against the AMD RYZEN AI MAX+ 395 finds no supported sensors and reports "Sorry, no sensors were detected." Thermal monitoring via `lm-sensors` is not an option on this hardware.
+Note: `lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2. Running `sensors-detect --auto` as `root` or a user with `sudo` privileges against the AMD RYZEN AI MAX+ 395 finds no supported sensors and reports "Sorry, no sensors were detected." Thermal monitoring via `lm-sensors` is not an option from my testing on this hardware.
 
 ### Installing PyTorch with Vulkan
 
