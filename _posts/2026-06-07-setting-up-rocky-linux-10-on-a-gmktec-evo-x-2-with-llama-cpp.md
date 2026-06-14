@@ -423,7 +423,7 @@ This is what I understood from the results:
 
 ## llama.cpp with Vulkan
 
-With the benchmarking setup confirmed, the next step was to build [llama.cpp](https://github.com/ggml-org/llama.cpp) from source with Vulkan support. The Nix binary cache serves a pre-built llama-cpp binary without Vulkan enabled - `ldd` on the installed binary confirms no Vulkan libraries are linked, and `llama-server --list-devices` returns an empty list regardless of the `vulkanSupport` override. A source build was required.
+With the benchmarking setup confirmed, the next step was to build [llama.cpp](https://github.com/ggml-org/llama.cpp) from source with Vulkan support. I observed that the Nix package had no linked Vulkan libraries and that a source build was required.
 
 ### Build dependencies
 
