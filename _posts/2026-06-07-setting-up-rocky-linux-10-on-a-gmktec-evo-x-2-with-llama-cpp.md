@@ -307,7 +307,7 @@ sudo dnf install -y python3-pip python3-devel cmake git
 python3 -m pip install ninja
 ```
 
-I cloned the PyTorch repository and initialised submodules:
+I cloned the PyTorch repository and initialised the submodules:
 
 ```bash
 git clone https://github.com/pytorch/pytorch
