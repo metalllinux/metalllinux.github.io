@@ -403,7 +403,7 @@ Matrix size: 2048x2048, dtype: torch.float32, iterations: 50
 Elapsed: 0.70s — 1.2304 TFLOPS
 ```
 
-Breaking down what this result means:
+This is what I understood from the results:
 
 **TFLOPS** (Tera Floating Point Operations Per Second) is how many trillion floating point arithmetic operations the system completed each second.
 
