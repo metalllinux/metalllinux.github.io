@@ -265,7 +265,7 @@ Note: `lm-sensors` does not detect any hardware monitoring chips on the EVO-X-2.
 
 Unlike ROCm, PyTorch's Vulkan backend on Linux has no prebuilt pip wheel. The Vulkan backend exists in the codebase at [github.com/pytorch/pytorch](https://github.com/pytorch/pytorch) and is functional, but Linux support is not tested in CI and there is no official package distribution for it - a source build is the only path.
 
-I installed the Vulkan runtime, headers, and Mesa RADV driver (which provides Vulkan support for the AMD integrated GPU):
+I installed the Vulkan runtime, headers, and Mesa RADV driver , which provides Vulkan support for the AMD integrated GPU:
 
 ```bash
 sudo dnf install -y vulkan-loader vulkan-headers vulkan-tools mesa-vulkan-drivers
