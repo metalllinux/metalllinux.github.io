@@ -606,7 +606,7 @@ Filesystem      Size  Used Avail Use% Mounted on
 
 ### Setting up the models directory
 
-I gave the current user ownership of the mount so models could be downloaded without `sudo`:
+I gave the current user ownership of the mount, so models could be downloaded without `sudo`:
 
 ```bash
 sudo chown $USER:$USER /mnt/data
