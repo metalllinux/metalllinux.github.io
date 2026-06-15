@@ -615,7 +615,7 @@ mkdir -p /mnt/data/models
 
 ## Running the llama.cpp API server
 
-llama.cpp ships with `llama-server`, a standalone binary that exposes an OpenAI-compatible HTTP API. Starting it with `--host 0.0.0.0` made the running model accessible over the network from any machine on the local network, rather than localhost only.
+llama.cpp ships with `llama-server`, a standalone binary that exposes an OpenAI-compatible HTTP API. Starting it with `--host 0.0.0.0` made the running model accessible over the network from any machine on the local network.
 
 ### Downloading a model
 
