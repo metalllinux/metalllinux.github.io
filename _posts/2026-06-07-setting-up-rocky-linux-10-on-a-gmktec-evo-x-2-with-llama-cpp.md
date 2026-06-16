@@ -386,7 +386,7 @@ USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation .
 I then cleaned up the source and SDK directories:
 
 ```bash
-cd ~ && rm -rf ~/pytorch ~/VulkanSDK
+cd ~ && rm -rf ~/VulkanSDK
 ```
 
 I verified that the Vulkan backend was available once the build completed:
