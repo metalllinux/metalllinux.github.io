@@ -212,21 +212,6 @@ $ sudo systemctl status ryzenadj.service
     Process: ... ExecStart=/usr/bin/ryzenadj --fast-limit=100000 --tctl-temp=88 (code=exited, status=0/SUCCESS)
 ```
 
-I then rebooted to confirm the limits came up automatically:
-
-```bash
-sudo reboot
-```
-
-After coming back up, I verified the service had started automatically:
-
-```bash
-$ sudo systemctl status ryzenadj.service
-● ryzenadj.service - Set RyzenAdj APU power limits
-     Loaded: loaded (/etc/systemd/system/ryzenadj.service; enabled; preset: disabled)
-     Active: active (exited) since ...
-```
-
 I then confirmed the limits were in effect by running `ryzenadj --info` and checking the `fast_limit` and `tctl_temp` values in the output:
 
 ```bash
