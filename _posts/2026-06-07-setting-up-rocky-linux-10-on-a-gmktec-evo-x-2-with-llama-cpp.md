@@ -916,7 +916,7 @@ I added the following, substituting the EVO-X-2's IP address. The model ID in th
 
 The provider ID (`evo-x2`) is arbitrary - it appears as the provider label in the model picker.
 
-I ran `/models` within OpenCode to select the `Qwen3-Coder-Next (EVO-X2)` entry and switch to inferencing on the EVO-X-2.
+I ran `/models` within OpenCode to select the `Qwen3-Coder-Next-Q4_K_M (EVO-X2)` entry and switch to inferencing on the EVO-X-2.
 
 ## Monitoring GPU usage
 
