@@ -451,7 +451,7 @@ if __name__ == "__main__":
 EOF
 ```
 
-I saved this as `~/benchmark.py` and ran it:
+I then ran the `benchmark.py` script:
 
 ```bash
 $ python3 ~/benchmark.py
