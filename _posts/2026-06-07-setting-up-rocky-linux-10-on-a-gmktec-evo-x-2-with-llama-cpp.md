@@ -1018,6 +1018,6 @@ What I want to explore next is the practical day-to-day value this hardware can 
 - Accelerating documentation writing
 - Supporting software development with a capable coding assistant
 - Helping plan and research woodworking projects
-- Supporting home automation
+- Dipping my toes into home automation
 
 I want to try more models on this hardware, understand what each brings to different kinds of practical applications, and find out where the limits actually are. Strix Halo is such an awesome platform with great Linux support thanks to AMD and the community and I can't wait to see how far I can take this little box!
