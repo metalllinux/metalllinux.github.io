@@ -604,7 +604,7 @@ The secondary drive appeared as `/dev/nvme1n1`. I verified it was visible before
 $ lsblk /dev/nvme1n1
 ```
 
-XFS was the right choice for model storage for two reasons.
+As for filesystems, XFS was the right choice for model storage for two reasons:
 
 First, it is the default filesystem on Rocky Linux - the kernel module, tooling, and `xfsprogs` are all first-class on this platform.
 
