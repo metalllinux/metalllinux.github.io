@@ -159,7 +159,7 @@ cd .. && rm -Rf ./ryzen_smu/
 With `ryzen_smu` in place, the next step was to build `ryzenadj`. I first installed the required dependency:
 
 ```bash
-sudo dnf install pciutils-devel
+sudo dnf install -y pciutils-devel
 ```
 
 I then cloned, built, and symlinked `ryzenadj`:
