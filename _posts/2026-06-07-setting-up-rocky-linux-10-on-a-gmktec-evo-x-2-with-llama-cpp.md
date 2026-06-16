@@ -398,13 +398,6 @@ True
 
 ### Running benchmarks safely
 
-The Vulkan backend does not support `torch.compile` at all - Triton/Inductor is not part of the Vulkan codepath. That said, third-party benchmarking scripts could still attempt to call it, so it was worth disabling explicitly before running anything unfamiliar:
-
-```bash
-export TORCHDYNAMO_DISABLE=1
-python3 benchmark.py
-```
-
 A safe baseline benchmark measured GPU matrix multiply throughput without triggering the CPU+GPU burst. The Vulkan backend has no explicit synchronise API - operations are completed lazily, and `.cpu()` was used here to force each iteration to completion before timing the next:
 
 I saved the following Python as `benchmark.py`:
