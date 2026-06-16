@@ -455,19 +455,19 @@ Elapsed: 0.70s — 1.2304 TFLOPS
 
 This is what I understood from the results:
 
-**TFLOPS** (Tera Floating Point Operations Per Second) is how many trillion floating point arithmetic operations the system completed each second.
+TFLOPS (Tera Floating Point Operations Per Second) is how many trillion floating point arithmetic operations the system completed each second.
 
-**How the number is calculated:** a 2048×2048 matrix multiply costs approximately 2×2048³ floating point operations. The benchmark ran 50 of those in 0.70 seconds:
+How the number is calculated: a 2048×2048 matrix multiply costs approximately 2×2048³ floating point operations. The benchmark ran 50 of those in 0.70 seconds:
 
 ```
 (2 × 2048³ × 50) / 0.70s / 1,000,000,000,000 = 1.2304 TFLOPS
 ```
 
-**What it means in context:** the AMD Ryzen AI MAX+ 395's integrated GPU (consisting of a Radeon 8060S, 40 RDNA3.5 compute units) has a theoretical FP32 peak of roughly 14–15 TFLOPS. The benchmark returned about 8% of that, which sounds low but was expected for two reasons:
+What it means in context: the AMD Ryzen AI MAX+ 395's integrated GPU (consisting of a Radeon 8060S, 40 RDNA3.5 compute units) has a theoretical FP32 peak of roughly 14–15 TFLOPS. The benchmark returned about 8% of that, which sounds low but was expected for two reasons:
 
-1. **The `.cpu()` sync call is inside the timing loop.** Every iteration forces a GPU→CPU round-trip to synchronise results. That host-device latency is baked into the 0.70s elapsed figure and is measuring GPU compute plus synchronisation overhead per iteration, not pure GPU throughput.
+1. The `.cpu()` sync call is inside the timing loop. Every iteration forces a GPU→CPU round-trip to synchronise results. That host-device latency is baked into the 0.70s elapsed figure and is measuring GPU compute plus synchronisation overhead per iteration, not pure GPU throughput.
 
-2. **The PyTorch Vulkan backend is experimental.** It has none of the hand-tuned BLAS kernels that ROCm uses. Every matmul goes through a general GLSL compute shader with no architecture-specific optimisation.
+2. The PyTorch Vulkan backend is experimental. It has none of the hand-tuned BLAS kernels that ROCm uses. Every matmul goes through a general GLSL compute shader with no architecture-specific optimisation.
 
 1.2304 TFLOPS result confirmed Vulkan GPU compute was working, tensors were being placed on the GPU, and operations were completing correctly.
 
