@@ -550,7 +550,9 @@ XFS was the right choice for model storage for two reasons.
 
 First, it is the default filesystem on Rocky Linux - the kernel module, tooling, and `xfsprogs` are all first-class on this platform.
 
-Second, XFS was designed for high-throughput large file workloads, which is exactly what llama-server produces: sequential reads of multi-gigabyte files with no random access pattern. Its extent-based allocation avoids the fragmentation that accumulates with repeated large file writes and reads, and its allocation group architecture handles parallel metadata operations cleanly.
+Second, XFS was designed for high-throughput large file workloads, which is exactly what llama-server produces: sequential reads of multi-gigabyte files with no random access pattern.
+
+Its extent-based allocation avoids the fragmentation that accumulates with repeated large file writes and reads, and its allocation group architecture handles parallel metadata operations cleanly.
 
 Third, XFS supports online filesystem expansion without unmounting, making it straightforward to grow the volume if a larger drive is installed later. It also has mature data recovery tooling via `xfs_repair`, which handles most corruption scenarios reliably.
 
