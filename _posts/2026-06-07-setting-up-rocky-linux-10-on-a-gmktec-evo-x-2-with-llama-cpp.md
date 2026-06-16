@@ -1003,7 +1003,9 @@ The format is all sensor names followed by all temperatures in millidegrees Cels
 
 ## Conclusion
 
-Getting Rocky Linux 10 running on the GMKtec EVO-X-2 with llama.cpp and full Vulkan GPU offload has been immensely satisfying. After working through the kernel parameters, the SELinux gotchas, the missing build dependencies, and the memlock limits, everything came together into a rock-solid platform that I am genuinely chuffed with.
+Getting Rocky Linux 10 running on the GMKtec EVO-X-2 with llama.cpp and full Vulkan GPU offload has been immensely satisfying.
+
+After working through the kernel parameters, the SELinux gotchas, the missing build dependencies, and the memlock limits, everything came together into a rock-solid platform that I am genuinely chuffed with.
 
 The EVO-X-2 sits quietly on my desk running a 80B parameter model entirely on local hardware, with no cloud dependency and no data leaving the machine.
 
