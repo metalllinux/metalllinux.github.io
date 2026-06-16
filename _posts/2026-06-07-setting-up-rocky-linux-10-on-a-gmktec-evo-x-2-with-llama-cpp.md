@@ -697,6 +697,8 @@ Note: `huggingface-cli` was deprecated in `huggingface_hub` 1.19.0 and replaced 
 I logged in to my Hugging Face account before downloading, to avoid the stricter anonymous rate limits that HuggingFace applies to large downloads:
 
 ```bash
+# You need this to store your token - you can create tokens at https://huggingface.co/settings/tokens
+git config --global credential.helper store
 hf auth login
 ```
 
