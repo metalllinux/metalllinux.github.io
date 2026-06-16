@@ -495,7 +495,6 @@ I installed `glslc` from the LunarG Vulkan SDK:
 
 ```bash
 cd ~/VulkanSDK
-curl -LO https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
 tar xf vulkan_sdk.tar.gz
 sudo install -m 755 $(find ~/VulkanSDK -name glslc -type f | head -1) /usr/local/bin/glslc
 sudo restorecon -v /usr/local/bin/glslc
