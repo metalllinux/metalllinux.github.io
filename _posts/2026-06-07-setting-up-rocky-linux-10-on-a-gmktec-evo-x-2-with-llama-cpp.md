@@ -664,6 +664,8 @@ The mount options chosen:
 I verified the fstab entry mounted correctly:
 
 ```bash
+sudo systemctl daemon-reload
+sudo mount -a
 $ df -h /mnt/data
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/nvme1n1    477G  9.2G  468G   2% /mnt/data
