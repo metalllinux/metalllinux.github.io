@@ -592,7 +592,9 @@ EOF
 The mount options chosen:
 
 - **`noatime`** - disables updating the file access timestamp on reads. Without it, every model load generates a metadata write to the NVMe alongside the actual read. On a drive used almost exclusively for large sequential reads this is pure overhead.
-- **`allocsize=64m`** - sets the speculative preallocation size for new file extents to 64 MB. When writing large files such as multi-gigabyte GGUF downloads, XFS preallocates disk space in larger contiguous chunks, reducing fragmentation and the number of extent tree updates committed during the write. The result is a less fragmented file that reads back faster.
+- **`allocsize=64m`** - sets the speculative preallocation size for new file extents to 64 MB. When writing large files such as multi-gigabyte GGUF downloads, XFS preallocates disk space in larger contiguous chunks, reducing fragmentation and the number of extent tree updates committed during the write.
+
+  The result is a less fragmented file that reads back faster.
 - **`nofail`** - the system boots normally if the drive is absent or fails to mount. Without this, a missing secondary drive drops Rocky Linux into the Dracut emergency mode on boot.
 
 I verified the fstab entry mounted correctly:
