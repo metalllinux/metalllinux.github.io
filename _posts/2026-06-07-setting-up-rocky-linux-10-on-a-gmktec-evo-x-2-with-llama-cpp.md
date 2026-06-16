@@ -489,7 +489,7 @@ sudo dnf install -y vulkan-loader-devel
 
 The llama.cpp Vulkan build also required `glslc` and `SPIRV-Headers`. Neither was available in Rocky Linux 10's BaseOS, AppStream, or EPEL repositories.
 
-I installed both permanently to `/usr/local` - `cmake --build` re-runs the configure step on each invocation, so these dependencies needed to be available system-wide, not from a temporary environment.
+I installed both permanently to `/usr/local`. `cmake --build` re-runs the configure step on each invocation, so these dependencies needed to be available system-wide, not from a temporary environment.
 
 I installed `glslc` from the LunarG Vulkan SDK:
 
