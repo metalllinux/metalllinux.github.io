@@ -635,7 +635,9 @@ I logged in to my Hugging Face account before downloading, to avoid the stricter
 hf auth login
 ```
 
-I downloaded the model to the NVMe drive. [Qwen3-Coder-Next](https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF) in Q4\_K\_M quantisation is the model this guide targets - an 80B parameter Mixture-of-Experts model built for coding agents. The MoE architecture means only around 3B parameters are active per token rather than the full 80B, which is what makes the hardware viable: the GPU streams only the active expert weights each token, not the entire model. The Q4\_K\_M quantisation is a single 48.5 GiB file, well within the EVO-X-2's 96 GB pool and leaving headroom for a 65K context window. [Unsloth](https://huggingface.co/unsloth) also provide a `UD-Q4_K_M` variant (49.3 GiB) using their Dynamic 2.0 quantisation, which they benchmark as higher accuracy at the same bit-width - either will work on this hardware:
+I downloaded the model to the NVMe drive. [Qwen3-Coder-Next](https://huggingface.co/unsloth/Qwen3-Coder-Next-GGUF) in Q4\_K\_M quantisation is the model this guide targets; it is an 80B parameter Mixture-of-Experts model built for coding agents.
+
+The MoE architecture means only around 3B parameters are active per token rather than the full 80B, which is what makes the hardware viable: the GPU streams only the active expert weights each token, not the entire model. The Q4\_K\_M quantisation is a single 48.5 GiB file, well within the EVO-X-2's 96 GB pool and leaving headroom for a 65K context window. [Unsloth](https://huggingface.co/unsloth) also provide a `UD-Q4_K_M` variant (49.3 GiB) using their Dynamic 2.0 quantisation, which they benchmark as higher accuracy at the same bit-width - either will work on this hardware:
 
 ```bash
 hf download unsloth/Qwen3-Coder-Next-GGUF \
