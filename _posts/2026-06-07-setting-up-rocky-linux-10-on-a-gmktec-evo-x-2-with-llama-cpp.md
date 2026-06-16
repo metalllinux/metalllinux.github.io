@@ -62,7 +62,7 @@ sudo dnf install -y elrepo-release
 sudo dnf --enablerepo=elrepo-kernel install -y kernel-ml
 ```
 
-Once installed, I listed the available kernels and set `kernel-ml` as the default using `grubby`:
+Once installed, I listed the available kernels and set `kernel-ml` as the default using `grubby` (keep in mind the mainline kernel updates often, so check the latest version with the `sudo grubby --info=ALL | grep -E "^kernel|^index"` command):
 
 ```bash
 $ sudo grubby --info=ALL | grep -E "^kernel|^index"
