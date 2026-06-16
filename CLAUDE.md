@@ -234,6 +234,9 @@ After uninstalling the Nix llama-cpp (`nix-env -e llama-cpp`) and installing the
 ### Blog post code block style for command output
 When a command produces output that is JSON, use two separate fenced code blocks: `bash` for the command line, `json` for the output. Do not combine them in a single block.
 
+### EVO-X-2 post conclusion section
+The post already has a `## Conclusion` section at the end. Do not add another. The conclusion covers: satisfaction at getting Rocky Linux 10 working with full Vulkan GPU offload on the EVO-X-2; a bullet list of intended use cases (accelerating documentation writing, supporting software development with a capable coding assistant, helping plan and research woodworking projects, dipping my toes into home automation); wanting to try more models and find the limits of the hardware; and a closing line praising Strix Halo as an awesome platform with great Linux support thanks to AMD and the community.
+
 ## AI Usage Policy
 
 This repository follows an AI contribution policy inspired by the Fedora AI-Assisted Contribution Policy. AI tools (specifically Claude) are used for content creation, formatting, and site development. All AI-generated content is human-reviewed before publication.
