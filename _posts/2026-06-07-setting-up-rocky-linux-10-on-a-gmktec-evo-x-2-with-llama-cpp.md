@@ -216,13 +216,39 @@ I then confirmed the limits were in effect by running `ryzenadj --info` and chec
 
 ```bash
 $ sudo ryzenadj --info
-...
-stapm_limit:           100.000 W
-...
-fast_limit:            100.000 W
-...
-tctl_temp:              88.000 °C
-...
+detected compatible ryzen_smu kernel module
+CPU Family: Strix Halo
+SMU BIOS Interface Version: 25
+Version: v0.19.0 
+PM Table Version: 64020c
+|        Name         |   Value   |     Parameter      |
+|---------------------|-----------|--------------------|
+| STAPM LIMIT         |   120.000 | stapm-limit        |
+| STAPM VALUE         |    10.167 |                    |
+| PPT LIMIT FAST      |   100.000 | fast-limit         |
+| PPT VALUE FAST      |     7.745 |                    |
+| PPT LIMIT SLOW      |   120.000 | slow-limit         |
+| PPT VALUE SLOW      |     8.013 |                    |
+| StapmTimeConst      |       nan | stapm-time         |
+| SlowPPTTimeConst    |       nan | slow-time          |
+| PPT LIMIT APU       |    70.000 | apu-slow-limit     |
+| PPT VALUE APU       |     0.000 |                    |
+| TDC LIMIT VDD       |       nan | vrm-current        |
+| TDC VALUE VDD       |       nan |                    |
+| TDC LIMIT SOC       |       nan | vrmsoc-current     |
+| TDC VALUE SOC       |       nan |                    |
+| EDC LIMIT VDD       |       nan | vrmmax-current     |
+| EDC VALUE VDD       |       nan |                    |
+| EDC LIMIT SOC       |       nan | vrmsocmax-current  |
+| EDC VALUE SOC       |       nan |                    |
+| THM LIMIT CORE      |    88.000 | tctl-temp          |
+| THM VALUE CORE      |    28.955 |                    |
+| STT LIMIT APU       |    88.000 | apu-skin-temp      |
+| STT VALUE APU       |    28.955 |                    |
+| STT LIMIT dGPU      |    88.000 | dgpu-skin-temp     |
+| STT VALUE dGPU      |    30.538 |                    |
+| CCLK Boost SETPOINT |       nan | power-saving /     |
+| CCLK BUSY VALUE     |       nan | max-performance    |
 ```
 
 ## PyTorch Benchmarking Setup
