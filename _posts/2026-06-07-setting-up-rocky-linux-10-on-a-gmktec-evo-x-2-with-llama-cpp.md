@@ -863,7 +863,7 @@ Two warnings appeared in the journal output - neither was fatal, but one require
   LimitMEMLOCK=infinity
   ```
 
-- **`control-looking token: 128247 '</s>' was not control-type`** - a tokenizer metadata quirk in Qwen3-Coder-Next where the EOS token is not classified as control-type despite its appearance. llama.cpp flags it as a warning but it has no effect on inference quality or output. No action needed.
+- **`control-looking token: 128247 '</s>' was not control-type`** - a tokenizer metadata quirk in Qwen3-Coder-Next where the EOS token is not classified as control-type despite its appearance. llama.cpp flags it as a warning but it has no effect on inference quality or output. No further action is needed here.
 
 I then rebooted to confirm the service came up automatically:
 
