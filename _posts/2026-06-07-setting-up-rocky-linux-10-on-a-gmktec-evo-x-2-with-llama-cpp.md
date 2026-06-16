@@ -664,7 +664,6 @@ The mount options chosen:
 I verified the fstab entry mounted correctly:
 
 ```bash
-sudo mount -a
 $ df -h /mnt/data
 Filesystem      Size  Used Avail Use% Mounted on
 /dev/nvme1n1    1.9T   18G  1.9T   1% /mnt/data
