@@ -791,7 +791,7 @@ Type=simple
 LimitMEMLOCK=infinity
 ExecStart=/usr/local/bin/llama-server \
     --model /mnt/data/models/Qwen3-Coder-Next/Qwen3-Coder-Next-Q4_K_M.gguf \
-    --alias Qwen3-Coder-Next \
+  --alias Qwen3-Coder-Next-Q4_K_M \
     --host 0.0.0.0 \
     --port 8080 \
     --n-gpu-layers 99 \
