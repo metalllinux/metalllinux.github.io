@@ -103,7 +103,7 @@ $ sudo grubby --info=DEFAULT | grep args
 args="ro ... amd_iommu=off amdgpu.gttsize=90112 ttm.pages_limit=23068672 ttm.page_pool_size=23068672 amdgpu.no_system_mem_limit=1"
 ```
 
-I then rebooted for the parameters to take effect:
+I then rebooted for the parameters to take effect and to boot into the new kernel as well:
 
 ```bash
 sudo reboot
