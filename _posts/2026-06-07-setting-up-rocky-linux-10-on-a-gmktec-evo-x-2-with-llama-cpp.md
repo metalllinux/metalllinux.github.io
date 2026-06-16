@@ -651,7 +651,9 @@ hf download unsloth/Qwen3-Coder-Next-GGUF \
 
 ### Starting llama-server
 
-With the model in place, I started the server. The `--n-gpu-layers 99` flag offloads all model layers to the Vulkan GPU - without it, inference runs on CPU only, which is extremely slow (around 15 minutes for it to reply to 'hi'). The `--alias` sets the model identifier returned by the `/v1/models` endpoint, which the OpenCode client uses to reference the model:
+With the model in place, I started the server. The `--n-gpu-layers 99` flag offloads all model layers to the Vulkan GPU - without it, inference runs on CPU only, which is extremely slow (around 15 minutes for it to reply to 'hi').
+
+The `--alias` sets the model identifier returned by the `/v1/models` endpoint, which the OpenCode client uses to reference the model:
 
 ```bash
 llama-server \
