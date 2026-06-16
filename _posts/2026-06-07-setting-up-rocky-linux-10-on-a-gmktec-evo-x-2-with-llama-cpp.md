@@ -377,7 +377,7 @@ git submodule update --init --recursive
 python3 -m pip install -r requirements.txt
 ```
 
-I built PyTorch with `USE_VULKAN=1`:
+I built PyTorch with `USE_VULKAN=1` and it copies everything into site-packages:
 
 ```bash
 USE_VULKAN=1 USE_CUDA=0 python3 -m pip install --no-build-isolation -v -e .
