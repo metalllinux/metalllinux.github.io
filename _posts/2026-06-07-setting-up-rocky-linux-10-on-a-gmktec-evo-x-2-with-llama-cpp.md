@@ -80,12 +80,6 @@ $ sudo grubby --default-kernel
 /boot/vmlinuz-7.0.11-1.el10.elrepo.x86_64
 ```
 
-I then rebooted for the new kernel to take effect:
-
-```bash
-sudo reboot
-```
-
 ### Kernel parameters for unified memory and IOMMU
 
 With the mainline kernel in place, I set additional kernel parameters to maximise the GTT memory pool and disable IOMMU. These had to be applied at boot via `grubby` - runtime changes have no effect:
