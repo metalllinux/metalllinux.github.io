@@ -848,7 +848,9 @@ Two warnings appeared in the journal output - neither was fatal, but one require
   sudo systemctl daemon-reload
   ```
 
-  A reboot was required. Reloading the system daemon updates the config on disk but does not restart the running `user@1000.service` process - it had been started before the override existed and still held the old limits. All child processes, including llama-server, inherited those old limits until the user manager itself restarted at next boot:
+  A reboot was required. Reloading the system daemon updates the config on disk but does not restart the running `user@1000.service` process - it had been started before the override existed and still held the old limits.
+
+  All child processes, including llama-server, inherited those old limits until the user manager itself restarted at next boot:
 
   ```bash
   sudo reboot
