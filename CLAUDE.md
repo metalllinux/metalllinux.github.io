@@ -190,6 +190,8 @@ hf download unsloth/Qwen3-Coder-Next-GGUF \
 ```
 A `UD-Q4_K_M` variant (Unsloth Dynamic 2.0, 49.3 GiB) is also available and benchmarks as higher accuracy at the same bit-width.
 
+The `--alias` flag in all llama-server invocations (both the direct bash example and the systemd unit) must use the full name including quantisation: `Qwen3-Coder-Next-Q4_K_M`. The opencode.json `name` field and any prose references to the model picker entry must match: `Qwen3-Coder-Next-Q4_K_M (EVO-X2)`.
+
 ### Qwen3-Coder-Next tokenizer warning
 The log line `control-looking token: 128247 '</s>' was not control-type` is a harmless tokenizer metadata quirk where the EOS token is not classified as control-type. llama.cpp flags it as a warning but it has no effect on inference quality or output. Do not document this as requiring action.
 
