@@ -419,7 +419,9 @@ This is what I understood from the results:
 
 2. **The PyTorch Vulkan backend is experimental.** It has none of the hand-tuned BLAS kernels that ROCm uses. Every matmul goes through a general GLSL compute shader with no architecture-specific optimisation.
 
-1.2304 TFLOPS result confirmed Vulkan GPU compute was working, tensors were being placed on the GPU, and operations were completing correctly. With RyzenAdj configured at 100W fast limit and 88°C thermal target, the benchmark ran comfortably within the thermal envelope.
+1.2304 TFLOPS result confirmed Vulkan GPU compute was working, tensors were being placed on the GPU, and operations were completing correctly.
+
+With RyzenAdj configured at 100W fast limit and 88°C thermal target, the benchmark ran comfortably within the thermal envelope.
 
 ## llama.cpp with Vulkan
 
