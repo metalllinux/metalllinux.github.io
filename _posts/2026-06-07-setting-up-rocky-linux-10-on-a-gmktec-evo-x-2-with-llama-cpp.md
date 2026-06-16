@@ -666,7 +666,7 @@ I verified the fstab entry mounted correctly:
 ```bash
 $ df -h /mnt/data
 Filesystem      Size  Used Avail Use% Mounted on
-/dev/nvme1n1    1.9T   18G  1.9T   1% /mnt/data
+/dev/nvme1n1    477G  9.2G  468G   2% /mnt/data
 ```
 
 ### Setting up the models directory
