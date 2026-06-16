@@ -89,7 +89,7 @@ sudo grubby --update-kernel=DEFAULT \
   --args="amd_iommu=off amdgpu.gttsize=90112 ttm.pages_limit=23068672 ttm.page_pool_size=23068672 amdgpu.no_system_mem_limit=1"
 ```
 
-What each parameter does:
+What each parameter does (keep in mind, this is the 96GB RAM version of the EVO-X-2, the 128GB / 64GB versions will have different settings):
 
 - **`amd_iommu=off`** - fully disables IOMMU. This produced an improvement in generation speed and GTT was also bumped from 112 GiB to 124 GiB in the same change.
 - **`amdgpu.gttsize=90112`** - sets GTT to 88 GiB (90112 MiB), making that memory available for GPU workloads.
