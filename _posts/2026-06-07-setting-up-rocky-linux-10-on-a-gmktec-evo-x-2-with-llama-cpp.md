@@ -515,6 +515,10 @@ I verified `glslc` was on the path:
 ```bash
 $ glslc --version
 shaderc v2026.2 v2026.2
+spirv-tools v2026.2 v2022.4-1193-gc1cb30bb
+glslang 11.1.0-1412-g5ed4003a
+
+Target: SPIR-V 1.0
 ```
 
 ### Building llama.cpp
