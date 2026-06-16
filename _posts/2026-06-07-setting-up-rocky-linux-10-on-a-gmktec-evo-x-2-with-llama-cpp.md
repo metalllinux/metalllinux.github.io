@@ -580,7 +580,7 @@ echo "/usr/local/lib64" | sudo tee /etc/ld.so.conf.d/usrlocal.conf
 sudo ldconfig
 ```
 
-As my shell had previously resolved `llama-server` to a different path (from an earlier Nix install), I cleared the cached lookup:
+As my shell had previously resolved `llama-server` to a different path, I cleared the cached lookup for added safety:
 
 ```bash
 hash -r
