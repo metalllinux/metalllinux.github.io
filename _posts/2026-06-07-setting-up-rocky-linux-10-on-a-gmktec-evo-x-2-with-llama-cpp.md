@@ -171,8 +171,6 @@ rm -r win32
 mkdir build && cd build
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
-if [ -d ~/.local/bin ]; then ln -s $(readlink -f ryzenadj) ~/.local/bin/ryzenadj && echo "symlinked to ~/.local/bin/ryzenadj"; fi
-if [ -d ~/.bin ]; then ln -s $(readlink -f ryzenadj) ~/.bin/ryzenadj && echo "symlinked to ~/.bin/ryzenadj"; fi
 sudo mv ./ryzenadj /usr/bin/
 sudo restorecon -v /usr/bin/ryzenadj
 ```
