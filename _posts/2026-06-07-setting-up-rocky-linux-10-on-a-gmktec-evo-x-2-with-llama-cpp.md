@@ -902,7 +902,7 @@ I added the following, substituting the EVO-X-2's IP address. The model ID in th
       },
       "models": {
         "Qwen3-Coder-Next": {
-          "name": "Qwen3-Coder-Next (EVO-X2)",
+          "name": "Qwen3-Coder-Next-Q4_K_M (EVO-X2)",
           "limit": {
             "context": 65536,
             "output": 32768
