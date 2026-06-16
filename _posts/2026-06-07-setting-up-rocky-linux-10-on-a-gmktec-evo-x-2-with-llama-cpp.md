@@ -344,7 +344,7 @@ GPU1:
 The PyTorch Vulkan build required `glslc` (the GLSL shader compiler) from the [LunarG Vulkan SDK](https://vulkan.lunarg.com/sdk/home#linux). I downloaded and extracted it:
 
 ```bash
-cd ~/VulkanSDK
+mkdir ~/VulkanSDK && cd ~/VulkanSDK
 wget https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
 tar xf vulkan_sdk.tar.gz
 ```
