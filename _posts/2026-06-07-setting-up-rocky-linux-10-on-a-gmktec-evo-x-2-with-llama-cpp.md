@@ -947,7 +947,7 @@ $ curl http://<YOUR_SERVER_IP>:8080/health
 
 ### Configuring OpenCode
 
-OpenCode treats llama-server as a custom OpenAI-compatible provider. The global config lives at `~/.config/opencode/opencode.json`.
+OpenCode treats llama-server as a custom OpenAI-compatible provider. The global config lives at `~/.config/opencode/opencode.json`
 
 I added the following, substituting the EVO-X-2's IP address. The model ID in the `models` map must match the `--alias` value used when starting llama-server, and the `context` limit must match `--ctx-size`:
 
