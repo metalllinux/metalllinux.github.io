@@ -658,7 +658,7 @@ The `--alias` sets the model identifier returned by the `/v1/models` endpoint, w
 ```bash
 llama-server \
   --model /mnt/data/models/Qwen3-Coder-Next/Qwen3-Coder-Next-Q4_K_M.gguf \
-  --alias Qwen3-Coder-Next \
+    --alias Qwen3-Coder-Next-Q4_K_M \
   --host 0.0.0.0 \
   --port 8080 \
   --n-gpu-layers 99 \
