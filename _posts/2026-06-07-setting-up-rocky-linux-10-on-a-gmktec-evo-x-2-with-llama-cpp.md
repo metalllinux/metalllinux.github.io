@@ -1013,4 +1013,11 @@ After working through the kernel parameters, the SELinux gotchas, the missing bu
 
 The EVO-X-2 sits quietly on my desk running a 80B parameter model entirely on local hardware, with no cloud dependency and no data leaving the machine.
 
-What I want to explore next is the practical day-to-day value this hardware can deliver. Some of the stuff I want to check out is: accelerating documentation writing, supporting software development with a capable coding assistant, helping plan and research woodworking projects, and supporting home automation. I want to try more models on this hardware, understand what each brings to different kinds of practical applications, and find out where the limits actually are. Strix Halo is such an awesome platform with great Linux support and I can't wait to see how far I can take this little box!
+What I want to explore next is the practical day-to-day value this hardware can deliver. Some of the stuff I want to check out is:
+
+- Accelerating documentation writing
+- Supporting software development with a capable coding assistant
+- Helping plan and research woodworking projects
+- Supporting home automation
+
+I want to try more models on this hardware, understand what each brings to different kinds of practical applications, and find out where the limits actually are. Strix Halo is such an awesome platform with great Linux support and I can't wait to see how far I can take this little box!
