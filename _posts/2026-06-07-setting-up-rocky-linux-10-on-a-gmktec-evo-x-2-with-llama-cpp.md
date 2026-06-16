@@ -344,7 +344,7 @@ GPU1:
 The PyTorch Vulkan build required `glslc` (the GLSL shader compiler) from the [LunarG Vulkan SDK](https://vulkan.lunarg.com/sdk/home#linux). I downloaded and extracted it:
 
 ```bash
-mkdir ~/VulkanSDK && cd ~/VulkanSDK
+cd ~/VulkanSDK
 wget https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
 tar xf vulkan_sdk.tar.gz
 ```
@@ -494,7 +494,7 @@ I installed both permanently to `/usr/local`. `cmake --build` re-runs the config
 I installed `glslc` from the LunarG Vulkan SDK:
 
 ```bash
-mkdir ~/VulkanSDK && cd ~/VulkanSDK
+cd ~/VulkanSDK
 curl -LO https://sdk.lunarg.com/sdk/download/latest/linux/vulkan_sdk.tar.gz
 tar xf vulkan_sdk.tar.gz
 sudo install -m 755 $(find ~/VulkanSDK -name glslc -type f | head -1) /usr/local/bin/glslc
