@@ -873,7 +873,7 @@ sudo reboot
 
 ## Accessing llama-server with OpenCode
 
-The following steps were performed on on my Rocky Linux 10 laptop running [OpenCode](https://opencode.ai/). The EVO-X-2's local network IP address was used throughout; substitute the actual address.
+The following steps were performed on on my Rocky Linux 10 laptop running [OpenCode](https://opencode.ai/).
 
 ### Verifying remote connectivity
 
