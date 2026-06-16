@@ -134,12 +134,6 @@ I then installed the EPEL repository:
 sudo dnf install -y epel-release
 ```
 
-I then removed `kernel-ml-headers` to avoid a conflict with the stock `kernel-headers` package that would be pulled in as a dependency of `glibc-devel`:
-
-```bash
-sudo dnf remove kernel-ml-headers
-```
-
 I then installed the required build dependencies:
 
 ```bash
