@@ -992,3 +992,9 @@ The format is all sensor names followed by all temperatures in millidegrees Cels
 | `r8169_0_c100:00` | 64000 | 64.0 | Realtek NIC |
 | `amdgpu` | 54000 | 54.0 | GPU die temperature |
 | `k10temp` | 79250 | 79.25 | AMD CPU Tctl - the value ryzenadj limits to 88°C |
+
+## Conclusion
+
+Getting Rocky Linux 10 running on the GMKtec EVO-X-2 with llama.cpp and full Vulkan GPU offload has been immensely satisfying. After working through the kernel parameters, the SELinux gotchas, the missing build dependencies, and the memlock limits, everything came together into a rock-solid platform that I am genuinely chuffed with. The EVO-X-2 sits quietly on my desk running a 80B parameter model entirely on local hardware, with no cloud dependency and no data leaving the machine.
+
+What I want to explore next is the practical day-to-day value this hardware can deliver. There are obvious applications — accelerating documentation writing, supporting software development with a capable coding assistant, helping plan and research woodworking projects — but I suspect the real gains will only become clear through sustained use. I want to try more models on this hardware, understand what each brings to different kinds of work, and find out where the limits actually are. The unified memory architecture and the GPU compute available here feel like they have more to give, and I intend to find out just how far they go.
