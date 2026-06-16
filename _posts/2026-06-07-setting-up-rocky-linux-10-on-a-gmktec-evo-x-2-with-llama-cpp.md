@@ -682,8 +682,6 @@ mkdir -p /mnt/data/models
 
 ## Running the llama.cpp API server
 
-llama.cpp ships with `llama-server`, a standalone binary that exposes an OpenAI-compatible HTTP API. Starting it with `--host 0.0.0.0` made the running model accessible over the network from any machine on the local network.
-
 ### Downloading a model
 
 llama.cpp works with models in [GGUF format](https://github.com/ggml-org/ggml/blob/master/docs/gguf.md). A broad library is available on [Hugging Face](https://huggingface.co/models?library=gguf). The `hf` CLI tool, provided by the `huggingface_hub` package, is the most reliable way to download them. I installed the latest version:
