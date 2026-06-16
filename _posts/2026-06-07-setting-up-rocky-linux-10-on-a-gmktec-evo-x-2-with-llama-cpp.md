@@ -922,7 +922,9 @@ I ran `/models` within OpenCode to select the `Qwen3-Coder-Next-Q4_K_M (EVO-X2)`
 
 ### amdgpu_top
 
-`amdgpu_top` provides a detailed TUI showing compute utilisation, memory bandwidth, power consumption, and per-process GPU activity. It was not available in EPEL or the Rocky Linux AppStream and BaseOS repositories. I installed the RPM directly from the [GitHub releases page](https://github.com/Umio-Yasuno/amdgpu_top/releases):
+`amdgpu_top` provides a detailed TUI showing compute utilisation, memory bandwidth, power consumption, and per-process GPU activity. It was not available in EPEL or the Rocky Linux AppStream and BaseOS repositories.
+
+I installed the RPM directly from the [GitHub releases page](https://github.com/Umio-Yasuno/amdgpu_top/releases):
 
 ```bash
 sudo dnf install -y https://github.com/Umio-Yasuno/amdgpu_top/releases/download/v0.11.5/amdgpu_top-0.11.5-1.x86_64.rpm
