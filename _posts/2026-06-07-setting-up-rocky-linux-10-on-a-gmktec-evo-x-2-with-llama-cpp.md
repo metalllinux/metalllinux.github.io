@@ -59,7 +59,6 @@ With Rocky Linux 10 installed, the next step was to install a mainline kernel vi
 
 ```bash
 sudo dnf install -y elrepo-release
-sudo rpm --import https://www.elrepo.org/RPM-GPG-KEY-elrepo.org
 sudo dnf --enablerepo=elrepo-kernel install -y kernel-ml
 ```
 
