@@ -143,7 +143,7 @@ sudo dnf remove kernel-ml-headers
 I then installed the required build dependencies:
 
 ```bash
-sudo dnf --enablerepo=elrepo-kernel install cmake gcc gcc-c++ dkms openssl kernel-ml-devel
+sudo dnf --enablerepo=elrepo-kernel install -y cmake gcc gcc-c++ dkms openssl kernel-ml-devel
 ```
 
 I cloned the module source and installed it via DKMS:
