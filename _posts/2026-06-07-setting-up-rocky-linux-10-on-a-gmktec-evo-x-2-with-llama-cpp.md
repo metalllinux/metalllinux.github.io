@@ -407,6 +407,8 @@ python3 benchmark.py
 
 A safe baseline benchmark measured GPU matrix multiply throughput without triggering the CPU+GPU burst. The Vulkan backend has no explicit synchronise API - operations are completed lazily, and `.cpu()` was used here to force each iteration to completion before timing the next:
 
+I saved the following Python as `benchmark.py`:
+
 ```bash
 tee ~/benchmark.py << 'EOF'
 import os
