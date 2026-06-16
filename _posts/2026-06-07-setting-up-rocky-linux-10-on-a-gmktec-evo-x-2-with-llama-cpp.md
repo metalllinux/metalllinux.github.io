@@ -407,7 +407,8 @@ python3 benchmark.py
 
 A safe baseline benchmark measured GPU matrix multiply throughput without triggering the CPU+GPU burst. The Vulkan backend has no explicit synchronise API - operations are completed lazily, and `.cpu()` was used here to force each iteration to completion before timing the next:
 
-```python
+```bash
+tee ~/benchmark.py << 'EOF'
 import os
 import time
 import torch
@@ -445,6 +446,7 @@ def run_benchmark(size: int = 2048, iterations: int = 50, dtype=torch.float32):
 
 if __name__ == "__main__":
     run_benchmark()
+EOF
 ```
 
 I saved this as `~/benchmark.py` and ran it:
