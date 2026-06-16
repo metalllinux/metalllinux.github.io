@@ -625,11 +625,11 @@ llama.cpp works with models in [GGUF format](https://github.com/ggml-org/ggml/bl
 python3 -m pip install -U huggingface_hub
 ```
 
-pip reported a dependency conflict warning after installation - this was a false alarm. `huggingface_hub` upgrades `click`; `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end confirmed `hf` was ready to use.
+pip reported a dependency conflict warning after installation - this was a false alarm. `huggingface_hub` upgrades `click` and `spin` is a NumPy build tool with no relevance here. The `Successfully installed` line at the end confirmed `hf` was ready to use.
 
 Note: `huggingface-cli` was deprecated in `huggingface_hub` 1.19.0 and replaced with `hf`. If you see a warning saying `huggingface-cli` is no longer supported, upgrade the package as above and use `hf` in its place.
 
-I logged in to my Hugging Face account before downloading, to avoid the stricter anonymous rate limits that HuggingFace applies to large downloads - worthwhile given this model is approximately 46 GiB:
+I logged in to my Hugging Face account before downloading, to avoid the stricter anonymous rate limits that HuggingFace applies to large downloads:
 
 ```bash
 hf auth login
