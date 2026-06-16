@@ -550,7 +550,7 @@ Flag explanations:
 
 As a note, the following flags from ROCm/HIP builds are **not applicable** with Vulkan and must be omitted: `-DGGML_HIP=ON`, `-DAMDGPU_TARGETS=gfx1151`, `-DGGML_HIP_ROCWMMA_FATTN=ON`, `-DGGML_CUDA_FA_ALL_QUANTS=ON`.
 
-I built using all available CPU cores:
+I built llama.cpp using all available CPU cores:
 
 ```bash
 cmake --build build --config Release --parallel $(nproc)
