@@ -109,6 +109,21 @@ I then rebooted for the parameters to take effect and to boot into the new kerne
 sudo reboot
 ```
 
+After coming back up, I ran `uname -r` to confirm I was on the new kernel:
+
+```bash
+$ uname -r
+7.0.11-1.el10.elrepo.x86_64
+```
+
+I found that sometimes this did not happen and the machine booted back into the older kernel. In those cases I had to run the following a few times before the setting took:
+
+```bash
+sudo grubby --set-default /boot/vmlinuz-7.0.11-1.el10.elrepo.x86_64
+```
+
+After each run I rebooted and checked `uname -r` again until the correct kernel was reported.
+
 ## Thermal power
 
 With the kernel in place, the next step was to configure the thermal power limits for the EVO-X-2's AMD processor using [RyzenAdj](https://github.com/FlyGoat/RyzenAdj). The following command sets the burst power limit to 100W and the thermal target to 88°C:
