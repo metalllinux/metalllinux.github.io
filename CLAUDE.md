@@ -234,6 +234,15 @@ After uninstalling the Nix llama-cpp (`nix-env -e llama-cpp`) and installing the
 ### Blog post code block style for command output
 When a command produces output that is JSON, use two separate fenced code blocks: `bash` for the command line, `json` for the output. Do not combine them in a single block.
 
+### Model storage path
+All models are stored under `/mnt/data/models/` on the secondary NVMe drive. When creating a new model subdirectory, always follow `mkdir -p` with `sudo chown $USER:$USER` on the new directory so downloads can proceed without `sudo`.
+
+### Running multiple llama-server instances
+Each model runs as its own user systemd service on a separate port (e.g. Qwen3-Coder-Next on 8080, Gemma 4 on 8081). If only one model is needed at a time, use `systemctl --user disable --now <service>` to stop and disable the unwanted service before enabling the new one.
+
+### Gemma 4 31B on the EVO-X-2
+The correct repo is `unsloth/gemma-4-31B-it-GGUF`. The recommended quantisation is `gemma-4-31B-it-UD-Q4_K_XL.gguf` (Unsloth Dynamic 2.0, ~20 GiB, highest-accuracy Q4 variant). Gemma 4 is multimodal — download `mmproj-BF16.gguf` from the same repo and pass it to llama-server via `--mmproj` to enable image input. Use port 8081 to avoid conflicting with the Qwen3-Coder-Next server on 8080. Set `-c 131072` to use Gemma 4's full 128K training context. The OpenCode provider entry should use `context: 131072` and `output: 65536`.
+
 ### EVO-X-2 post conclusion section
 The post already has a `## Conclusion` section at the end. Do not add another. The conclusion covers: satisfaction at getting Rocky Linux 10 working with full Vulkan GPU offload on the EVO-X-2; a bullet list of intended use cases (accelerating documentation writing, supporting software development with a capable coding assistant, helping plan and research woodworking projects, dipping my toes into home automation); wanting to try more models and find the limits of the hardware; and a closing line praising Strix Halo as an awesome platform with great Linux support thanks to AMD and the community.
 
