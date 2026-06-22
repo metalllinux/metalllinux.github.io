@@ -1,12 +1,12 @@
 ---
-title: "Doom Emacs Setup On Rocky Linux 9"
+title: "Doom Emacs Setup On Rocky Linux 9 and 10"
 category: "rocky-linux"
 tags: ["rocky-linux", "doom", "emacs", "setup", "rocky"]
 ---
 
-* Build emacs from source:
+* Build Emacs from source:
 
-* Make sure all of these development packages are installed:
+* Ensure the following development packages are installed:
 
 ```
 sudo dnf groupinstall -y "Development Tools"
@@ -18,7 +18,7 @@ sudo dnf install -y libXpm-devel
 sudo dnf install -y ncurses-devel
 ```
 
-* Download the tarball of the latest version of emacs:
+* Download the tarball of the latest version of Emacs:
 
 ```
 https://ftp.gnu.org/pub/gnu/emacs/
@@ -36,7 +36,7 @@ tar -axvf emacs-VERSION.tar.xz
 cd emacs-VERSION
 ```
 
-* Build and install `emacs`:
+* Build and install Emacs:
 
 ```
 ./configure
@@ -44,27 +44,38 @@ make
 sudo make install
 ```
 
-* emacs will then be available under the following directory:
+* For Rocky Linux 10, run the following during the `./configure` step to get it configured:
+
+```
+./configure --with-gif=ifavailable
+```
+
+* Emacs will then be available in the following directory:
 
 ```
 /usr/local/bin/emacs
 ```
 
-```
-
 * Install `git`:
+
 ```
 sudo dnf install -y git
 ```
-* Clone the git repo:
+
+* Clone the git repository:
+
 ```
-git clone --depth 1 https://github.com/doomemacs/doomemacs ~/.config/emacs
+git clone --depth 1 https://github.com/doomemacs/core ~/.config/emacs   # or ~/.emacs.d
 ```
+
 * Install Doom Emacs:
+
 ```
 ~/.config/emacs/bin/doom install
 ```
-* Helper information at the end of the installation;
+
+* Helper information provided at the end of the installation:
+
 ```
 But before you doom yourself, here are some things you should know:
 
@@ -79,25 +90,4 @@ But before you doom yourself, here are some things you should know:
 
 4. Access Doom's documentation from within Emacs via 'SPC h d h' or 'C-h d h'
    (or 'M-x doom/help').
-```
-* Add `.emacs.d/bin` to the existing `PATH`:
-```
-cat << "EOF" | tee -a ~/.bashrc
-# Doom Emacs
-export PATH="$HOME/.config/emacs/bin:$PATH"
-EOF
-```
-* Then `source` `~/.bashrc`:
-```
-source ~/.bashrc
-```
-* Run `doom sync`
-* Add an autostart script for the `Emacs server`:
-```
-/usr/bin/emacs --daemon
-```
-* In KDE's `Autostart`, place the `--daemon` part in the `Arguments` section, behind the `%F`.
-* Launch Emacs with the following:
-```
-emacsclient -c -a 'emacs'
 ```
