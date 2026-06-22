@@ -218,7 +218,11 @@ Running three Gemma 4 31B models is possible on my 96GB RAM version of the EVO-X
 
 ![](/assets/images/gemma-4-models-high-memory-usage.png)
 
-Furthermore, running a 31B parameter model of this size is slow on the EVO-X-2. For example, asking the model to update my `~/.config/opencode/opencode.json` configuration with an additional instance, took it around 9 minutes to complete the task. 
+## Model response times
+
+Running a 31B parameter model of this size is slow to initially warm up on the EVO-X-2. For example, asking the model to update my `~/.config/opencode/opencode.json` configuration, took it around 9 minutes to complete the task. 
+
+Once the initial warm-up phase was completed, the response time went down to around 1~2 minutes, which I thought was pretty amazing! 
 
 ## Conclusion
 
