@@ -154,7 +154,7 @@ sudo firewall-cmd --reload
 
 ## OpenCode Configuration
 
-Update `~/.config/opencode/opencode.json` to include these instances. Using separate provider IDs allows you to easily switch between instances in the model picker.
+Update `~/.config/opencode/opencode.json` to include these instances. Using separate provider IDs allows you to easily switch between instances in the model picker. Note that a 10-minute timeout is required to prevent API timeout errors during the initial model warm-up phase.
 
 ```json
 {
@@ -164,7 +164,8 @@ Update `~/.config/opencode/opencode.json` to include these instances. Using sepa
       "npm": "@ai-sdk/openai-compatible",
       "name": "EVO-X2 Gemma 4-1 (llama.cpp)",
       "options": {
-        "baseURL": "http://<YOUR_SERVER_IP>:8081/v1"
+        "baseURL": "http://<YOUR_SERVER_IP>:8081/v1",
+        "timeout": 600000
       },
       "models": {
         "gemma-4-31B-it-UD-Q4_K_XL-1": {
@@ -180,7 +181,8 @@ Update `~/.config/opencode/opencode.json` to include these instances. Using sepa
       "npm": "@ai-sdk/openai-compatible",
       "name": "EVO-X2 Gemma 4-2 (llama.cpp)",
       "options": {
-        "baseURL": "http://<YOUR_SERVER_IP>:8082/v1"
+        "baseURL": "http://<YOUR_SERVER_IP>:8082/v1",
+        "timeout": 600000
       },
       "models": {
         "gemma-4-31B-it-UD-Q4_K_XL-2": {
@@ -196,7 +198,8 @@ Update `~/.config/opencode/opencode.json` to include these instances. Using sepa
       "npm": "@ai-sdk/openai-compatible",
       "name": "EVO-X2 Gemma 4-3 (llama.cpp)",
       "options": {
-        "baseURL": "http://<YOUR_SERVER_IP>:8083/v1"
+        "baseURL": "http://<YOUR_SERVER_IP>:8083/v1",
+        "timeout": 600000
       },
       "models": {
         "gemma-4-31B-it-UD-Q4_K_XL-3": {
