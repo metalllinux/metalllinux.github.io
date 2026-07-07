@@ -229,4 +229,9 @@ Once the initial warm-up phase was completed, the response time went down to aro
 
 ## Conclusion
 
-By leveraging memory mapping and unique ports, the GMKtec EVO-X-2 becomes a powerful multi-tenant AI server, allowing different tasks or users to have dedicated Gemma 4 instances with their own context windows. Give it a try for yourself! 
+By leveraging memory mapping and unique ports, the GMKtec EVO-X-2 becomes a powerful multi-tenant AI server, allowing different tasks or users to have dedicated Gemma 4 instances with their own context windows. Give it a try for yourself!
+
+## Note
+
+I ran into stability issues when setting Gemma 4 to 128K context and would often see Operation Timeouts from opencode. I recommend setting the context to `-c 65536` instead for the systemd unit.
+ 
