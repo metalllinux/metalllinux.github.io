@@ -3,6 +3,7 @@
 ## Developer Commands
 - **Build site**: `bundle exec jekyll build`
 - **Git sync**: `git pull --rebase origin main` (Required due to Syncthing sync)
+- **Image Cropping**: Use the `sam-crop` command to crop images using SAM 1 on the remote EVO-X-2 server.
 
 ## Content Conventions
 - **Language**: Strict US English (`-ize`, `-or`, `-er`).
@@ -17,3 +18,4 @@
 ## Repository Quirks
 - **Syncthing**: Ignore `SFConflict` files; they are untracked noise.
 - **Collections**: `_linux_journey` and `_notes` are custom collections with specific permalinks and layouts.
+- **Local AI**: When configuring `opencode.json` for Gemma 4 on Evo-X-2, set `timeout` to `600000` (10 minutes) in provider options to account for slow initial warm-up.
