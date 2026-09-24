@@ -46,6 +46,7 @@ Welcome to my Linux Journey -- a collection of over 2,000 personal notes, guides
 | [Project TV v2 (Ubuntu)](/linux-journey/courses/project-tv-v2/) | Media server v2 on Ubuntu |
 | [MongoDB Essentials](/linux-journey/courses/mongodb-essentials/) | MongoDB training notes |
 | [Ansible Playbooks](/linux-journey/courses/ansible-playbooks/) | Ansible automation examples |
+| [Cinnamon for Rocky Linux 10 (Signing Key)](/linux-journey/cinnamon-rocky10-signing-key/) | Out-of-band fingerprint anchor for the GPG key that signs the Cinnamon for Rocky Linux 10 repository |
 
 ## Presentations
 
