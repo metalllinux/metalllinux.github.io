@@ -87,3 +87,11 @@ notes:
     children:
       - title: "How to Give a Good Technical Presentation"
         url: /notes/posts/how-to-give-a-good-technical-presentation/
+
+woodwork:
+  - title: "Projects"
+    children:
+      - title: "Module PC Shelf Build"
+        url: /woodwork/module-pc-shelf-build/
+      - title: "Nintendo Switch Game Shelf"
+        url: /woodwork/nintendo-switch-game-shelf/
