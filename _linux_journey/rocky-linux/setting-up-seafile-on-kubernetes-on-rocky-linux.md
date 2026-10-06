@@ -831,6 +831,94 @@ Then update the on-disk manifest (`/opt/seafile-k8s-yaml/seafile-env.yaml`) to m
 
 This change only takes effect on future pod restarts, since environment variables injected via `envFrom` require a pod restart to update.
 
+## Troubleshooting: 502 Bad Gateway - Seafile Cluster Never Initialized
+
+### The Problem
+
+If you observe `502 Bad Gateway - nginx` when accessing `http://<your-worker-node-ip>:30007/`, and the frontend pod is running only `nginx` and `cron` (both seahub on `:8000` and fileserver on `:8082` refuse connections), the cluster initialization pass was never performed.
+
+The frontend container log shows:
+
+```
+Seafile cluster conf not exists!
+
+You should set CLUSTER_INIT_MODE to true in .env at first time running the image.
+
+Then check the necessary configuration files
+
+Finally remove it or set to false, and restart the server.
+```
+
+The cluster initialization pass is what creates the MySQL databases and the `seafile` MySQL user, generates the configuration files under `/shared/seafile/conf`, and creates the Seafile admin account. This happens when the ConfigMap is deployed with `CLUSTER_INIT_MODE: "false"` from the start, instead of deploying once with `"true"` and then flipping it to `"false"`.
+
+### The 13.0.28 Image Bug
+
+Setting `CLUSTER_INIT_MODE: "true"` and restarting the frontend pod crashes the initialization inside the image's own setup script:
+
+```
+Generating seahub configuration ...
+...
+AttributeError: 'SeahubConfigurator' object has no attribute 'write_database_config'
+```
+
+`seafileltd/seafile-pro-mc:13.0.28` ships a broken `setup-seafile-mysql.py`: `SeahubConfigurator.generate()` calls `self.write_database_config(fp)` (line 1061), but no class in the 1,600-line file defines that method. `/scripts/cluster-setup-seafile-mysql.py` is copied into the install directory at the start of every init, so you can patch that source file inside the running pod.
+
+The missing method must write the `DATABASES` block that seahub's `settings.py` requires (the values come from the `MYSQL_*` environment variables the init script receives):
+
+```
+    def write_database_config(self, fp):
+        mysql_host = os.environ.get('MYSQL_HOST', '127.0.0.1')
+        mysql_port = os.environ.get('MYSQL_PORT', '3306')
+        mysql_user = os.environ.get('MYSQL_USER', 'seafile')
+        mysql_user_passwd = os.environ.get('MYSQL_USER_PASSWD', '')
+        seahub_db = os.environ.get('SEAHUB_DB', 'seahub_db')
+        fp.write('DATABASES = {\n')
+        fp.write("    'default': {\n")
+        fp.write("        'ENGINE': 'django.db.backends.mysql',\n")
+        fp.write("        'HOST': '%s',\n" % mysql_host)
+        fp.write("        'PORT': '%s',\n" % mysql_port)
+        fp.write("        'USER': '%s',\n" % mysql_user)
+        fp.write("        'PASSWORD': '%s',\n" % mysql_user_passwd)
+        fp.write("        'NAME': '%s',\n" % seahub_db)
+        fp.write('    }\n')
+        fp.write('}\n')
+```
+
+### The Fix
+
+- Scale down the backend so that only one pod initializes the shared volume:
+
+```
+kubectl scale deployment seafile-backend -n seafile --replicas=0
+```
+
+- Patch `/scripts/cluster-setup-seafile-mysql.py` inside the running frontend pod, inserting the `write_database_config` method shown above into `SeahubConfigurator` (for example, right before `def ask_admin_email`). You can pipe the patch script into the pod and run it:
+
+```
+kubectl exec -i <seafile-frontend-pod> -n seafile -c seafile-frontend -- sh -c "cat > /tmp/patch_setup.py" < patch_setup.py
+kubectl exec <seafile-frontend-pod> -n seafile -c seafile-frontend -- python3 /tmp/patch_setup.py
+```
+
+- Verify the `seafile` MySQL user exists (a previously failed init run can leave the databases created but the user missing), then run the init to completion using the image's own script:
+
+```
+kubectl exec <seafile-frontend-pod> -n seafile -c seafile-frontend -- python3 /scripts/cluster_conf_init.py
+```
+
+The output ends with `Your seafile server configuration has been finished successfully.` followed by `Init success`, and `/shared/seafile/conf` now exists.
+
+- Set `CLUSTER_INIT_MODE` back to `"false"`, restart the frontend pod so it boots against the existing conf, and restore the backend:
+
+```
+kubectl patch configmap seafile-env -n seafile --type merge -p '{"data":{"CLUSTER_INIT_MODE":"false"}}'
+kubectl delete pod <seafile-frontend-pod> -n seafile
+kubectl scale deployment seafile-backend -n seafile --replicas=1
+```
+
+Once fixed, the frontend log shows `Seafile server started`, `Successfully created seafile admin`, and `Seahub is started`, and the NodePort serves the login page.
+
+Note: the patch only exists in the container's ephemeral layer. That is fine once `/shared/seafile/conf` exists, because the entrypoint prints `Conf exists` and never runs the setup script again. If the data PVC is ever wiped, apply the patch again before re-initializing (or pin the deployment to a pre-regression 13.0.x image tag).
+
 ---
 
 ## Data Transfer via NFS
