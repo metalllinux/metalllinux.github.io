@@ -258,6 +258,13 @@ chown -R 1000:1000 /root/elasticsearch-data
 restorecon -R -v /root/elasticsearch-data
 ```
 
+- The Elasticsearch container runs as UID `1000` and can only write to `/root/elasticsearch-data` if it can also *traverse* `/root`. With the default `dr-xr-x---` permissions, `/root`'s group is `root`, so the container's UID `1000` process is denied access and Elasticsearch crash-loops at startup with `AccessDeniedException: /usr/share/elasticsearch/data/nodes`. Change the group owner of `/root` to the user with UID `1000` so the container can traverse into it:
+
+```
+chgrp <user-with-uid-1000> /root
+chmod g+x /root
+```
+
 * `seafile-service.yaml` configuration:
 
 ```
