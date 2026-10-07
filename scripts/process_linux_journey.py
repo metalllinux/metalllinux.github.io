@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Process ~/Documents/linux_journey/ markdown files for Jekyll.
+Process ~/Linux/linux_journey/ markdown files for Jekyll.
 
 Steps:
 1. Filter out copied content (URLs/HTML at top)
@@ -17,7 +17,7 @@ import shutil
 import sys
 from pathlib import Path
 
-SOURCE_DIR = Path.home() / "Documents" / "linux_journey"
+SOURCE_DIR = Path.home() / "Linux" / "linux_journey"
 TARGET_DIR = Path(__file__).resolve().parent.parent / "_linux_journey"
 
 # ── Subdirectory mappings ──────────────────────────────────────────────
